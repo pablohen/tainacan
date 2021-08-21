@@ -6,7 +6,6 @@ const seoConfig = {
   defaultTitle: siteName,
   titleTemplate: `%s | ${siteName}`,
   description,
-  keywords,
   openGraph: {
     type: 'website',
     locale: 'pt_BR',
