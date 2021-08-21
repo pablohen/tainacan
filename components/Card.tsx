@@ -1,7 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from 'next/link';
 import checkImagePath from '../utils/checkImagePath';
-import isVisible from '../utils/isVisible';
 
 interface Item {
   id: number;
@@ -16,9 +15,7 @@ interface Props {
 
 const Card = ({ museumId, item, searchTerm }: Props) => (
   <div
-    className={`w-6/12 sm:w-4/12 md:w-3/12 lg:w-2/12 ${
-      isVisible(item, searchTerm) ? '' : 'hidden'
-    }`}
+    className="w-6/12 sm:w-4/12 md:w-3/12 lg:w-2/12"
     key={`ItemMuseu__${museumId}`}
   >
     <Link href={`/museums/${museumId}/items/${item.id}`} passHref>
