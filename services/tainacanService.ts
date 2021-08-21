@@ -1,12 +1,6 @@
 import axios from 'axios';
 import Museums from '../models/museums';
 
-// const api = 'https://www.limeira.sp.gov.br/museu/wp-json/tainacan/v2';
-const query = 'items';
-const parameters = 'perpage=96&paged=';
-const searchParameters = '&metaquery[1][compare]=LIKE&metaquery[1][value]=';
-//  "&fetch_only=thumbnail&metaquery[1][compare]=LIKE&metaquery[1][value]=";
-
 const getItems = async (
   museumId: number,
   page: number = 1,
@@ -25,6 +19,8 @@ const getItems = async (
         'metaquery[1][value]': metaqueryValue,
       },
     });
+    const wpTotal = res.headers['x-wp-total'];
+    const wpTotalPages = res.headers['x-wp-totalpages'];
     const items = await res.data.items.map(
       ({ id, title, description, document_as_html }: any) => ({
         id,
@@ -33,8 +29,9 @@ const getItems = async (
         document_as_html,
       })
     );
-
-    return await items;
+    items.wpTotal = wpTotal;
+    items.wpTotalPages = wpTotalPages;
+    return items;
   } catch (error) {
     console.log(error.message);
     return [];
