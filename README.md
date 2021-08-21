@@ -1,6 +1,6 @@
 # Tainacan
 
-Casos de uso dessa ferramenta [https://tainacan.vercel.app](https://tainacan.vercel.app).
+Alguns casos de uso dessa ferramenta disponível para WordPress, reunidos em um só lugar [https://tainacan.vercel.app](https://tainacan.vercel.app).
 
 ## Front-end:
 
