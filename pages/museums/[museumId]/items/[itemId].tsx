@@ -37,27 +37,23 @@ const ItemPage = ({ museumName = '', item }: Props) => {
 
       <Header />
       <HeroBanner title={title} description={description} link="#" />
-      <div className="flex flex-col bg-gray-100">
-        <div className="">
-          <div className="flex flex-col sm:flex-row-reverse bg-white m-5 p-4 rounded-xl shadow">
-            <div className="sm:ml-4 sm:w-3/12 md:w-4/12 lg:w-6/12">
-              <img
-                src={checkImagePath(item)}
-                alt={title}
-                width={960}
-                height={960}
-                className="rounded-xl "
-              />
-            </div>
 
-            <div className="sm:text-left pt-4 sm:pt-0 sm:w-9/12 space-y-4">
-              {metadata.map((meta: any, index) => (
-                <ItemMetadata
-                  key={`ItemMetadata__${index}`}
-                  metadata={meta[1]}
-                />
-              ))}
-            </div>
+      <div className="flex flex-col bg-gray-100">
+        <div className="flex flex-col sm:flex-row-reverse bg-white m-5 p-4 rounded-xl shadow">
+          <div className="sm:ml-4 sm:w-3/12 md:w-4/12 lg:w-6/12">
+            <img
+              src={checkImagePath(item)}
+              alt={title}
+              width={960}
+              height={960}
+              className="rounded-xl "
+            />
+          </div>
+
+          <div className="sm:text-left pt-4 sm:pt-0 sm:w-9/12 space-y-4">
+            {metadata.map((meta: any, index) => (
+              <ItemMetadata key={`ItemMetadata__${index}`} metadata={meta[1]} />
+            ))}
           </div>
         </div>
       </div>
