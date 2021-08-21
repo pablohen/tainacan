@@ -4,13 +4,13 @@ import { useRouter } from 'next/router';
 import tainacanService from '../../services/tainacanService';
 import Museums from '../../models/museums';
 import HeroBanner from '../../components/HeroBanner';
-import MuseumItem from '../../components/MuseumItem';
 import SearchBar from '../../components/SearchBar';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import Pagination from '@material-ui/lab/Pagination';
 import useSWR from 'swr';
 import Loader from 'react-loader-spinner';
+import Card from '../../components/Card';
 
 const MuseumPage = () => {
   const router = useRouter();
@@ -18,6 +18,7 @@ const MuseumPage = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [items, setItems] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
   const [page, setPage] = useState(1);
 
   const { data, error } = useSWR(
@@ -28,6 +29,7 @@ const MuseumPage = () => {
   useEffect(() => {
     if (museumId) {
       setItems(data);
+      setTotalPages(Number(data?.wpTotalPages));
     }
   }, [data, museumId]);
 
@@ -45,6 +47,7 @@ const MuseumPage = () => {
 
           <Header />
           <HeroBanner title={title} link={link} description={description} />
+
           <div className="flex flex-col bg-gray-100 min-h-screen">
             <div className="flex flex-col items-center p-5 space-y-4">
               <SearchBar
@@ -58,7 +61,7 @@ const MuseumPage = () => {
               <div className="flex flex-wrap justify-center items-center w-full">
                 {items ? (
                   items.map((item, index) => (
-                    <MuseumItem
+                    <Card
                       key={index}
                       museumId={museumId.toString()}
                       item={item}
@@ -77,11 +80,11 @@ const MuseumPage = () => {
 
               <div className="flex justify-center">
                 <Pagination
-                  count={10}
+                  count={totalPages}
                   onChange={changePage}
                   showFirstButton
                   showLastButton
-                  page={page || 1}
+                  page={page}
                 />
               </div>
             </div>
