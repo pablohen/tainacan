@@ -1,4 +1,4 @@
-const checkImagePath = (item) => {
+const checkImagePath = (item: any) => {
   if (item?.document_as_html?.split("src='")[1]) {
     return item.document_as_html.split("src='")[1]?.split("'")[0];
   }
