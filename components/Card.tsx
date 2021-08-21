@@ -14,7 +14,7 @@ interface Props {
   searchTerm: string;
 }
 
-const MuseumItem = ({ museumId, item, searchTerm }: Props) => (
+const Card = ({ museumId, item, searchTerm }: Props) => (
   <div
     className={`w-6/12 sm:w-4/12 md:w-3/12 lg:w-2/12 ${
       isVisible(item, searchTerm) ? '' : 'hidden'
@@ -23,13 +23,12 @@ const MuseumItem = ({ museumId, item, searchTerm }: Props) => (
   >
     <Link href={`/museums/${museumId}/items/${item.id}`} passHref>
       <a>
-        <div className="m-2 bg-white border shadow transform transition-all ease-in-out hover:shadow-lg hover:-translate-y-1">
-          <div className="p-4">
+        <div className="m-2 bg-white border shadow transform transition-all ease-in-out duration-500 hover:shadow-lg hover:-translate-y-1">
+          <div className="flex justify-center items-center p-4">
             <img
               src={checkImagePath(item)}
               alt={item.id.toString()}
-              width={200}
-              height={200}
+              className="object-center object-contain h-36"
             />
           </div>
           <div className="px-4 pb-4 ">
@@ -43,4 +42,4 @@ const MuseumItem = ({ museumId, item, searchTerm }: Props) => (
   </div>
 );
 
-export default MuseumItem;
+export default Card;
