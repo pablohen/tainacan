@@ -1,6 +1,7 @@
 # Tainacan
 
-Alguns casos de uso dessa ferramenta disponível para WordPress, reunidos em um só lugar [https://tainacan.vercel.app](https://tainacan.vercel.app).
+Projeto pessoal para agregar conteúdo de diversos sites que estão usando a ferramenta Tainacan, disponível para WordPress.
+[https://tainacan.vercel.app](https://tainacan.vercel.app).
 
 ## Front-end:
 
