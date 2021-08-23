@@ -65,7 +65,6 @@ const MuseumPage = () => {
                       key={index}
                       museumId={museumId.toString()}
                       item={item}
-                      searchTerm={searchTerm}
                     />
                   ))
                 ) : (

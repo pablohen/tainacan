@@ -10,10 +10,9 @@ interface Item {
 interface Props {
   museumId: string;
   item: Item;
-  searchTerm: string;
 }
 
-const Card = ({ museumId, item, searchTerm }: Props) => (
+const Card = ({ museumId, item }: Props) => (
   <div
     className="w-6/12 sm:w-4/12 md:w-3/12 lg:w-2/12"
     key={`ItemMuseu__${museumId}`}
@@ -29,7 +28,7 @@ const Card = ({ museumId, item, searchTerm }: Props) => (
             />
           </div>
           <div className="px-4 pb-4 ">
-            <p className="font-semibold text-center truncate">
+            <p className="font-semibold text-gray-700 text-center truncate">
               {`${item?.id} - ${item?.title}`}
             </p>
           </div>
