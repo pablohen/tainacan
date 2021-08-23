@@ -1,16 +1,16 @@
 import { ChangeEvent, useEffect, useState } from 'react';
 import { NextSeo } from 'next-seo';
 import { useRouter } from 'next/router';
-import tainacanService from '../../services/tainacanService';
-import Museums from '../../models/museums';
-import HeroBanner from '../../components/HeroBanner';
-import SearchBar from '../../components/SearchBar';
-import Header from '../../components/Header';
-import Footer from '../../components/Footer';
+import tainacanService from '../services/tainacanService';
+import Museums from '../models/museums';
+import HeroBanner from '../components/HeroBanner';
+import SearchBar from '../components/SearchBar';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 import Pagination from '@material-ui/lab/Pagination';
 import useSWR from 'swr';
 import Loader from 'react-loader-spinner';
-import Card from '../../components/Card';
+import Card from '../components/Card';
 
 const MuseumPage = () => {
   const router = useRouter();

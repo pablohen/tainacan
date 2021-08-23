@@ -1,18 +1,15 @@
 /* eslint-disable @next/next/no-img-element */
-import React from 'react';
-import PropTypes from 'prop-types';
+import { GetStaticPropsContext } from 'next';
 import { NextSeo } from 'next-seo';
 import { useRouter } from 'next/router';
-import tainacanService from '../../../../services/tainacanService';
-import HeroBanner from '../../../../components/HeroBanner';
-import ItemMetadata from '../../../../components/ItemMetadata';
-
-import checkImagePath from '../../../../utils/checkImagePath';
-import Header from '../../../../components/Header';
-import Footer from '../../../../components/Footer';
-import Museums from '../../../../models/museums';
-import Loading from '../../../../components/Loading';
-import { GetStaticPropsContext } from 'next';
+import Footer from '../../../components/Footer';
+import Header from '../../../components/Header';
+import HeroBanner from '../../../components/HeroBanner';
+import ItemMetadata from '../../../components/ItemMetadata';
+import Loading from '../../../components/Loading';
+import Museums from '../../../models/museums';
+import tainacanService from '../../../services/tainacanService';
+import checkImagePath from '../../../utils/checkImagePath';
 
 interface Props {
   museumName: string;
