@@ -16,9 +16,9 @@ const SearchBar = ({ onChange, results }: Props) => (
         onChange={onChange}
       />
     </div>
-    <p className="text-gray-700 text-sm">
-      {results && `${results} items carregados`}
-    </p>
+    {results && (
+      <p className="text-gray-700 text-sm">{`${results} items carregados`}</p>
+    )}
   </>
 );
 
