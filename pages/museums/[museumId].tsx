@@ -49,7 +49,7 @@ const MuseumPage = () => {
           <HeroBanner title={title} link={link} description={description} />
 
           <div className="flex flex-col bg-gray-100 min-h-screen">
-            <div className="flex flex-col items-center p-5 space-y-4">
+            <div className="flex flex-col items-center p-4 space-y-4">
               <SearchBar
                 onChange={(e: ChangeEvent<HTMLInputElement>) => {
                   setSearchTerm(e.target.value);
