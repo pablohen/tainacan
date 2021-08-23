@@ -15,7 +15,7 @@ const MuseumList = () => {
     <div className="overflow-x-scroll">
       <div className="inline-flex pt-4 pb-3 space-x-4 mr-4">
         {Museums.map((museum, index: number) => (
-          <Link href={`/museums/${index}`} passHref key={museum.url}>
+          <Link href={`/${index}`} passHref key={museum.url}>
             <a>
               <div
                 className={`flex items-center whitespace-nowrap border rounded-full px-2 py-1 text-xs cursor-pointer transform transition-all ease-in-out hover:bg-primary hover:border-primary hover:text-white hover:shadow-md ${currentPage(

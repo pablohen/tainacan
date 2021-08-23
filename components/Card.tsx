@@ -17,7 +17,7 @@ const Card = ({ museumId, item }: Props) => (
     className="w-6/12 sm:w-4/12 md:w-3/12 lg:w-2/12"
     key={`ItemMuseu__${museumId}`}
   >
-    <Link href={`/museums/${museumId}/items/${item.id}`} passHref>
+    <Link href={`/${museumId}/items/${item.id}`} passHref>
       <a>
         <div className="m-2 bg-white border shadow transform transition-all ease-in-out duration-500 hover:shadow-lg hover:-translate-y-1">
           <div className="flex justify-center items-center p-4">
