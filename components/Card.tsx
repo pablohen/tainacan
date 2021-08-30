@@ -19,7 +19,7 @@ const Card = ({ museumId, item }: Props) => (
   >
     <Link href={`/${museumId}/items/${item.id}`} passHref>
       <a>
-        <div className="m-2 bg-white border shadow transform transition-all ease-in-out duration-500 hover:shadow-lg hover:-translate-y-1">
+        <div className="m-2 bg-white dark:bg-gray-800 border dark:border-gray-900 shadow transform transition-all ease-in-out duration-500 hover:shadow-lg hover:-translate-y-1">
           <div className="flex justify-center items-center p-4">
             <img
               src={checkImagePath(item)}
@@ -28,7 +28,7 @@ const Card = ({ museumId, item }: Props) => (
             />
           </div>
           <div className="px-4 pb-4 ">
-            <p className="font-semibold text-gray-700 text-center truncate">
+            <p className="font-semibold text-gray-700 dark:text-gray-200 text-center truncate">
               {`${item?.id} - ${item?.title}`}
             </p>
           </div>

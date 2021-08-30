@@ -35,8 +35,8 @@ const ItemPage = ({ museumName = '', item }: Props) => {
       <Header />
       <HeroBanner title={title} description={description} link="#" />
 
-      <div className="flex flex-col bg-gray-100">
-        <div className="flex flex-col sm:flex-row-reverse bg-white m-5 p-4 rounded-xl shadow">
+      <div className="flex flex-col bg-gray-100 dark:bg-gray-900">
+        <div className="flex flex-col sm:flex-row-reverse bg-white dark:bg-gray-800 m-4 p-4 rounded-xl shadow">
           <div className="sm:ml-4 sm:w-3/12 md:w-4/12 lg:w-6/12">
             <img
               src={checkImagePath(item)}

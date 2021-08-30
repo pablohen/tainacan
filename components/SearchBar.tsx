@@ -7,7 +7,7 @@ interface Props {
 
 const SearchBar = ({ onChange, results }: Props) => (
   <>
-    <div className="flex items-center bg-white border p-2 rounded-full shadow-sm text-gray-500 focus-within:text-gray-800 focus-within:shadow-md">
+    <div className="flex items-center bg-white dark:bg-gray-800 border dark:border-gray-900 p-2 rounded-full shadow-sm text-gray-500 focus-within:text-gray-800 dark:focus-within:text-gray-200 focus-within:shadow-md">
       <SearchIcon className="h-6" />
       <input
         type="text"
@@ -17,7 +17,7 @@ const SearchBar = ({ onChange, results }: Props) => (
       />
     </div>
     {results && (
-      <p className="text-gray-700 text-sm">{`${results} items carregados`}</p>
+      <p className="text-gray-700 dark:text-gray-200 text-sm">{`${results} items carregados`}</p>
     )}
   </>
 );

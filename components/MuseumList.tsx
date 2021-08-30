@@ -8,8 +8,8 @@ const MuseumList = () => {
   const { museumId } = router.query;
   const currentPage = (index: number) =>
     Number(museumId) === index
-      ? 'bg-primary text-white border-primary shadow-md'
-      : 'bg-white text-primary border-gray-200 shadow-sm';
+      ? 'bg-primary dark:bg-primary text-white border-primary shadow-md'
+      : 'bg-white dark:bg-gray-900 text-primary dark:text-white border-gray-200 dark:border-gray-800 shadow-sm';
 
   return (
     <div className="overflow-x-scroll">
@@ -18,7 +18,7 @@ const MuseumList = () => {
           <Link href={`/${index}`} passHref key={museum.url}>
             <a>
               <div
-                className={`flex items-center whitespace-nowrap border rounded-full px-2 py-1 text-xs cursor-pointer transform transition-all ease-in-out hover:bg-primary hover:border-primary hover:text-white hover:shadow-md ${currentPage(
+                className={`flex items-center whitespace-nowrap border rounded-full px-2 py-1 text-xs cursor-pointer transform transition-all ease-in-out hover:bg-primary dark:hover:bg-primary hover:border-primary hover:text-white hover:shadow-md ${currentPage(
                   index
                 )}`}
               >

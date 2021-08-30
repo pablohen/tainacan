@@ -10,9 +10,9 @@ const ItemMetadata = ({ metadata }: Props) => {
   }
   return (
     <p className="flex flex-col">
-      <span className="font-bold text-black text-lg">{`${metadata.name}:`}</span>
+      <span className="font-bold text-black dark:text-white text-lg">{`${metadata.name}:`}</span>
       <span> </span>
-      <span className="font-semibold text-gray-600">
+      <span className="font-semibold text-gray-600 dark:text-gray-300">
         {metadata.value_as_string}
       </span>
     </p>
