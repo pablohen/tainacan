@@ -9,6 +9,7 @@ Projeto pessoal para agregar conteúdo de diversos sites que estão usando a fer
 - React
 - Next.js
 - Next-SEO
+- Next-Themes
 - Tailwind CSS
 - Heroicons
 - Axios
