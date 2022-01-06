@@ -1,7 +1,8 @@
 import { SearchIcon } from '@heroicons/react/solid';
+import { ChangeEvent } from 'react';
 
 interface Props {
-  onChange: any;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
   results: number;
 }
 

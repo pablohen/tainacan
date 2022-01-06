@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { BookmarkIcon } from '@heroicons/react/outline';
-import Museums from '../models/museums';
+import Museums from '../utils/museums';
 
 const MuseumList = () => {
   const router = useRouter();

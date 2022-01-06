@@ -7,7 +7,7 @@ import Header from '../../../components/Header';
 import HeroBanner from '../../../components/HeroBanner';
 import ItemMetadata from '../../../components/ItemMetadata';
 import Loading from '../../../components/Loading';
-import Museums from '../../../models/museums';
+import Museums from '../../../utils/museums';
 import tainacanService from '../../../services/tainacanService';
 import checkImagePath from '../../../utils/checkImagePath';
 

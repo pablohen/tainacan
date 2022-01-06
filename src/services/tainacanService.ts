@@ -1,5 +1,5 @@
-import axios from 'axios';
-import Museums from '../models/museums';
+import axios, { AxiosError } from 'axios';
+import Museums from '../utils/museums';
 
 const getItems = async (
   museumId: number,
@@ -33,7 +33,8 @@ const getItems = async (
     items.wpTotalPages = wpTotalPages;
     return items;
   } catch (error) {
-    console.log(error.message);
+    const AxiosError = error as AxiosError;
+    console.log(AxiosError.message);
     return [];
   }
 };
@@ -51,7 +52,8 @@ const getItem = async (museumId: number, itemId: number) => {
 
     return item;
   } catch (error) {
-    console.log(error.message);
+    const AxiosError = error as AxiosError;
+    console.log(AxiosError.message);
     return {};
   }
 };
