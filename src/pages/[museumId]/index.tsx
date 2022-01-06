@@ -28,7 +28,7 @@ const MuseumPage = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [page, setPage] = useState(1);
 
-  const { data, error } = useSWR(
+  const { data } = useSWR(
     [museumId, page, searchTerm],
     tainacanService.getItems
   );
@@ -36,7 +36,6 @@ const MuseumPage = () => {
   useEffect(() => {
     if (museumId && !!data) {
       const { items, wpTotalPages } = data as FormattedItemsRes;
-      console.log(data);
       setItems(items);
       setTotalPages(wpTotalPages);
     }
@@ -51,24 +50,26 @@ const MuseumPage = () => {
   return (
     <>
       {museumId && (
-        <>
+        <div className="flex flex-col min-h-screen">
           <NextSeo title={title} description={description} />
 
           <Header />
           <HeroBanner title={title} link={link} description={description} />
 
-          <div className="flex flex-col bg-gray-100 dark:bg-gray-900 min-h-screen">
+          <div className="flex flex-col flex-grow bg-gray-100 dark:bg-gray-900">
             <div className="flex flex-col items-center p-4 space-y-4">
-              <SearchBar
-                onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                  setSearchTerm(e.target.value);
-                  if (page !== 1) setPage(1);
-                }}
-                results={items?.length}
-              />
+              {!!items.length && data && (
+                <SearchBar
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                    setSearchTerm(e.target.value);
+                    if (page !== 1) setPage(1);
+                  }}
+                  results={items.length}
+                />
+              )}
 
               <div className="flex flex-wrap justify-center items-center w-full">
-                {items ? (
+                {!!items.length && !!data ? (
                   items.map((item, index) => (
                     <Card key={index} museumId={museumId} item={item} />
                   ))
@@ -82,19 +83,21 @@ const MuseumPage = () => {
                 )}
               </div>
 
-              <div className="flex justify-center">
-                <Pagination
-                  count={totalPages}
-                  onChange={changePage}
-                  showFirstButton
-                  showLastButton
-                  page={page}
-                />
-              </div>
+              {!!items.length && data && (
+                <div className="flex justify-center">
+                  <Pagination
+                    count={Number(totalPages)}
+                    onChange={changePage}
+                    showFirstButton
+                    showLastButton
+                    page={page}
+                  />
+                </div>
+              )}
             </div>
           </div>
           <Footer />
-        </>
+        </div>
       )}
     </>
   );
