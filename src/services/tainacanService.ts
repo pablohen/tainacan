@@ -41,8 +41,8 @@ const getItems = async (
         'metaquery[1][value]': metaqueryValue,
       },
     });
-    const wpTotal = res.headers['x-wp-total'] as number;
-    const wpTotalPages = res.headers['x-wp-totalpages'] as number;
+    const wpTotal = res.headers['x-wp-total'] as unknown as number;
+    const wpTotalPages = res.headers['x-wp-totalpages'] as unknown as number;
     const results = (await res.data) as ItemsDTO;
     const items: Items[] = results.items.map(
       ({ id, title, description, document_as_html }) => ({
