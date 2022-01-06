@@ -1,7 +1,10 @@
 import { ChangeEvent, useEffect, useState } from 'react';
 import { NextSeo } from 'next-seo';
 import { useRouter } from 'next/router';
-import tainacanService from '../../services/tainacanService';
+import tainacanService, {
+  FormattedItemsRes,
+  Items,
+} from '../../services/tainacanService';
 import Museums from '../../utils/museums';
 import HeroBanner from '../../components/HeroBanner';
 import SearchBar from '../../components/SearchBar';
@@ -12,12 +15,16 @@ import useSWR from 'swr';
 import Loader from 'react-loader-spinner';
 import Card from '../../components/Card';
 
+interface RouterParams {
+  museumId: string;
+}
+
 const MuseumPage = () => {
   const router = useRouter();
-  const { museumId } = router.query;
+  const { museumId } = router.query as unknown as RouterParams;
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState<Items[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [page, setPage] = useState(1);
 
@@ -27,9 +34,11 @@ const MuseumPage = () => {
   );
 
   useEffect(() => {
-    if (museumId) {
-      setItems(data);
-      setTotalPages(Number(data?.wpTotalPages));
+    if (museumId && !!data) {
+      const { items, wpTotalPages } = data as FormattedItemsRes;
+      console.log(data);
+      setItems(items);
+      setTotalPages(wpTotalPages);
     }
   }, [data, museumId]);
 
@@ -61,11 +70,7 @@ const MuseumPage = () => {
               <div className="flex flex-wrap justify-center items-center w-full">
                 {items ? (
                   items.map((item, index) => (
-                    <Card
-                      key={index}
-                      museumId={museumId.toString()}
-                      item={item}
-                    />
+                    <Card key={index} museumId={museumId} item={item} />
                   ))
                 ) : (
                   <Loader
