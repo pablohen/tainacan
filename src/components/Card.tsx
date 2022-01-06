@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from 'next/link';
 import checkImagePath from '../utils/checkImagePath';
+import { motion } from 'framer-motion';
 
 interface Item {
   id: number;
@@ -25,10 +26,11 @@ const Card = ({ museumId, item }: Props) => {
         <a>
           <div className="m-2 bg-white dark:bg-gray-800 border dark:border-gray-900 shadow transform transition-all ease-in-out duration-500 hover:shadow-lg hover:-translate-y-1">
             <div className="flex justify-center items-center p-4">
-              <img
+              <motion.img
                 src={imgPath}
                 alt={String(item.id)}
                 className="object-center object-contain h-36"
+                layoutId={String(item.id)}
               />
             </div>
             <div className="px-4 pb-4 ">
