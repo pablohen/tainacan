@@ -12,7 +12,7 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import Pagination from '@material-ui/lab/Pagination';
 import useSWR from 'swr';
-import Loader from 'react-loader-spinner';
+import { TailSpin } from 'react-loader-spinner';
 import Card from '../../components/Card';
 
 interface RouterParams {
@@ -74,12 +74,7 @@ const MuseumPage = () => {
                     <Card key={index} museumId={museumId} item={item} />
                   ))
                 ) : (
-                  <Loader
-                    type="TailSpin"
-                    color="#298596"
-                    height={80}
-                    width={80}
-                  />
+                  <TailSpin color="#298596" height={80} width={80} />
                 )}
               </div>
 
