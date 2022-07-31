@@ -1,16 +1,16 @@
 /* eslint-disable @next/next/no-img-element */
-import { GetStaticPropsContext } from 'next';
-import { NextSeo } from 'next-seo';
-import { useRouter } from 'next/router';
-import Footer from '../../../components/Footer';
-import Header from '../../../components/Header';
-import HeroBanner from '../../../components/HeroBanner';
-import ItemMetadata from '../../../components/ItemMetadata';
-import Loading from '../../../components/Loading';
-import Museums from '../../../utils/museums';
-import tainacanService, { Item } from '../../../services/tainacanService';
-import checkImagePath from '../../../utils/checkImagePath';
-import { motion } from 'framer-motion';
+import { Loader } from "@saas-ui/react";
+import { motion } from "framer-motion";
+import { GetStaticPropsContext } from "next";
+import { NextSeo } from "next-seo";
+import { useRouter } from "next/router";
+import Footer from "../../../components/Footer";
+import Header from "../../../components/Header";
+import HeroBanner from "../../../components/HeroBanner";
+import ItemMetadata from "../../../components/ItemMetadata";
+import tainacanService, { Item } from "../../../services/tainacanService";
+import checkImagePath from "../../../utils/checkImagePath";
+import Museums from "../../../utils/museums";
 
 interface ContextParams {
   museumId: number;
@@ -21,11 +21,11 @@ interface Props {
   item: Item;
 }
 
-const ItemPage = ({ museumName = '', item }: Props) => {
+const ItemPage = ({ museumName = "", item }: Props) => {
   const router = useRouter();
 
   if (router.isFallback) {
-    return <Loading />;
+    return <Loader color="gray" />;
   }
 
   const metadata = Object.entries(item?.metadata);
