@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
-import { Loader } from "@saas-ui/react";
+import { Box, Flex, Text } from "@chakra-ui/react";
+import { Loader, Property } from "@saas-ui/react";
 import { motion } from "framer-motion";
 import { GetStaticPropsContext } from "next";
 import { NextSeo } from "next-seo";
@@ -7,7 +8,6 @@ import { useRouter } from "next/router";
 import Footer from "../../../components/Footer";
 import Header from "../../../components/Header";
 import HeroBanner from "../../../components/HeroBanner";
-import ItemMetadata from "../../../components/ItemMetadata";
 import tainacanService, { Item } from "../../../services/tainacanService";
 import checkImagePath from "../../../utils/checkImagePath";
 import Museums from "../../../utils/museums";
@@ -41,9 +41,19 @@ const ItemPage = ({ museumName = "", item }: Props) => {
       <Header />
       <HeroBanner title={title} description={description} link="#" />
 
-      <div className="flex flex-col bg-gray-100 dark:bg-gray-900">
-        <div className="flex flex-col sm:flex-row-reverse bg-white dark:bg-gray-800 m-4 p-4 rounded-xl shadow">
-          <div className="sm:ml-4 sm:w-3/12 md:w-4/12 lg:w-6/12">
+      <Box p={8} bg="Background">
+        <Flex
+          flexDirection={["column", "row-reverse"]}
+          justifyContent="space-between"
+          gap={8}
+        >
+          <Flex
+            flexDirection="column"
+            alignItems="flex-end"
+            gap={4}
+            maxW="container.sm"
+            w="full"
+          >
             <motion.img
               src={imgPath}
               alt={title}
@@ -52,15 +62,24 @@ const ItemPage = ({ museumName = "", item }: Props) => {
               className="rounded-xl "
               layoutId={String(item.id)}
             />
-          </div>
+            <Text fontStyle="italic" fontWeight="semibold">
+              {title}
+            </Text>
+          </Flex>
 
-          <div className="sm:text-left pt-4 sm:pt-0 sm:w-9/12 space-y-4">
-            {metadata.map((meta, index) => (
-              <ItemMetadata key={`ItemMetadata__${index}`} metadata={meta[1]} />
-            ))}
-          </div>
-        </div>
-      </div>
+          <Box>
+            {metadata
+              .filter((meta) => meta[1].value_as_string)
+              .map((meta, index) => (
+                <Property
+                  key={`ItemMetadata__${index}`}
+                  label={meta[1].name}
+                  value={meta[1].value_as_string}
+                />
+              ))}
+          </Box>
+        </Flex>
+      </Box>
 
       <Footer />
     </>

@@ -1,15 +1,16 @@
-import ThemeToggler from './ThemeToggler';
+import { Text, useColorModeValue, VStack } from "@chakra-ui/react";
+import ThemeToggler from "./ThemeToggler";
 
 const Footer = () => {
+  const bg = useColorModeValue("blue.700", "teal.700");
+
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-primary dark:bg-primary w-full">
-      <div className="flex flex-col items-center justify-center py-8 space-y-4">
-        <p className="text-sm font-bold text-white">{`Tainacan @ ${currentYear}`}</p>
-        <ThemeToggler />
-      </div>
-    </footer>
+    <VStack bg={bg} color="white" p={8} gap={4}>
+      <Text>{`Tainacan @ ${currentYear}`}</Text>
+      <ThemeToggler />
+    </VStack>
   );
 };
 

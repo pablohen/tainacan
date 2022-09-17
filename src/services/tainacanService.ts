@@ -1,7 +1,7 @@
-import axios, { AxiosError } from 'axios';
-import { ItemDTO, Metadata } from '../interfaces/ItemDTO';
-import { ItemsDTO } from '../interfaces/ItemsDTO';
-import Museums from '../utils/museums';
+import axios, { AxiosError } from "axios";
+import { ItemDTO, Metadata } from "../interfaces/ItemDTO";
+import { ItemsDTO } from "../interfaces/ItemsDTO";
+import Museums from "../utils/museums";
 
 export interface Items {
   id: number;
@@ -26,47 +26,44 @@ export interface FormattedItemsRes {
 const getItems = async (
   museumId: number,
   page: number = 1,
-  searchTerm: string = ''
+  searchTerm: string = ""
 ) => {
   const perpage = 50;
   const paged = page;
-  const metaqueryCompare = 'LIKE';
+  const metaqueryCompare = "LIKE";
   const metaqueryValue = searchTerm;
 
-  if (!!museumId) {
-    try {
-      const res = await axios.get(`${Museums[Number(museumId)].api}/items`, {
-        params: {
-          perpage,
-          paged,
-          'metaquery[1][compare]': metaqueryCompare,
-          'metaquery[1][value]': metaqueryValue,
-        },
-      });
-      const wpTotal = res.headers['x-wp-total'] as unknown as number;
-      const wpTotalPages = res.headers['x-wp-totalpages'] as unknown as number;
-      const results = (await res.data) as ItemsDTO;
-      const items: Items[] = results.items.map(
-        ({ id, title, description, document_as_html }) => ({
-          id,
-          title,
-          description,
-          document_as_html,
-        })
-      );
+  try {
+    const res = await axios.get(`${Museums[Number(museumId)].api}/items`, {
+      params: {
+        perpage,
+        paged,
+        "metaquery[1][compare]": metaqueryCompare,
+        "metaquery[1][value]": metaqueryValue,
+      },
+    });
+    const wpTotal = res.headers["x-wp-total"] as unknown as number;
+    const wpTotalPages = res.headers["x-wp-totalpages"] as unknown as number;
+    const results = (await res.data) as ItemsDTO;
+    const items: Items[] = results.items.map(
+      ({ id, title, description, document_as_html }) => ({
+        id,
+        title,
+        description,
+        document_as_html,
+      })
+    );
 
-      const data: FormattedItemsRes = {
-        items,
-        wpTotal,
-        wpTotalPages,
-      };
+    const data: FormattedItemsRes = {
+      items,
+      wpTotal,
+      wpTotalPages,
+    };
 
-      return data;
-    } catch (error) {
-      const AxiosError = error as AxiosError;
-      console.log(AxiosError.message);
-      return [];
-    }
+    return data;
+  } catch (error) {
+    const AxiosError = error as AxiosError;
+    throw new Error(AxiosError.message);
   }
 };
 
@@ -86,8 +83,7 @@ const getItem = async (museumId: number, itemId: number) => {
     return item;
   } catch (error) {
     const AxiosError = error as AxiosError;
-    console.log(AxiosError.message);
-    return {};
+    throw new Error(AxiosError.message);
   }
 };
 

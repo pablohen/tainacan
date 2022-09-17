@@ -1,7 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
-import Link from 'next/link';
-import checkImagePath from '../utils/checkImagePath';
-import { motion } from 'framer-motion';
+import { Text } from "@chakra-ui/react";
+import { Card as SaasCard, CardFooter, CardMedia } from "@saas-ui/react";
+import Link from "next/link";
+import checkImagePath from "../utils/checkImagePath";
 
 interface Item {
   id: number;
@@ -18,30 +19,26 @@ const Card = ({ museumId, item }: Props) => {
   const cardTitle = `${item.id} - ${item.title}`;
 
   return (
-    <div
-      className="w-6/12 sm:w-4/12 md:w-3/12 lg:w-2/12"
-      key={`ItemMuseu__${museumId}`}
-    >
-      <Link href={`/${museumId}/items/${item.id}`} passHref>
-        <a>
-          <div className="m-2 bg-white dark:bg-gray-800 border dark:border-gray-900 shadow transform transition-all ease-in-out duration-500 hover:shadow-lg hover:-translate-y-1">
-            <div className="flex justify-center items-center p-4">
-              <motion.img
-                src={imgPath}
-                alt={String(item.id)}
-                className="object-center object-contain h-36"
-                layoutId={String(item.id)}
-              />
-            </div>
-            <div className="px-4 pb-4 ">
-              <p className="font-semibold text-gray-700 dark:text-gray-200 text-center truncate">
-                {cardTitle}
-              </p>
-            </div>
-          </div>
-        </a>
-      </Link>
-    </div>
+    <Link key={`ItemMuseu__${museumId}`} href={`/${museumId}/items/${item.id}`}>
+      <SaasCard
+        w="80"
+        h="80"
+        css={{
+          cursor: "pointer",
+        }}
+        _hover={{
+          shadow: "md",
+        }}
+      >
+        <CardMedia height="256px" bgImage={imgPath} borderTopRadius="lg" />
+
+        <CardFooter p={4}>
+          <Text fontSize="md" fontWeight="bold" noOfLines={1}>
+            {cardTitle}
+          </Text>
+        </CardFooter>
+      </SaasCard>
+    </Link>
   );
 };
 
