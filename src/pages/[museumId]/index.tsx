@@ -1,19 +1,17 @@
-import { ChangeEvent, useEffect, useState } from 'react';
-import { NextSeo } from 'next-seo';
-import { useRouter } from 'next/router';
+import { NextSeo } from "next-seo";
+import { useRouter } from "next/router";
+import { ChangeEvent, useEffect, useState } from "react";
+import useSWR from "swr";
+import Card from "../../components/Card";
+import Footer from "../../components/Footer";
+import Header from "../../components/Header";
+import HeroBanner from "../../components/HeroBanner";
+import SearchBar from "../../components/SearchBar";
 import tainacanService, {
   FormattedItemsRes,
   Items,
-} from '../../services/tainacanService';
-import Museums from '../../utils/museums';
-import HeroBanner from '../../components/HeroBanner';
-import SearchBar from '../../components/SearchBar';
-import Header from '../../components/Header';
-import Footer from '../../components/Footer';
-import Pagination from '@material-ui/lab/Pagination';
-import useSWR from 'swr';
-import { TailSpin } from 'react-loader-spinner';
-import Card from '../../components/Card';
+} from "../../services/tainacanService";
+import Museums from "../../utils/museums";
 
 interface RouterParams {
   museumId: string;
@@ -23,7 +21,7 @@ const MuseumPage = () => {
   const router = useRouter();
   const { museumId } = router.query as unknown as RouterParams;
 
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [items, setItems] = useState<Items[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [page, setPage] = useState(1);
@@ -74,19 +72,14 @@ const MuseumPage = () => {
                     <Card key={index} museumId={museumId} item={item} />
                   ))
                 ) : (
-                  <TailSpin color="#298596" height={80} width={80} />
+                  // TODO: add loader
+                  <span>Loading</span>
                 )}
               </div>
 
               {!!items.length && data && (
                 <div className="flex justify-center">
-                  <Pagination
-                    count={Number(totalPages)}
-                    onChange={changePage}
-                    showFirstButton
-                    showLastButton
-                    page={page}
-                  />
+                  {/* TODO: add paginator */}
                 </div>
               )}
             </div>

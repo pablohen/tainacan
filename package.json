@@ -5,12 +5,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@heroicons/react": "^1.0.4",
-    "@material-ui/core": "^4.12.3",
-    "@material-ui/lab": "^4.0.0-alpha.60",
     "axios": "^0.27.2",
     "framer-motion": "^6.5.1",
     "next": "^12.2.3",
@@ -18,7 +17,6 @@
     "next-themes": "^0.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-loader-spinner": "^6.0.0-0",
     "swr": "^1.1.2"
   },
   "devDependencies": {
