@@ -1,3 +1,4 @@
+import { CircularProgress, Pagination } from "@mui/material";
 import { NextSeo } from "next-seo";
 import { useRouter } from "next/router";
 import { ChangeEvent, useEffect, useState } from "react";
@@ -72,14 +73,19 @@ const MuseumPage = () => {
                     <Card key={index} museumId={museumId} item={item} />
                   ))
                 ) : (
-                  // TODO: add loader
-                  <span>Loading</span>
+                  <CircularProgress />
                 )}
               </div>
 
               {!!items.length && data && (
                 <div className="flex justify-center">
-                  {/* TODO: add paginator */}
+                  <Pagination
+                    count={Number(totalPages)}
+                    onChange={changePage}
+                    showFirstButton
+                    showLastButton
+                    page={page}
+                  />
                 </div>
               )}
             </div>
