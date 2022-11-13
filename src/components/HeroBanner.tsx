@@ -1,5 +1,5 @@
-import { ArrowRightIcon } from '@heroicons/react/outline';
-import Link from 'next/link';
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import Link from "next/link";
 
 interface Props {
   title: string;
@@ -9,10 +9,10 @@ interface Props {
 }
 
 const HeroBanner = ({
-  title = 'Lorem ipsum',
-  link = '#',
-  description = '',
-  background = 'bg-primary dark:bg-primary',
+  title = "Lorem ipsum",
+  link = "#",
+  description = "",
+  background = "bg-primary dark:bg-primary",
 }: Props) => (
   <div className={background}>
     <div className="flex flex-col items-center">
@@ -23,14 +23,14 @@ const HeroBanner = ({
 
         {description && <p className="text-lg text-gray-100">{description}</p>}
 
-        {link !== '#' && (
+        {link !== "#" && (
           <Link href={link} passHref>
             <button
               type="button"
               className="flex justify-between items-center space-x-4 rounded border bg-white px-4 py-2 text-primary transform transition-all ease-in-out hover:shadow-xl hover:border hover:border-white"
             >
               Ir para o site
-              <ArrowRightIcon className="h-4 ml-2" />
+              <ArrowForwardIcon className="h-4 ml-2" />
             </button>
           </Link>
         )}

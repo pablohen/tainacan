@@ -1,5 +1,5 @@
-import { SearchIcon } from '@heroicons/react/solid';
-import { ChangeEvent } from 'react';
+import SearchIcon from "@mui/icons-material/Search";
+import { ChangeEvent } from "react";
 
 interface Props {
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
