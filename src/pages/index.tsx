@@ -1,8 +1,8 @@
-import Link from 'next/link';
-import { ExclamationIcon } from '@heroicons/react/outline';
-import Footer from '../components/Footer';
-import Header from '../components/Header';
-import HeroBanner from '../components/HeroBanner';
+import WarningIcon from "@mui/icons-material/Warning";
+import Link from "next/link";
+import Footer from "../components/Footer";
+import Header from "../components/Header";
+import HeroBanner from "../components/HeroBanner";
 
 const Home = () => (
   <div className="flex flex-col min-h-screen">
@@ -17,7 +17,7 @@ const Home = () => (
       <div className="w-10/12">
         <div className="py-8 text-center space-y-4">
           <div className="flex items-center justify-center">
-            <ExclamationIcon className="h-9 inline-flex mr-2" />
+            <WarningIcon className="h-9 inline-flex mr-2" />
             <h3 className="text-3xl ">Aviso</h3>
           </div>
           <p className="">
@@ -26,11 +26,14 @@ const Home = () => (
             informação.
           </p>
           <p>
-            Site oficial:{' '}
-            <Link href="https://tainacan.org" passHref>
-              <a target="_blank" rel="noreferrer">
-                <span className="font-bold hover:underline">tainacan.org</span>
-              </a>
+            Site oficial:{" "}
+            <Link
+              href="https://tainacan.org"
+              target="_blank"
+              rel="noreferrer"
+              className="font-bold hover:underline"
+            >
+              tainacan.org
             </Link>
           </p>
         </div>
