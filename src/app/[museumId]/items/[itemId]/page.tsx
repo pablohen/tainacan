@@ -57,5 +57,11 @@ export default async function ItemPage({ params }: ItemPageProps) {
     notFound();
   }
 
-  return <ItemPageClient item={item} museumName={museum.title} />;
+  return (
+    <ItemPageClient
+      item={item}
+      museumId={museumIdStr}
+      museumName={museum.title}
+    />
+  );
 }

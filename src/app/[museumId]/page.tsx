@@ -111,12 +111,12 @@ export default function MuseumPage({ params }: MuseumPageProps) {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
       <Header />
       <HeroBanner title={title} link={link} description={description} />
 
-      <div className="flex flex-col flex-grow bg-gray-100 dark:bg-gray-900">
-        <div className="flex flex-col items-center p-4 space-y-4">
+      <div className="flex flex-col flex-grow">
+        <div className="flex flex-col items-center p-6 space-y-8">
           {!!items?.length && data && (
             <SearchBar
               onChange={(e: ChangeEvent<HTMLInputElement>) => {
@@ -127,95 +127,114 @@ export default function MuseumPage({ params }: MuseumPageProps) {
             />
           )}
 
-          <div className="flex flex-wrap justify-center items-center w-full">
+          <div className="w-full max-w-screen-2xl px-4">
             {isLoading ? (
-              <div className="flex justify-center items-center p-8">
-                <Spinner size={40} />
+              <div className="flex justify-center items-center p-16">
+                <div className="relative">
+                  <Spinner size={50} />
+                  <p className="mt-4 text-gray-600 text-sm font-medium">
+                    Carregando itens...
+                  </p>
+                </div>
               </div>
             ) : isError ? (
-              <div className="text-center p-8">
-                <p className="text-red-500 text-lg">
-                  Erro ao carregar os itens do museu
-                </p>
-                <p className="text-gray-600 dark:text-gray-400 mt-2">
-                  {error instanceof Error ? error.message : "Erro desconhecido"}
-                </p>
+              <div className="flex justify-center">
+                <div className="text-center p-12 max-w-md">
+                  <div className="bg-red-50 rounded-2xl p-8 border-2 border-red-200">
+                    <p className="text-red-600 text-lg font-bold mb-2">
+                      Erro ao carregar os itens do museu
+                    </p>
+                    <p className="text-red-500 text-sm">
+                      {error instanceof Error
+                        ? error.message
+                        : "Erro desconhecido"}
+                    </p>
+                  </div>
+                </div>
               </div>
             ) : !!items?.length ? (
-              items.map((item, index) => (
-                <Card key={index} museumId={museumId} item={item} />
-              ))
+              <div className="columns-2 sm:columns-3 md:columns-4 lg:columns-5 xl:columns-6 gap-4">
+                {items.map((item, index) => (
+                  <Card key={index} museumId={museumId} item={item} />
+                ))}
+              </div>
             ) : (
-              <div className="text-center p-8">
-                <p className="text-gray-600 dark:text-gray-400">
-                  Nenhum item encontrado
-                </p>
+              <div className="flex justify-center">
+                <div className="text-center p-16">
+                  <div className="bg-gray-100 rounded-2xl p-12 border-2 border-gray-200">
+                    <p className="text-gray-600 text-lg font-medium">
+                      Nenhum item encontrado
+                    </p>
+                  </div>
+                </div>
               </div>
             )}
           </div>
 
           {!!items?.length && data && totalPages > 1 && (
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationFirst
-                    onClick={() => changePage(1)}
-                    className={
-                      page === 1
-                        ? "pointer-events-none opacity-50"
-                        : "cursor-pointer"
-                    }
-                  />
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationPrevious
-                    onClick={() => changePage(Math.max(1, page - 1))}
-                    className={
-                      page === 1
-                        ? "pointer-events-none opacity-50"
-                        : "cursor-pointer"
-                    }
-                  />
-                </PaginationItem>
-
-                {getPageNumbers().map((pageNum, idx) => (
-                  <PaginationItem key={idx}>
-                    {pageNum === "ellipsis" ? (
-                      <PaginationEllipsis />
-                    ) : (
-                      <PaginationLink
-                        onClick={() => changePage(pageNum as number)}
-                        isActive={page === pageNum}
-                        className="cursor-pointer"
-                      >
-                        {pageNum}
-                      </PaginationLink>
-                    )}
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-gray-200">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationFirst
+                      onClick={() => changePage(1)}
+                      className={
+                        page === 1
+                          ? "pointer-events-none opacity-50"
+                          : "cursor-pointer hover:bg-primary/10 transition-colors"
+                      }
+                    />
                   </PaginationItem>
-                ))}
+                  <PaginationItem>
+                    <PaginationPrevious
+                      onClick={() => changePage(Math.max(1, page - 1))}
+                      className={
+                        page === 1
+                          ? "pointer-events-none opacity-50"
+                          : "cursor-pointer hover:bg-primary/10 transition-colors"
+                      }
+                    />
+                  </PaginationItem>
 
-                <PaginationItem>
-                  <PaginationNext
-                    onClick={() => changePage(Math.min(totalPages, page + 1))}
-                    className={
-                      page === totalPages
-                        ? "pointer-events-none opacity-50"
-                        : "cursor-pointer"
-                    }
-                  />
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLast
-                    onClick={() => changePage(totalPages)}
-                    className={
-                      page === totalPages
-                        ? "pointer-events-none opacity-50"
-                        : "cursor-pointer"
-                    }
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
+                  {getPageNumbers().map((pageNum, idx) => (
+                    <PaginationItem key={idx}>
+                      {pageNum === "ellipsis" ? (
+                        <PaginationEllipsis />
+                      ) : (
+                        <PaginationLink
+                          onClick={() => changePage(pageNum as number)}
+                          isActive={page === pageNum}
+                          className="cursor-pointer hover:bg-primary/10 data-[active=true]:bg-gradient-to-r data-[active=true]:from-primary data-[active=true]:to-secondary data-[active=true]:text-white transition-all"
+                        >
+                          {pageNum}
+                        </PaginationLink>
+                      )}
+                    </PaginationItem>
+                  ))}
+
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() => changePage(Math.min(totalPages, page + 1))}
+                      className={
+                        page === totalPages
+                          ? "pointer-events-none opacity-50"
+                          : "cursor-pointer hover:bg-primary/10 transition-colors"
+                      }
+                    />
+                  </PaginationItem>
+                  <PaginationItem>
+                    <PaginationLast
+                      onClick={() => changePage(totalPages)}
+                      className={
+                        page === totalPages
+                          ? "pointer-events-none opacity-50"
+                          : "cursor-pointer hover:bg-primary/10 transition-colors"
+                      }
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
           )}
         </div>
       </div>

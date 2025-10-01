@@ -1,4 +1,4 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 interface HeroBannerProps {
@@ -12,30 +12,53 @@ export function HeroBanner({
   title = "Lorem ipsum",
   link = "#",
   description = "",
-  background = "bg-primary dark:bg-primary",
+  background = "bg-gradient-to-br from-primary via-secondary to-primary",
 }: HeroBannerProps) {
   return (
-    <div className={background}>
-      <div className="flex flex-col items-center">
-        <div className="w-10/12 py-8 sm:py-16 space-y-8">
-          <h2 className="flex items-center text-3xl lg:text-5xl font-light text-gray-100">
-            {title}
-          </h2>
+    <div className={`${background} relative overflow-hidden`}>
+      {/* Animated background patterns */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-0 -left-4 w-72 h-72 bg-white rounded-full mix-blend-overlay filter blur-xl animate-pulse" />
+        <div
+          className="absolute top-0 -right-4 w-72 h-72 bg-white rounded-full mix-blend-overlay filter blur-xl animate-pulse"
+          style={{ animationDelay: "1s" }}
+        />
+        <div
+          className="absolute -bottom-8 left-20 w-72 h-72 bg-white rounded-full mix-blend-overlay filter blur-xl animate-pulse"
+          style={{ animationDelay: "2s" }}
+        />
+      </div>
+
+      <div className="relative flex flex-col items-center">
+        <div className="w-full max-w-7xl px-6 sm:px-8 lg:px-12 py-12 sm:py-20 space-y-6">
+          <div className="flex items-center gap-3 animate-fade-in">
+            <Sparkles className="h-8 w-8 text-yellow-300 animate-pulse" />
+            <h2 className="text-4xl lg:text-6xl font-bold text-white drop-shadow-2xl">
+              {title}
+            </h2>
+          </div>
 
           {description && (
-            <p className="text-lg text-gray-100">{description}</p>
+            <p
+              className="text-lg lg:text-xl text-gray-100 max-w-3xl leading-relaxed animate-fade-in"
+              style={{ animationDelay: "0.1s" }}
+            >
+              {description}
+            </p>
           )}
 
           {link !== "#" && (
-            <Link href={link} passHref>
-              <button
-                type="button"
-                className="flex justify-between items-center space-x-4 rounded border bg-white px-4 py-2 text-primary transform transition-all ease-in-out hover:shadow-xl hover:border hover:border-white"
-              >
-                Ir para o site
-                <ArrowRight className="h-4 w-4 ml-2" />
-              </button>
-            </Link>
+            <div className="animate-fade-in" style={{ animationDelay: "0.2s" }}>
+              <Link href={link} passHref>
+                <button
+                  type="button"
+                  className="group flex items-center gap-3 rounded-full bg-white hover:bg-gray-50 px-8 py-4 text-primary font-semibold shadow-2xl transform transition-all duration-300 hover:scale-105 hover:shadow-xl border-2 border-white/20"
+                >
+                  <span>Ir para o site</span>
+                  <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
+                </button>
+              </Link>
+            </div>
           )}
         </div>
       </div>
