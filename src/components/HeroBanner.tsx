@@ -1,4 +1,4 @@
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 interface Props {
@@ -30,7 +30,7 @@ const HeroBanner = ({
               className="flex justify-between items-center space-x-4 rounded border bg-white px-4 py-2 text-primary transform transition-all ease-in-out hover:shadow-xl hover:border hover:border-white"
             >
               Ir para o site
-              <ArrowForwardIcon className="h-4 ml-2" />
+              <ArrowRight className="h-4 w-4 ml-2" />
             </button>
           </Link>
         )}

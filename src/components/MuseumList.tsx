@@ -1,4 +1,4 @@
-import BookmarkIcon from "@mui/icons-material/Bookmark";
+import { Bookmark } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import Museums from "../utils/museums";
@@ -21,7 +21,7 @@ const MuseumList = () => {
                 index
               )}`}
             >
-              <BookmarkIcon className="h-4 mr-1" />
+              <Bookmark className="h-4 w-4 mr-1" />
               <h2 className="font-medium">{museum.title}</h2>
             </div>
           </Link>

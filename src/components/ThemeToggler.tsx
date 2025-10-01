@@ -1,5 +1,4 @@
-import DarkModeIcon from "@mui/icons-material/DarkMode";
-import LightModeIcon from "@mui/icons-material/LightMode";
+import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 
 const ThemeToggler = () => {
@@ -12,9 +11,9 @@ const ThemeToggler = () => {
   return (
     <button className="flex text-white" onClick={toggleTheme}>
       {resolvedTheme === "light" ? (
-        <LightModeIcon className="h-6" />
+        <Sun className="h-6 w-6" />
       ) : (
-        <DarkModeIcon className="h-6" />
+        <Moon className="h-6 w-6" />
       )}
     </button>
   );

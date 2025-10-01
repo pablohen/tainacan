@@ -1,4 +1,4 @@
-import WarningIcon from "@mui/icons-material/Warning";
+import { AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
@@ -17,7 +17,7 @@ const Home = () => (
       <div className="w-10/12">
         <div className="py-8 text-center space-y-4">
           <div className="flex items-center justify-center">
-            <WarningIcon className="h-9 inline-flex mr-2" />
+            <AlertTriangle className="h-9 w-9 inline-flex mr-2" />
             <h3 className="text-3xl ">Aviso</h3>
           </div>
           <p className="">

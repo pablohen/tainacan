@@ -1,4 +1,3 @@
-import { CircularProgress, Pagination } from "@mui/material";
 import { NextSeo } from "next-seo";
 import { useRouter } from "next/router";
 import { ChangeEvent, useEffect, useState } from "react";
@@ -8,6 +7,18 @@ import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 import HeroBanner from "../../components/HeroBanner";
 import SearchBar from "../../components/SearchBar";
+import { Spinner } from "../../components/ui/spinner";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+  PaginationFirst,
+  PaginationLast,
+  PaginationEllipsis,
+} from "../../components/ui/pagination";
 import tainacanService, {
   FormattedItemsRes,
   Items,
@@ -49,8 +60,44 @@ const MuseumPage = () => {
 
   const { title, link, description } = Museums[Number(museumId)] || {};
 
-  const changePage = (e: ChangeEvent<unknown>, newPage: number) => {
+  const changePage = (newPage: number) => {
     setPage(newPage);
+  };
+
+  // Generate page numbers to show
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    const maxVisible = 7;
+
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (page <= 4) {
+        for (let i = 1; i <= 5; i++) {
+          pages.push(i);
+        }
+        pages.push("ellipsis");
+        pages.push(totalPages);
+      } else if (page >= totalPages - 3) {
+        pages.push(1);
+        pages.push("ellipsis");
+        for (let i = totalPages - 4; i <= totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        pages.push(1);
+        pages.push("ellipsis");
+        for (let i = page - 1; i <= page + 1; i++) {
+          pages.push(i);
+        }
+        pages.push("ellipsis");
+        pages.push(totalPages);
+      }
+    }
+
+    return pages;
   };
 
   return (
@@ -76,7 +123,9 @@ const MuseumPage = () => {
 
               <div className="flex flex-wrap justify-center items-center w-full">
                 {isLoading ? (
-                  <CircularProgress />
+                  <div className="flex justify-center items-center p-8">
+                    <Spinner size={40} />
+                  </div>
                 ) : isError ? (
                   <div className="text-center p-8">
                     <p className="text-red-500 text-lg">
@@ -101,16 +150,70 @@ const MuseumPage = () => {
                 )}
               </div>
 
-              {!!items?.length && data && (
-                <div className="flex justify-center">
-                  <Pagination
-                    count={Number(totalPages)}
-                    onChange={changePage}
-                    showFirstButton
-                    showLastButton
-                    page={page}
-                  />
-                </div>
+              {!!items?.length && data && totalPages > 1 && (
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationFirst
+                        onClick={() => changePage(1)}
+                        className={
+                          page === 1
+                            ? "pointer-events-none opacity-50"
+                            : "cursor-pointer"
+                        }
+                      />
+                    </PaginationItem>
+                    <PaginationItem>
+                      <PaginationPrevious
+                        onClick={() => changePage(Math.max(1, page - 1))}
+                        className={
+                          page === 1
+                            ? "pointer-events-none opacity-50"
+                            : "cursor-pointer"
+                        }
+                      />
+                    </PaginationItem>
+
+                    {getPageNumbers().map((pageNum, idx) => (
+                      <PaginationItem key={idx}>
+                        {pageNum === "ellipsis" ? (
+                          <PaginationEllipsis />
+                        ) : (
+                          <PaginationLink
+                            onClick={() => changePage(pageNum as number)}
+                            isActive={page === pageNum}
+                            className="cursor-pointer"
+                          >
+                            {pageNum}
+                          </PaginationLink>
+                        )}
+                      </PaginationItem>
+                    ))}
+
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={() =>
+                          changePage(Math.min(totalPages, page + 1))
+                        }
+                        className={
+                          page === totalPages
+                            ? "pointer-events-none opacity-50"
+                            : "cursor-pointer"
+                        }
+                      />
+                    </PaginationItem>
+                    <PaginationItem>
+                      <PaginationLast
+                        onClick={() => changePage(totalPages)}
+                        className={
+                          page === totalPages
+                            ? "pointer-events-none opacity-50"
+                            : "cursor-pointer"
+                        }
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
               )}
             </div>
           </div>
