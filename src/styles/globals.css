@@ -1,8 +1,16 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Raleway", ui-sans-serif, system-ui, sans-serif;
+
+  --color-primary: #01295c;
+  --color-secondary: #298596;
+}
+
 :root {
   font-size: 16px;
-  --primary: #01295c;
-  --secondary: #298596;
 }
+
 /* scrollbar */
 /* width */
 ::-webkit-scrollbar {
@@ -24,7 +32,3 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #ccccccaa;
 }
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
