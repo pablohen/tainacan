@@ -1,4 +1,4 @@
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import type { ItemDTO } from "../interfaces/ItemDTO";
 import type { Metadata } from "../interfaces/ItemDTO";
 import type { ItemsDTO } from "../interfaces/ItemsDTO";

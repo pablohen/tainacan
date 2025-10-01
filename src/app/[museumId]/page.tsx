@@ -21,7 +21,6 @@ import {
   PaginationPrevious,
   PaginationFirst,
   PaginationLast,
-  PaginationEllipsis,
 } from "@/components/ui/pagination";
 import { tainacanService } from "@/services/tainacanService";
 import type { FormattedItemsRes, Items } from "@/services/tainacanService";

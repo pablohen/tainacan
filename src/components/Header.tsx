@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { MuseumList } from "./MuseumList";
-import { BookOpen } from "lucide-react";
 
 export function Header() {
   return (
