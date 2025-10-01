@@ -1,13 +1,11 @@
-import "../styles/globals.css";
-import type { AppProps } from "next/app";
-import { DefaultSeo } from "next-seo";
-import SEO from "../../next-seo.config";
-import { ThemeProvider } from "next-themes";
+"use client";
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { useState } from "react";
+import { ThemeProvider } from "next-themes";
+import { ReactNode, useState } from "react";
 
-function MyApp({ Component, pageProps }: AppProps) {
+export function Providers({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -23,12 +21,8 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider attribute="class">
-        <DefaultSeo {...SEO} />
-        <Component {...pageProps} />
-      </ThemeProvider>
+      <ThemeProvider attribute="class">{children}</ThemeProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 }
-export default MyApp;

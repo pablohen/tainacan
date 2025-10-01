@@ -1,7 +1,8 @@
 import axios, { AxiosError } from "axios";
-import { ItemDTO, Metadata } from "../interfaces/ItemDTO";
-import { ItemsDTO } from "../interfaces/ItemsDTO";
-import Museums from "../utils/museums";
+import type { ItemDTO } from "../interfaces/ItemDTO";
+import type { Metadata } from "../interfaces/ItemDTO";
+import type { ItemsDTO } from "../interfaces/ItemsDTO";
+import { museums } from "../utils/museums";
 
 export interface Items {
   id: number;
@@ -38,13 +39,13 @@ const getItems = async (
     return null;
   }
 
-  // Check if museum exists in the Museums array
-  if (!Museums[museumId]) {
+  // Check if museum exists in the museums array
+  if (!museums[museumId]) {
     return null;
   }
 
   try {
-    const apiUrl = `${Museums[museumId].api}/items`;
+    const apiUrl = `${museums[museumId].api}/items`;
 
     const res = await axios.get(apiUrl, {
       params: {
@@ -84,10 +85,13 @@ const getItems = async (
   }
 };
 
-const getItem = async (museumId: number, itemId: number) => {
+const getItem = async (
+  museumId: number,
+  itemId: number
+): Promise<Item | null> => {
   try {
     const res = await axios.get<ItemDTO>(
-      `${Museums[museumId].api}/items/${itemId}`
+      `${museums[museumId].api}/items/${itemId}`
     );
     const item: Item = {
       id: res.data.id,
@@ -99,13 +103,11 @@ const getItem = async (museumId: number, itemId: number) => {
 
     return item;
   } catch (error) {
-    return {};
+    return null;
   }
 };
 
-const tainacanService = {
+export const tainacanService = {
   getItems,
   getItem,
 };
-
-export default tainacanService;

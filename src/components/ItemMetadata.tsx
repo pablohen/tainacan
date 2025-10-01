@@ -1,10 +1,10 @@
-import Metadata from '../interfaces/Metadata';
+import type { Metadata } from "../interfaces/Metadata";
 
-interface Props {
+interface ItemMetadataProps {
   metadata: Metadata;
 }
 
-const ItemMetadata = ({ metadata }: Props) => {
+export function ItemMetadata({ metadata }: ItemMetadataProps) {
   if (!metadata.value_as_string) {
     return null;
   }
@@ -17,6 +17,4 @@ const ItemMetadata = ({ metadata }: Props) => {
       </span>
     </p>
   );
-};
-
-export default ItemMetadata;
+}

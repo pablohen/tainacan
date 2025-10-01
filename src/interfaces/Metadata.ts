@@ -1,4 +1,4 @@
-export default interface Metadata {
+export interface Metadata {
   name: string;
   value_as_string: string;
 }

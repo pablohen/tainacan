@@ -1,4 +1,4 @@
-export default interface Museum {
+export interface Museum {
   title: string;
   link: string;
   url: string;

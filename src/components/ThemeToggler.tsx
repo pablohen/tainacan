@@ -1,7 +1,9 @@
+"use client";
+
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 
-const ThemeToggler = () => {
+export function ThemeToggler() {
   const { resolvedTheme, setTheme } = useTheme();
 
   const toggleTheme = () => {
@@ -17,6 +19,4 @@ const ThemeToggler = () => {
       )}
     </button>
   );
-};
-
-export default ThemeToggler;
+}

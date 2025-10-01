@@ -1,19 +1,21 @@
 /* eslint-disable @next/next/no-img-element */
+"use client";
+
 import { motion } from "framer-motion";
 import Link from "next/link";
-import checkImagePath from "../utils/checkImagePath";
+import { checkImagePath } from "../utils/checkImagePath";
 
 interface Item {
   id: number;
   title: string;
 }
 
-interface Props {
+interface CardProps {
   museumId: string;
   item: Item;
 }
 
-const Card = ({ museumId, item }: Props) => {
+export function Card({ museumId, item }: CardProps) {
   const imgPath = checkImagePath(item);
   const cardTitle = `${item.id} - ${item.title}`;
 
@@ -41,6 +43,4 @@ const Card = ({ museumId, item }: Props) => {
       </Link>
     </div>
   );
-};
-
-export default Card;
+}
