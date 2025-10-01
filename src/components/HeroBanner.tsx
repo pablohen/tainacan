@@ -1,5 +1,6 @@
 import { ArrowRight, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 interface HeroBannerProps {
   title: string;
@@ -50,13 +51,10 @@ export function HeroBanner({
           {link !== "#" && (
             <div className="animate-fade-in" style={{ animationDelay: "0.2s" }}>
               <Link href={link} passHref>
-                <button
-                  type="button"
-                  className="group flex items-center gap-3 rounded-full bg-white hover:bg-gray-50 px-8 py-4 text-primary font-semibold shadow-2xl transform transition-all duration-300 hover:scale-105 hover:shadow-xl border-2 border-white/20"
-                >
+                <Button className="group flex items-center gap-3 rounded-2xl bg-white hover:bg-gray-50 px-8 py-4 text-primary font-semibold shadow-[0_8px_30px_rgb(0,0,0,0.12)] transform transition-all duration-300 hover:scale-105 hover:shadow-[0_20px_60px_rgb(0,0,0,0.15)] border-2 border-white/20 cursor-pointer">
                   <span>Ir para o site</span>
                   <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
-                </button>
+                </Button>
               </Link>
             </div>
           )}

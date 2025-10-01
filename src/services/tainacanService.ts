@@ -31,8 +31,6 @@ const getItems = async (
 ): Promise<FormattedItemsRes | null> => {
   const perpage = 50;
   const paged = page;
-  const metaqueryCompare = "LIKE";
-  const metaqueryValue = searchTerm;
 
   // Check if museumId is valid (including 0)
   if (museumId === undefined || museumId === null || isNaN(museumId)) {
@@ -47,14 +45,17 @@ const getItems = async (
   try {
     const apiUrl = `${museums[museumId].api}/items`;
 
-    const res = await axios.get(apiUrl, {
-      params: {
-        perpage,
-        paged,
-        "metaquery[1][compare]": metaqueryCompare,
-        "metaquery[1][value]": metaqueryValue,
-      },
-    });
+    const params: Record<string, any> = {
+      perpage,
+      paged,
+    };
+
+    // Add search parameter if searchTerm is provided
+    if (searchTerm && searchTerm.trim() !== "") {
+      params.search = searchTerm.trim();
+    }
+
+    const res = await axios.get(apiUrl, { params });
 
     const wpTotal = res.headers["x-wp-total"] as unknown as number;
     const wpTotalPages = res.headers["x-wp-totalpages"] as unknown as number;

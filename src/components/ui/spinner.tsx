@@ -7,5 +7,10 @@ interface SpinnerProps {
 }
 
 export function Spinner({ className, size = 24 }: SpinnerProps) {
-  return <Loader2 className={cn("animate-spin", className)} size={size} />;
+  return (
+    <Loader2
+      className={cn("animate-spin text-primary drop-shadow-lg", className)}
+      size={size}
+    />
+  );
 }
