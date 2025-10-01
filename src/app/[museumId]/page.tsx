@@ -126,7 +126,7 @@ export default function MuseumPage({ params }: MuseumPageProps) {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
+    <div className="flex flex-col min-h-screen bg-white">
       <Header />
       <HeroBanner title={title} link={link} description={description} />
 
@@ -142,22 +142,16 @@ export default function MuseumPage({ params }: MuseumPageProps) {
           <div className="w-full max-w-screen-2xl px-4">
             {isLoading ? (
               <div className="flex flex-col justify-center items-center p-16 gap-4 animate-fade-in">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary rounded-full blur-xl opacity-30 animate-pulse" />
-                  <Spinner size={50} className="relative" />
-                </div>
-                <p className="text-muted-foreground text-sm font-medium">
+                <Spinner size={50} />
+                <p className="text-gray-600 text-sm font-medium">
                   Carregando itens...
                 </p>
               </div>
             ) : isError ? (
               <div className="flex justify-center animate-fade-in">
-                <Alert
-                  variant="destructive"
-                  className="max-w-md shadow-[0_20px_60px_rgb(0,0,0,0.15)] rounded-2xl"
-                >
+                <Alert variant="destructive" className="max-w-md rounded-xl">
                   <AlertCircle className="h-5 w-5" />
-                  <AlertTitle className="text-lg font-semibold">
+                  <AlertTitle className="text-base font-semibold">
                     Erro ao carregar os itens
                   </AlertTitle>
                   <AlertDescription className="text-sm">
@@ -175,9 +169,9 @@ export default function MuseumPage({ params }: MuseumPageProps) {
               </div>
             ) : (
               <div className="flex justify-center animate-fade-in">
-                <Alert className="max-w-md shadow-[0_20px_60px_rgb(0,0,0,0.15)] border-2 border-primary/20 bg-gradient-to-br from-white to-gray-50 rounded-2xl">
-                  <PackageOpen className="h-5 w-5 text-primary" />
-                  <AlertTitle className="text-lg font-semibold text-gray-900">
+                <Alert className="max-w-md border border-gray-200 bg-white rounded-xl">
+                  <PackageOpen className="h-5 w-5 text-gray-600" />
+                  <AlertTitle className="text-base font-semibold text-gray-900">
                     Nenhum item encontrado
                   </AlertTitle>
                   <AlertDescription className="text-sm text-gray-600">
@@ -191,12 +185,8 @@ export default function MuseumPage({ params }: MuseumPageProps) {
           </div>
 
           {!!items?.length && data && totalPages > 1 && (
-            <div className="relative animate-fade-in">
-              {/* Subtle gradient background */}
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-secondary/5 to-accent/5 rounded-2xl blur-xl" />
-
-              {/* Pagination container */}
-              <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-gray-200 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-[0_20px_60px_rgb(0,0,0,0.15)] transition-shadow duration-300 p-3">
+            <div className="animate-fade-in">
+              <div className="bg-white rounded-xl border border-gray-200 p-3">
                 <Pagination>
                   <PaginationContent>
                     <PaginationItem>
@@ -205,7 +195,7 @@ export default function MuseumPage({ params }: MuseumPageProps) {
                         className={
                           page === 1
                             ? "pointer-events-none opacity-50"
-                            : "cursor-pointer hover:bg-primary/10 transition-colors duration-200"
+                            : "cursor-pointer hover:bg-gray-100 transition-colors duration-200"
                         }
                       />
                     </PaginationItem>
@@ -215,7 +205,7 @@ export default function MuseumPage({ params }: MuseumPageProps) {
                         className={
                           page === 1
                             ? "pointer-events-none opacity-50"
-                            : "cursor-pointer hover:bg-primary/10 transition-colors duration-200"
+                            : "cursor-pointer hover:bg-gray-100 transition-colors duration-200"
                         }
                       />
                     </PaginationItem>
@@ -224,7 +214,7 @@ export default function MuseumPage({ params }: MuseumPageProps) {
                     <PaginationItem>
                       <PaginationLink
                         isActive={true}
-                        className="cursor-pointer transition-all duration-200 rounded-xl  shadow-[0_4px_16px_rgb(0,0,0,0.1)] min-w-[60px]"
+                        className="cursor-pointer transition-all duration-200 rounded-lg min-w-[60px]"
                       >
                         {page} / {totalPages}
                       </PaginationLink>
@@ -238,7 +228,7 @@ export default function MuseumPage({ params }: MuseumPageProps) {
                         className={
                           page === totalPages
                             ? "pointer-events-none opacity-50"
-                            : "cursor-pointer hover:bg-primary/10 transition-colors duration-200"
+                            : "cursor-pointer hover:bg-gray-100 transition-colors duration-200"
                         }
                       />
                     </PaginationItem>
@@ -248,7 +238,7 @@ export default function MuseumPage({ params }: MuseumPageProps) {
                         className={
                           page === totalPages
                             ? "pointer-events-none opacity-50"
-                            : "cursor-pointer hover:bg-primary/10 transition-colors duration-200"
+                            : "cursor-pointer hover:bg-gray-100 transition-colors duration-200"
                         }
                       />
                     </PaginationItem>

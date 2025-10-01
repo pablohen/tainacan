@@ -27,7 +27,7 @@ export default function ItemPageClient({
   const imgPath = checkImagePath(item);
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
+    <div className="flex flex-col min-h-screen bg-white">
       <Header />
       <HeroBanner title={title} description={description} link="#" />
 
@@ -36,31 +36,31 @@ export default function ItemPageClient({
           {/* Back button */}
           <Link
             href={`/${museumId}`}
-            className="inline-flex items-center gap-2 text-primary hover:gap-3 transition-all duration-300 font-semibold group"
+            className="inline-flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors duration-200 font-medium"
           >
-            <ArrowLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
+            <ArrowLeft className="h-5 w-5" />
             <span>Voltar para a coleção</span>
           </Link>
 
           {/* Main content card */}
-          <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border-2 border-gray-200">
+          <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
             <div className="flex flex-col lg:flex-row-reverse">
               {/* Image section */}
-              <div className="lg:w-1/2 p-8 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+              <div className="lg:w-1/2 p-8 bg-gray-50 flex items-center justify-center">
                 <motion.img
                   src={imgPath}
                   alt={title}
                   width={960}
                   height={960}
-                  className="rounded-2xl shadow-2xl max-w-full h-auto"
+                  className="rounded-lg max-w-full h-auto"
                   layoutId={String(item.id)}
                 />
               </div>
 
               {/* Metadata section */}
               <div className="lg:w-1/2 p-8 space-y-6">
-                <div className="space-y-2 pb-4 border-b-2 border-gray-200">
-                  <h1 className="text-3xl font-bold text-gray-900">
+                <div className="space-y-2 pb-4 border-b border-gray-200">
+                  <h1 className="text-2xl font-bold text-gray-900">
                     Detalhes do Item
                   </h1>
                   <p className="text-sm text-gray-600">{museumName}</p>
