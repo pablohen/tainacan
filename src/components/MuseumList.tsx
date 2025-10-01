@@ -23,6 +23,14 @@ export function MuseumList() {
               className={`flex items-center whitespace-nowrap border-2 rounded-full px-5 py-2.5 text-sm font-semibold cursor-pointer transform transition-all duration-300 ease-out hover:scale-105 ${currentPage(
                 index
               )}`}
+              style={
+                Number(museumId) === index
+                  ? {
+                      backgroundSize: "200% 200%",
+                      animation: "gradientWave 15s ease-in-out infinite",
+                    }
+                  : undefined
+              }
             >
               <Bookmark
                 className={`h-4 w-4 mr-2 transition-all duration-300 ${

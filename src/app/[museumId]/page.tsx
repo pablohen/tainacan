@@ -225,7 +225,7 @@ export default function MuseumPage({ params }: MuseumPageProps) {
                     <PaginationItem>
                       <PaginationLink
                         isActive={true}
-                        className="cursor-pointer transition-all duration-200 rounded-xl bg-gradient-to-r from-primary to-secondary text-white shadow-[0_4px_16px_rgb(0,0,0,0.1)] min-w-[60px]"
+                        className="cursor-pointer transition-all duration-200 rounded-xl  shadow-[0_4px_16px_rgb(0,0,0,0.1)] min-w-[60px]"
                       >
                         {page} / {totalPages}
                       </PaginationLink>

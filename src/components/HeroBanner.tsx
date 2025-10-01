@@ -1,4 +1,4 @@
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
@@ -16,24 +16,44 @@ export function HeroBanner({
   background = "bg-gradient-to-br from-primary via-secondary to-primary",
 }: HeroBannerProps) {
   return (
-    <div className={`${background} relative overflow-hidden`}>
+    <div
+      className={`${background} relative overflow-hidden`}
+      style={{
+        backgroundSize: "200% 200%",
+        animation: "gradientWave 20s ease-in-out infinite",
+      }}
+    >
       {/* Animated background patterns */}
       <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-0 -left-4 w-72 h-72 bg-white rounded-full mix-blend-overlay filter blur-xl animate-pulse" />
         <div
-          className="absolute top-0 -right-4 w-72 h-72 bg-white rounded-full mix-blend-overlay filter blur-xl animate-pulse"
-          style={{ animationDelay: "1s" }}
+          className="absolute top-0 -left-4 w-72 h-72 bg-white mix-blend-overlay filter blur-xl"
+          style={{
+            animation: "wave 18s ease-in-out infinite",
+          }}
         />
         <div
-          className="absolute -bottom-8 left-20 w-72 h-72 bg-white rounded-full mix-blend-overlay filter blur-xl animate-pulse"
-          style={{ animationDelay: "2s" }}
+          className="absolute top-0 -right-4 w-72 h-72 bg-white mix-blend-overlay filter blur-xl"
+          style={{
+            animation: "waveReverse 22s ease-in-out infinite",
+          }}
+        />
+        <div
+          className="absolute -bottom-8 left-20 w-72 h-72 bg-white mix-blend-overlay filter blur-xl"
+          style={{
+            animation: "wave 25s ease-in-out infinite 2s",
+          }}
+        />
+        <div
+          className="absolute bottom-0 right-1/4 w-96 h-96 bg-white mix-blend-overlay filter blur-2xl"
+          style={{
+            animation: "waveReverse 20s ease-in-out infinite 3s",
+          }}
         />
       </div>
 
       <div className="relative flex flex-col items-center">
         <div className="w-full max-w-7xl px-6 sm:px-8 lg:px-12 py-12 sm:py-20 space-y-6">
           <div className="flex items-center gap-3 animate-fade-in">
-            <Sparkles className="h-8 w-8 text-yellow-300 animate-pulse" />
             <h2 className="text-4xl lg:text-6xl font-bold text-white drop-shadow-2xl">
               {title}
             </h2>
