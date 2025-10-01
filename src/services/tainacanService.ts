@@ -1,7 +1,7 @@
-import axios, { AxiosError } from 'axios';
-import { ItemDTO, Metadata } from '../interfaces/ItemDTO';
-import { ItemsDTO } from '../interfaces/ItemsDTO';
-import Museums from '../utils/museums';
+import axios, { AxiosError } from "axios";
+import { ItemDTO, Metadata } from "../interfaces/ItemDTO";
+import { ItemsDTO } from "../interfaces/ItemsDTO";
+import Museums from "../utils/museums";
 
 export interface Items {
   id: number;
@@ -26,47 +26,61 @@ export interface FormattedItemsRes {
 const getItems = async (
   museumId: number,
   page: number = 1,
-  searchTerm: string = ''
-) => {
+  searchTerm: string = ""
+): Promise<FormattedItemsRes | null> => {
   const perpage = 50;
   const paged = page;
-  const metaqueryCompare = 'LIKE';
+  const metaqueryCompare = "LIKE";
   const metaqueryValue = searchTerm;
 
-  if (!!museumId) {
-    try {
-      const res = await axios.get(`${Museums[Number(museumId)].api}/items`, {
-        params: {
-          perpage,
-          paged,
-          'metaquery[1][compare]': metaqueryCompare,
-          'metaquery[1][value]': metaqueryValue,
-        },
-      });
-      const wpTotal = res.headers['x-wp-total'] as unknown as number;
-      const wpTotalPages = res.headers['x-wp-totalpages'] as unknown as number;
-      const results = (await res.data) as ItemsDTO;
-      const items: Items[] = results.items.map(
-        ({ id, title, description, document_as_html }) => ({
-          id,
-          title,
-          description,
-          document_as_html,
-        })
-      );
+  // Check if museumId is valid (including 0)
+  if (museumId === undefined || museumId === null || isNaN(museumId)) {
+    return null;
+  }
 
-      const data: FormattedItemsRes = {
-        items,
-        wpTotal,
-        wpTotalPages,
-      };
+  // Check if museum exists in the Museums array
+  if (!Museums[museumId]) {
+    return null;
+  }
 
-      return data;
-    } catch (error) {
-      const AxiosError = error as AxiosError;
-      console.log(AxiosError.message);
-      return [];
+  try {
+    const apiUrl = `${Museums[museumId].api}/items`;
+
+    const res = await axios.get(apiUrl, {
+      params: {
+        perpage,
+        paged,
+        "metaquery[1][compare]": metaqueryCompare,
+        "metaquery[1][value]": metaqueryValue,
+      },
+    });
+
+    const wpTotal = res.headers["x-wp-total"] as unknown as number;
+    const wpTotalPages = res.headers["x-wp-totalpages"] as unknown as number;
+    const results = res.data as ItemsDTO;
+
+    if (!results.items || !Array.isArray(results.items)) {
+      return null;
     }
+
+    const items: Items[] = results.items.map(
+      ({ id, title, description, document_as_html }) => ({
+        id,
+        title,
+        description,
+        document_as_html,
+      })
+    );
+
+    const data: FormattedItemsRes = {
+      items,
+      wpTotal: Number(wpTotal) || 0,
+      wpTotalPages: Number(wpTotalPages) || 1,
+    };
+
+    return data;
+  } catch (error) {
+    return null;
   }
 };
 
@@ -85,8 +99,6 @@ const getItem = async (museumId: number, itemId: number) => {
 
     return item;
   } catch (error) {
-    const AxiosError = error as AxiosError;
-    console.log(AxiosError.message);
     return {};
   }
 };

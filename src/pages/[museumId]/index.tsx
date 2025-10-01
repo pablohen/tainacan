@@ -2,7 +2,7 @@ import { CircularProgress, Pagination } from "@mui/material";
 import { NextSeo } from "next-seo";
 import { useRouter } from "next/router";
 import { ChangeEvent, useEffect, useState } from "react";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 import Card from "../../components/Card";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
@@ -27,16 +27,23 @@ const MuseumPage = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [page, setPage] = useState(1);
 
-  const { data } = useSWR(
-    [museumId, page, searchTerm],
-    tainacanService.getItems
-  );
+  const { data, isLoading, error, isError } = useQuery({
+    queryKey: ["museum-items", museumId, page, searchTerm],
+    queryFn: () => tainacanService.getItems(Number(museumId), page, searchTerm),
+    enabled: !!museumId,
+  });
 
   useEffect(() => {
-    if (museumId && !!data) {
-      const { items, wpTotalPages } = data as FormattedItemsRes;
-      setItems(items);
-      setTotalPages(wpTotalPages);
+    if (museumId && data) {
+      // Check if data is the expected object structure
+      if (data && typeof data === "object" && "items" in data) {
+        const { items: fetchedItems, wpTotalPages } = data as FormattedItemsRes;
+        setItems(fetchedItems || []);
+        setTotalPages(wpTotalPages || 1);
+      } else {
+        setItems([]);
+        setTotalPages(1);
+      }
     }
   }, [data, museumId]);
 
@@ -57,7 +64,7 @@ const MuseumPage = () => {
 
           <div className="flex flex-col flex-grow bg-gray-100 dark:bg-gray-900">
             <div className="flex flex-col items-center p-4 space-y-4">
-              {!!items.length && data && (
+              {!!items?.length && data && (
                 <SearchBar
                   onChange={(e: ChangeEvent<HTMLInputElement>) => {
                     setSearchTerm(e.target.value);
@@ -68,16 +75,33 @@ const MuseumPage = () => {
               )}
 
               <div className="flex flex-wrap justify-center items-center w-full">
-                {!!items.length && !!data ? (
+                {isLoading ? (
+                  <CircularProgress />
+                ) : isError ? (
+                  <div className="text-center p-8">
+                    <p className="text-red-500 text-lg">
+                      Erro ao carregar os itens do museu
+                    </p>
+                    <p className="text-gray-600 dark:text-gray-400 mt-2">
+                      {error instanceof Error
+                        ? error.message
+                        : "Erro desconhecido"}
+                    </p>
+                  </div>
+                ) : !!items?.length ? (
                   items.map((item, index) => (
                     <Card key={index} museumId={museumId} item={item} />
                   ))
                 ) : (
-                  <CircularProgress />
+                  <div className="text-center p-8">
+                    <p className="text-gray-600 dark:text-gray-400">
+                      Nenhum item encontrado
+                    </p>
+                  </div>
                 )}
               </div>
 
-              {!!items.length && data && (
+              {!!items?.length && data && (
                 <div className="flex justify-center">
                   <Pagination
                     count={Number(totalPages)}
@@ -96,41 +120,5 @@ const MuseumPage = () => {
     </>
   );
 };
-
-// export const getStaticPaths = async () => {
-//   const paths = Museums.map((museum, index) => ({
-//     params: {
-//       museumId: index.toString(),
-//     },
-//   }));
-
-//   return {
-//     paths,
-//     fallback: true,
-//   };
-// };
-
-// export const getStaticProps = async (context: GetStaticPropsContext) => {
-//   console.log(context.params);
-//   const { museumId } = context.params || {};
-//   let page = 1;
-//   let items: any[] = [];
-
-//   try {
-//     const res = await tainacanService.getItems(Number(museumId) || 0, page, '');
-//     items = [...res];
-//   } catch (error) {
-//     console.log(`erro`);
-//     return [];
-//   }
-
-//   return {
-//     props: {
-//       museumId: museumId || '0',
-//       items,
-//     },
-//     revalidate: 60 * 60 * 24,
-//   };
-// };
 
 export default MuseumPage;

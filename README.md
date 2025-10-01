@@ -15,7 +15,7 @@ Projeto pessoal para agregar conteúdo de diversos sites que estão usando a fer
 - Axios
 - React Loader Spinner
 - Material-UI
-- SWR
+- TanStack Query (React Query)
 
 ## Back-end:
 
