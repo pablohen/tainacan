@@ -46,19 +46,15 @@ export default function MuseumPage({ params }: MuseumPageProps) {
 	const [totalPages, setTotalPages] = useState(1);
 	const [page, setPage] = useState(Number(searchParams.get("page")) || 1);
 
-	// Debounce search term
 	useEffect(() => {
 		const timer = setTimeout(() => {
 			setDebouncedSearchTerm(searchTerm);
-			if (page !== 1) {
-				setPage(1);
-			}
+			setPage(1);
 		}, 500);
 
 		return () => clearTimeout(timer);
-	}, [searchTerm, page]);
+	}, [searchTerm]);
 
-	// Update URL params when search term or page changes
 	useEffect(() => {
 		const params = new URLSearchParams();
 		if (debouncedSearchTerm) {
@@ -209,7 +205,6 @@ export default function MuseumPage({ params }: MuseumPageProps) {
 											/>
 										</PaginationItem>
 
-										{/* Current page number */}
 										<PaginationItem>
 											<PaginationLink
 												isActive={true}
