@@ -1,4 +1,4 @@
 export interface Metadata {
-  name: string;
-  value_as_string: string;
+	name: string;
+	value_as_string: string;
 }

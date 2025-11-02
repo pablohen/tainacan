@@ -1,15 +1,17 @@
-export function checkImagePath(item: any) {
-  if (item?.document_as_html?.split("src='")[1]) {
-    return item.document_as_html.split("src='")[1]?.split("'")[0];
-  }
+import type { Item } from "@/services/tainacanService";
 
-  if (item?.document_as_html?.split("href='")[1]) {
-    return item.document_as_html.split("href='")[1]?.split("'")[0];
-  }
+export function checkImagePath(item: Item) {
+	if (item?.document_as_html?.split("src='")[1]) {
+		return item.document_as_html.split("src='")[1]?.split("'")[0];
+	}
 
-  if (item?.document_as_html?.includes(".pdf")) {
-    return "/imgs/no-image.png";
-  }
+	if (item?.document_as_html?.split("href='")[1]) {
+		return item.document_as_html.split("href='")[1]?.split("'")[0];
+	}
 
-  return "/imgs/no-image.png";
+	if (item?.document_as_html?.includes(".pdf")) {
+		return "/imgs/no-image.png";
+	}
+
+	return "/imgs/no-image.png";
 }
