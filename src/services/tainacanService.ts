@@ -31,80 +31,70 @@ const getItems = async (
 	const perpage = 50;
 	const paged = page;
 
-	// Check if museumId is valid (including 0)
 	if (museumId === undefined || museumId === null || Number.isNaN(museumId)) {
 		return null;
 	}
 
-	// Check if museum exists in the museums array
 	if (!museums[museumId]) {
 		return null;
 	}
 
-	try {
-		const apiUrl = `${museums[museumId].api}/items`;
+	const apiUrl = `${museums[museumId].api}/items`;
 
-		const params: Record<string, number | string> = {
-			perpage,
-			paged,
-		};
+	const params: Record<string, number | string> = {
+		perpage,
+		paged,
+	};
 
-		// Add search parameter if searchTerm is provided
-		if (searchTerm && searchTerm.trim() !== "") {
-			params.search = searchTerm.trim();
-		}
+	if (searchTerm && searchTerm.trim() !== "") {
+		params.search = searchTerm.trim();
+	}
 
-		const res = await axios.get(apiUrl, { params });
+	const res = await axios.get(apiUrl, { params }).catch(() => null);
 
-		const wpTotal = res.headers["x-wp-total"] as unknown as number;
-		const wpTotalPages = res.headers["x-wp-totalpages"] as unknown as number;
-		const results = res.data as ItemsDTO;
+	if (!res) return null;
 
-		if (!results.items || !Array.isArray(results.items)) {
-			return null;
-		}
+	const wpTotal = res.headers["x-wp-total"] as unknown as number;
+	const wpTotalPages = res.headers["x-wp-totalpages"] as unknown as number;
+	const results = res.data as ItemsDTO;
 
-		const items: Items[] = results.items.map(
-			({ id, title, description, document_as_html }) => ({
-				id,
-				title,
-				description,
-				document_as_html,
-			}),
-		);
-
-		const data: FormattedItemsRes = {
-			items,
-			wpTotal: Number(wpTotal) || 0,
-			wpTotalPages: Number(wpTotalPages) || 1,
-		};
-
-		return data;
-	} catch (_error) {
+	if (!results.items || !Array.isArray(results.items)) {
 		return null;
 	}
+
+	const items: Items[] = results.items.map(
+		({ id, title, description, document_as_html }) => ({
+			id,
+			title,
+			description,
+			document_as_html,
+		}),
+	);
+
+	return {
+		items,
+		wpTotal: Number(wpTotal) || 0,
+		wpTotalPages: Number(wpTotalPages) || 1,
+	};
 };
 
 const getItem = async (
 	museumId: number,
 	itemId: number,
 ): Promise<Item | null> => {
-	try {
-		const res = await axios.get<ItemDTO>(
-			`${museums[museumId].api}/items/${itemId}`,
-		);
-		const item: Item = {
-			id: res.data.id,
-			title: res.data.title,
-			description: res.data.description,
-			document_as_html: res.data.document_as_html,
-			metadata: res.data.metadata,
-		};
+	const res = await axios
+		.get<ItemDTO>(`${museums[museumId].api}/items/${itemId}`)
+		.catch(() => null);
 
-		return item;
-	} catch (_error) {
-		return null;
-	}
+	if (!res) return null;
+
+	return {
+		id: res.data.id,
+		title: res.data.title,
+		description: res.data.description,
+		document_as_html: res.data.document_as_html,
+		metadata: res.data.metadata,
+	};
 };
 
 export const tainacanService = {
