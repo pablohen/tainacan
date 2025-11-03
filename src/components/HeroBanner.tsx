@@ -1,5 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { FavoriteButton } from "@/components/FavoriteButton";
 import { Button } from "@/components/ui/button";
 
 interface HeroBannerProps {
@@ -7,6 +8,7 @@ interface HeroBannerProps {
 	link?: string;
 	description: string;
 	background?: string;
+	museumId?: string;
 }
 
 export function HeroBanner({
@@ -14,15 +16,17 @@ export function HeroBanner({
 	link = "#",
 	description = "",
 	background = "bg-gray-50",
+	museumId,
 }: HeroBannerProps) {
 	return (
 		<div className={`${background} border-gray-200 border-b`}>
 			<div className="flex flex-col items-center">
 				<div className="w-full max-w-5xl space-y-6 px-6 py-16 sm:px-8 sm:py-24 lg:px-12">
-					<div className="flex items-center gap-3">
+					<div className="flex items-center justify-between gap-3">
 						<h2 className="font-bold text-4xl text-gray-900 tracking-tight lg:text-6xl">
 							{title}
 						</h2>
+						{museumId && <FavoriteButton museumId={museumId} variant="icon" />}
 					</div>
 
 					{description && (

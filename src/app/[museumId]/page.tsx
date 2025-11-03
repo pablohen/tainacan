@@ -123,7 +123,12 @@ export default function MuseumPage({ params }: MuseumPageProps) {
 	return (
 		<div className="flex min-h-screen flex-col bg-white">
 			<Header />
-			<HeroBanner title={title} link={link} description={description} />
+			<HeroBanner
+				title={title}
+				link={link}
+				description={description}
+				museumId={museumId}
+			/>
 
 			<div className="flex flex-grow flex-col">
 				<div className="flex flex-col items-center space-y-8 p-6">
