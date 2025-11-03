@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { ItemDTO, Metadata } from "../interfaces/ItemDTO";
 import type { ItemsDTO } from "../interfaces/ItemsDTO";
-import { museums } from "../utils/museums";
+import { getMuseumById } from "../utils/museums";
 
 export interface Items {
 	id: number;
@@ -24,22 +24,23 @@ export interface FormattedItemsRes {
 }
 
 const getItems = async (
-	museumId: number,
+	museumId: string,
 	page: number = 1,
 	searchTerm: string = "",
 ): Promise<FormattedItemsRes | null> => {
 	const perpage = 50;
 	const paged = page;
 
-	if (museumId === undefined || museumId === null || Number.isNaN(museumId)) {
+	if (!museumId || typeof museumId !== "string") {
 		return null;
 	}
 
-	if (!museums[museumId]) {
+	const museum = getMuseumById(museumId);
+	if (!museum) {
 		return null;
 	}
 
-	const apiUrl = `${museums[museumId].api}/items`;
+	const apiUrl = `${museum.api}/items`;
 
 	const params: Record<string, number | string> = {
 		perpage,
@@ -79,11 +80,16 @@ const getItems = async (
 };
 
 const getItem = async (
-	museumId: number,
+	museumId: string,
 	itemId: number,
 ): Promise<Item | null> => {
+	const museum = getMuseumById(museumId);
+	if (!museum) {
+		return null;
+	}
+
 	const res = await axios
-		.get<ItemDTO>(`${museums[museumId].api}/items/${itemId}`)
+		.get<ItemDTO>(`${museum.api}/items/${itemId}`)
 		.catch(() => null);
 
 	if (!res) return null;

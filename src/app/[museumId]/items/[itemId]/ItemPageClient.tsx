@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { motion } from "framer-motion";
@@ -33,7 +32,6 @@ export default function ItemPageClient({
 
 			<div className="flex flex-grow flex-col px-4 py-8">
 				<div className="mx-auto w-full max-w-7xl space-y-6">
-					{/* Back button */}
 					<Link
 						href={`/${museumId}`}
 						className="inline-flex items-center gap-2 font-medium text-gray-700 transition-colors duration-200 hover:text-gray-900"
@@ -42,10 +40,8 @@ export default function ItemPageClient({
 						<span>Voltar para a coleção</span>
 					</Link>
 
-					{/* Main content card */}
 					<div className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
 						<div className="flex flex-col lg:flex-row-reverse">
-							{/* Image section */}
 							<div className="flex items-center justify-center bg-gray-50 p-8 lg:w-1/2">
 								<motion.img
 									src={imgPath}
@@ -57,7 +53,6 @@ export default function ItemPageClient({
 								/>
 							</div>
 
-							{/* Metadata section */}
 							<div className="space-y-6 p-8 lg:w-1/2">
 								<div className="space-y-2 border-gray-200 border-b pb-4">
 									<h1 className="font-bold text-2xl text-gray-900">

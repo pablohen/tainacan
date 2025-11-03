@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { tainacanService } from "@/services/tainacanService";
-import { museums } from "@/utils/museums";
+import { getMuseumById } from "@/utils/museums";
 import ItemPageClient from "./ItemPageClient";
 
 interface ItemPageProps {
@@ -14,11 +14,10 @@ interface ItemPageProps {
 export async function generateMetadata({
 	params,
 }: ItemPageProps): Promise<Metadata> {
-	const { museumId: museumIdStr, itemId: itemIdStr } = await params;
-	const museumId = Number(museumIdStr);
+	const { museumId, itemId: itemIdStr } = await params;
 	const itemId = Number(itemIdStr);
 
-	const museum = museums[museumId];
+	const museum = getMuseumById(museumId);
 	const item = await tainacanService.getItem(museumId, itemId);
 
 	if (!museum || !item) {
@@ -41,11 +40,10 @@ export async function generateMetadata({
 }
 
 export default async function ItemPage({ params }: ItemPageProps) {
-	const { museumId: museumIdStr, itemId: itemIdStr } = await params;
-	const museumId = Number(museumIdStr);
+	const { museumId, itemId: itemIdStr } = await params;
 	const itemId = Number(itemIdStr);
 
-	const museum = museums[museumId];
+	const museum = getMuseumById(museumId);
 
 	if (!museum) {
 		notFound();
@@ -58,10 +56,6 @@ export default async function ItemPage({ params }: ItemPageProps) {
 	}
 
 	return (
-		<ItemPageClient
-			item={item}
-			museumId={museumIdStr}
-			museumName={museum.title}
-		/>
+		<ItemPageClient item={item} museumId={museumId} museumName={museum.title} />
 	);
 }

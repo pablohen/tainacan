@@ -23,7 +23,7 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import type { FormattedItemsRes, Items } from "@/services/tainacanService";
 import { tainacanService } from "@/services/tainacanService";
-import { museums } from "@/utils/museums";
+import { getMuseumById } from "@/utils/museums";
 
 interface MuseumPageProps {
 	params: Promise<{
@@ -71,7 +71,7 @@ export default function MuseumPage({ params }: MuseumPageProps) {
 	const { data, isLoading, error, isError } = useQuery({
 		queryKey: ["museum-items", museumId, page, debouncedSearchTerm],
 		queryFn: () =>
-			tainacanService.getItems(Number(museumId), page, debouncedSearchTerm),
+			tainacanService.getItems(museumId, page, debouncedSearchTerm),
 		enabled: !!museumId,
 	});
 
@@ -88,7 +88,7 @@ export default function MuseumPage({ params }: MuseumPageProps) {
 		}
 	}, [data, museumId]);
 
-	const museum = museums[Number(museumId)];
+	const museum = getMuseumById(museumId);
 	if (!museum) {
 		return (
 			<div className="flex min-h-screen flex-col">

@@ -17,7 +17,6 @@ export default function Home() {
 			<div className="flex flex-grow flex-col items-center justify-center px-4 py-16">
 				<div className="w-full max-w-2xl">
 					<div className="space-y-6 rounded-2xl border border-gray-200 bg-white p-8">
-						{/* Icon and title */}
 						<div className="flex items-center justify-center gap-3">
 							<div className="rounded-lg bg-yellow-100 p-2">
 								<AlertTriangle className="h-6 w-6 text-yellow-600" />
@@ -27,7 +26,6 @@ export default function Home() {
 							</h3>
 						</div>
 
-						{/* Content */}
 						<div className="space-y-4 text-center">
 							<p className="text-base text-gray-600 leading-relaxed">
 								Este site não substitui o site oficial do projeto ou o de cada
