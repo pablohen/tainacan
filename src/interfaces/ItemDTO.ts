@@ -17,7 +17,7 @@ export interface ItemDTO {
 	url: string;
 	document_mimetype: string;
 	document_as_html: string;
-	exposer_urls: any[];
+	exposer_urls: unknown[];
 	metadata: Metadata;
 }
 
@@ -111,7 +111,7 @@ export interface DataDeAquisicao {
 	value_as_string: string;
 	semantic_uri: string;
 	multiple: string;
-	mapping: any[];
+	mapping: unknown[];
 }
 
 export interface OutrosNumeros {
