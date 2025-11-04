@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { FavoriteButton } from "@/components/FavoriteButton";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { HeroBanner } from "@/components/HeroBanner";
@@ -32,13 +33,15 @@ export default function ItemPageClient({
 
 			<div className="flex flex-grow flex-col px-4 py-8">
 				<div className="mx-auto w-full max-w-7xl space-y-6">
-					<Link
-						href={`/${museumId}`}
-						className="inline-flex items-center gap-2 font-medium text-gray-700 transition-colors duration-200 hover:text-gray-900"
-					>
-						<ArrowLeft className="h-5 w-5" />
-						<span>Voltar para a coleção</span>
-					</Link>
+					<div className="flex items-center justify-between">
+						<Link
+							href={`/${museumId}`}
+							className="inline-flex items-center gap-2 font-medium text-gray-700 transition-colors duration-200 hover:text-gray-900"
+						>
+							<ArrowLeft className="h-5 w-5" />
+							<span>Voltar para a coleção</span>
+						</Link>
+					</div>
 
 					<div className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
 						<div className="flex flex-col lg:flex-row-reverse">
@@ -55,10 +58,23 @@ export default function ItemPageClient({
 
 							<div className="space-y-6 p-8 lg:w-1/2">
 								<div className="space-y-2 border-gray-200 border-b pb-4">
-									<h1 className="font-bold text-2xl text-gray-900">
-										Detalhes do Item
-									</h1>
-									<p className="text-gray-600 text-sm">{museumName}</p>
+									<div className="flex items-start justify-between gap-4">
+										<div className="flex-1">
+											<h1 className="font-bold text-2xl text-gray-900">
+												Detalhes do Item
+											</h1>
+											<p className="text-gray-600 text-sm">{museumName}</p>
+										</div>
+										<FavoriteButton
+											item={{
+												museumId,
+												itemId: item.id,
+												title: item.title,
+												imageUrl: imgPath,
+											}}
+											variant="detail"
+										/>
+									</div>
 								</div>
 
 								<div className="scrollbar-thin max-h-[600px] space-y-4 overflow-y-auto pr-2">

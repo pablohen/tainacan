@@ -8,19 +8,27 @@ import {
 	useState,
 } from "react";
 
+export interface FavoriteItem {
+	museumId: string;
+	itemId: number;
+	title: string;
+	imageUrl: string;
+}
+
 interface FavoritesContextType {
-	favorites: string[];
-	toggleFavorite: (museumId: string) => void;
-	isFavorite: (museumId: string) => boolean;
+	favorites: FavoriteItem[];
+	toggleFavorite: (item: FavoriteItem) => void;
+	isFavorite: (museumId: string, itemId: number) => boolean;
+	getFavoritesByMuseum: (museumId: string) => FavoriteItem[];
 }
 
 const FavoritesContext = createContext<FavoritesContextType | undefined>(
 	undefined,
 );
 
-const FAVORITES_KEY = "museum-favorites";
+const FAVORITES_KEY = "item-favorites";
 
-function loadFavorites(): string[] {
+function loadFavorites(): FavoriteItem[] {
 	if (typeof window === "undefined") return [];
 	try {
 		const stored = localStorage.getItem(FAVORITES_KEY);
@@ -30,7 +38,7 @@ function loadFavorites(): string[] {
 	}
 }
 
-function saveFavorites(favorites: string[]): void {
+function saveFavorites(favorites: FavoriteItem[]): void {
 	if (typeof window === "undefined") return;
 	try {
 		localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
@@ -40,7 +48,7 @@ function saveFavorites(favorites: string[]): void {
 }
 
 export function FavoritesProvider({ children }: { children: ReactNode }) {
-	const [favorites, setFavorites] = useState<string[]>([]);
+	const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
 	const [isHydrated, setIsHydrated] = useState(false);
 
 	useEffect(() => {
@@ -54,21 +62,34 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
 		}
 	}, [favorites, isHydrated]);
 
-	const toggleFavorite = (museumId: string) => {
-		setFavorites((prev) =>
-			prev.includes(museumId)
-				? prev.filter((id) => id !== museumId)
-				: [...prev, museumId],
+	const toggleFavorite = (item: FavoriteItem) => {
+		setFavorites((prev) => {
+			const exists = prev.find(
+				(fav) => fav.museumId === item.museumId && fav.itemId === item.itemId,
+			);
+			if (exists) {
+				return prev.filter(
+					(fav) =>
+						!(fav.museumId === item.museumId && fav.itemId === item.itemId),
+				);
+			}
+			return [...prev, item];
+		});
+	};
+
+	const isFavorite = (museumId: string, itemId: number) => {
+		return favorites.some(
+			(fav) => fav.museumId === museumId && fav.itemId === itemId,
 		);
 	};
 
-	const isFavorite = (museumId: string) => {
-		return favorites.includes(museumId);
+	const getFavoritesByMuseum = (museumId: string) => {
+		return favorites.filter((fav) => fav.museumId === museumId);
 	};
 
 	return (
 		<FavoritesContext.Provider
-			value={{ favorites, toggleFavorite, isFavorite }}
+			value={{ favorites, toggleFavorite, isFavorite, getFavoritesByMuseum }}
 		>
 			{children}
 		</FavoritesContext.Provider>

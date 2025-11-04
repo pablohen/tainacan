@@ -14,7 +14,7 @@ export function MuseumList() {
 			: "bg-white text-gray-700 hover:bg-gray-50";
 
 	return (
-		<div className="scrollbar-thin flex-1 overflow-x-auto">
+		<div className="scrollbar-thin min-w-0 flex-1 overflow-x-auto">
 			<div className="inline-flex min-w-max gap-2 px-4 pt-3 pb-2">
 				{museums.map((museum) => (
 					<Link href={`/${museum.id}`} key={museum.id}>

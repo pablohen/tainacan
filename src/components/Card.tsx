@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import type { Items } from "@/services/tainacanService";
 import { checkImagePath } from "../utils/checkImagePath";
+import { FavoriteButton } from "./FavoriteButton";
 
 interface CardProps {
 	museumId: string;
@@ -25,6 +26,15 @@ export function Card({ museumId, item }: CardProps) {
 				<ShadcnCard className="group relative overflow-hidden rounded-lg border border-gray-200 transition-all duration-200 hover:border-gray-300 hover:shadow-lg">
 					<CardContent className="p-0">
 						<div className="relative flex items-start justify-center bg-gray-50">
+							<FavoriteButton
+								item={{
+									museumId,
+									itemId: item.id,
+									title: item.title,
+									imageUrl: imgPath,
+								}}
+								variant="card"
+							/>
 							<motion.img
 								src={imgPath}
 								alt={String(item.id)}
