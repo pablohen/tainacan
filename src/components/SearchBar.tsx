@@ -5,9 +5,14 @@ import { Input } from "@/components/ui/input";
 interface SearchBarProps {
 	value: string;
 	onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+	placeholder?: string;
 }
 
-export function SearchBar({ value, onChange }: SearchBarProps) {
+export function SearchBar({
+	value,
+	onChange,
+	placeholder = "Buscar itens do museu...",
+}: SearchBarProps) {
 	return (
 		<div className="w-full max-w-2xl animate-fade-in">
 			<div className="relative">
@@ -15,7 +20,7 @@ export function SearchBar({ value, onChange }: SearchBarProps) {
 				<Input
 					type="text"
 					value={value}
-					placeholder="Buscar itens do museu..."
+					placeholder={placeholder}
 					onChange={onChange}
 					className="h-12 rounded-lg border border-gray-300 bg-white pl-12 text-base transition-colors duration-200 hover:border-gray-400 focus-visible:border-gray-900"
 				/>
