@@ -5,6 +5,7 @@ import { AlertCircle, PackageOpen } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { type ChangeEvent, use, useEffect, useState } from "react";
 import { Card } from "@/components/Card";
+import { CardSkeleton } from "@/components/CardSkeleton";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { HeroBanner } from "@/components/HeroBanner";
@@ -20,7 +21,6 @@ import {
 	PaginationNext,
 	PaginationPrevious,
 } from "@/components/ui/pagination";
-import { Spinner } from "@/components/ui/spinner";
 import type { FormattedItemsRes, Items } from "@/services/tainacanService";
 import { tainacanService } from "@/services/tainacanService";
 import { getMuseumById } from "@/utils/museums";
@@ -132,20 +132,26 @@ export default function MuseumPage({ params }: MuseumPageProps) {
 
 			<div className="flex flex-grow flex-col">
 				<div className="flex flex-col items-center space-y-8 p-6">
-					<SearchBar
-						value={searchTerm}
-						onChange={(e: ChangeEvent<HTMLInputElement>) => {
-							setSearchTerm(e.target.value);
-						}}
-					/>
+					{!isLoading && (
+						<SearchBar
+							value={searchTerm}
+							onChange={(e: ChangeEvent<HTMLInputElement>) => {
+								setSearchTerm(e.target.value);
+							}}
+						/>
+					)}
 
 					<div className="w-full max-w-screen-2xl px-4">
 						{isLoading ? (
-							<div className="flex animate-fade-in flex-col items-center justify-center gap-4 p-16">
-								<Spinner size={50} />
-								<p className="font-medium text-gray-600 text-sm">
-									Carregando itens...
-								</p>
+							<div className="animate-fade-in columns-2 gap-4 sm:columns-3 md:columns-4 lg:columns-5 xl:columns-6">
+								{[...Array(12)].map((_, i) => (
+									<CardSkeleton
+										key={
+											// biome-ignore lint/suspicious/noArrayIndexKey: skeleton items don't have unique IDs
+											i
+										}
+									/>
+								))}
 							</div>
 						) : isError ? (
 							<div className="flex animate-fade-in justify-center">

@@ -22,18 +22,21 @@ export async function generateMetadata({
 
 	if (!museum || !item) {
 		return {
-			title: "Item não encontrado",
+			title: "Item não encontrado | Tainacan",
+			description: "O item solicitado não foi encontrado.",
 		};
 	}
 
-	const pageTitle = `${item.title} - ${museum.title}`;
+	const pageTitle = `${item.title} - ${museum.title} | Tainacan`;
+	const description =
+		item.description || `Item da coleção ${museum.title} no Tainacan`;
 
 	return {
 		title: pageTitle,
-		description: item.description,
+		description,
 		openGraph: {
 			title: pageTitle,
-			description: item.description,
+			description,
 			type: "website",
 		},
 	};

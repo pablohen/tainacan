@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { museums } from "@/utils/museums";
+import { getMuseumById } from "@/utils/museums";
 
 interface MuseumPageProps {
 	params: Promise<{
@@ -11,7 +11,7 @@ export async function generateMetadata({
 	params,
 }: MuseumPageProps): Promise<Metadata> {
 	const { museumId } = await params;
-	const museum = museums[Number(museumId)];
+	const museum = getMuseumById(museumId);
 
 	if (!museum) {
 		return {

@@ -6,7 +6,6 @@ import Link from "next/link";
 import { FavoriteButton } from "@/components/FavoriteButton";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
-import { HeroBanner } from "@/components/HeroBanner";
 import { ItemMetadata } from "@/components/ItemMetadata";
 import type { Item } from "@/services/tainacanService";
 import { checkImagePath } from "@/utils/checkImagePath";
@@ -29,10 +28,9 @@ export default function ItemPageClient({
 	return (
 		<div className="flex min-h-screen flex-col bg-white">
 			<Header />
-			<HeroBanner title={title} description={description} link="#" />
 
-			<div className="flex flex-grow flex-col px-4 py-8">
-				<div className="mx-auto w-full max-w-7xl space-y-6">
+			<div className="flex flex-grow flex-col p-4">
+				<div className="mx-auto w-full max-w-7xl space-y-4">
 					<div className="flex items-center justify-between">
 						<Link
 							href={`/${museumId}`}
