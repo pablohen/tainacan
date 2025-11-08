@@ -34,18 +34,10 @@ interface MuseumPageProps {
 
 export default function MuseumPage({ params }: MuseumPageProps) {
 	const { museumId } = use(params);
-	const [{ search, page }, setQueryStates] = useQueryStates(
-		{
-			search: parseAsString.withDefault(""),
-			page: parseAsInteger.withDefault(1),
-		},
-		{
-			history: "replace",
-			scroll: false,
-			shallow: true,
-			clearOnDefault: true,
-		},
-	);
+	const [{ search, page }, setQueryStates] = useQueryStates({
+		search: parseAsString.withDefault(""),
+		page: parseAsInteger.withDefault(1),
+	});
 
 	const [searchInput, setSearchInput] = useState(search);
 	const [debouncedSearch] = useDebounce(searchInput, 500);
@@ -123,7 +115,7 @@ export default function MuseumPage({ params }: MuseumPageProps) {
 			/>
 
 			<div className="flex flex-grow flex-col">
-				<div className="flex flex-col items-center space-y-8 p-6">
+				<div className="flex flex-col items-center space-y-4 p-4">
 					<SearchBar
 						value={searchInput}
 						onChange={(e: ChangeEvent<HTMLInputElement>) => {
@@ -131,7 +123,7 @@ export default function MuseumPage({ params }: MuseumPageProps) {
 						}}
 					/>
 
-					<div className="w-full max-w-screen-2xl px-4">
+					<div className="w-full max-w-screen-2xl">
 						{isLoading ? (
 							<div className="animate-fade-in columns-2 gap-4 sm:columns-3 md:columns-4 lg:columns-5 xl:columns-6">
 								{[...Array(12)].map((_, i) => (

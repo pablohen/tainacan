@@ -24,12 +24,7 @@ export default function FavoritesPage() {
 
 	const [search, setSearch] = useQueryState(
 		"search",
-		parseAsString.withDefault("").withOptions({
-			history: "replace",
-			scroll: false,
-			shallow: true,
-			clearOnDefault: true,
-		}),
+		parseAsString.withDefault(""),
 	);
 
 	const [searchInput, setSearchInput] = useState(search);
@@ -56,8 +51,8 @@ export default function FavoritesPage() {
 		<div className="flex min-h-screen flex-col bg-white">
 			<Header />
 
-			<div className="flex flex-grow flex-col px-4 py-8">
-				<div className="mx-auto w-full max-w-screen-2xl space-y-8">
+			<div className="flex flex-grow flex-col p-4">
+				<div className="mx-auto w-full max-w-screen-2xl space-y-4">
 					<div className="space-y-2">
 						<div className="flex items-center gap-3">
 							<Heart className="h-8 w-8 fill-red-500 text-red-500" />

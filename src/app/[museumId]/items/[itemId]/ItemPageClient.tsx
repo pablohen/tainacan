@@ -22,7 +22,7 @@ export default function ItemPageClient({
 	museumName,
 }: ItemPageProps) {
 	const metadata = Object.entries(item?.metadata || {});
-	const { title, description } = item;
+	const { title } = item;
 	const imgPath = checkImagePath(item);
 
 	return (
