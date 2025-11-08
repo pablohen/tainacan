@@ -3,7 +3,9 @@
 import { motion } from "framer-motion";
 import { Heart, PackageOpen } from "lucide-react";
 import Link from "next/link";
-import { type ChangeEvent, useState } from "react";
+import { parseAsString, useQueryState } from "nuqs";
+import { type ChangeEvent, useEffect, useState } from "react";
+import { useDebounce } from "use-debounce";
 import { FavoriteButton } from "@/components/FavoriteButton";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
@@ -19,19 +21,36 @@ import { getMuseumById } from "@/utils/museums";
 
 export default function FavoritesPage() {
 	const { favorites } = useFavorites();
-	const [searchTerm, setSearchTerm] = useState("");
 
-	// Filter favorites based on search term
+	const [search, setSearch] = useQueryState(
+		"search",
+		parseAsString.withDefault("").withOptions({
+			history: "replace",
+			scroll: false,
+			shallow: true,
+			clearOnDefault: true,
+		}),
+	);
+
+	const [searchInput, setSearchInput] = useState(search);
+	const [debouncedSearch] = useDebounce(searchInput, 500);
+
 	const filteredFavorites = favorites.filter((favorite) => {
-		if (!searchTerm) return true;
+		if (!search) return true;
 
-		const searchLower = searchTerm.toLowerCase();
+		const searchLower = search.toLowerCase();
 		const museum = getMuseumById(favorite.museumId);
 		const museumTitle = museum?.title.toLowerCase() || "";
 		const itemTitle = favorite.title.toLowerCase();
 
 		return itemTitle.includes(searchLower) || museumTitle.includes(searchLower);
 	});
+
+	useEffect(() => {
+		if (debouncedSearch !== search) {
+			setSearch(debouncedSearch || null);
+		}
+	}, [debouncedSearch, search, setSearch]);
 
 	return (
 		<div className="flex min-h-screen flex-col bg-white">
@@ -55,9 +74,9 @@ export default function FavoritesPage() {
 
 					{favorites.length > 0 && (
 						<SearchBar
-							value={searchTerm}
+							value={searchInput}
 							onChange={(e: ChangeEvent<HTMLInputElement>) => {
-								setSearchTerm(e.target.value);
+								setSearchInput(e.target.value);
 							}}
 							placeholder="Buscar nos favoritos..."
 						/>

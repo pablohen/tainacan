@@ -2,8 +2,9 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, PackageOpen } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { parseAsInteger, parseAsString, useQueryStates } from "nuqs";
 import { type ChangeEvent, use, useEffect, useState } from "react";
+import { useDebounce } from "use-debounce";
 import { Card } from "@/components/Card";
 import { CardSkeleton } from "@/components/CardSkeleton";
 import { Footer } from "@/components/Footer";
@@ -33,45 +34,36 @@ interface MuseumPageProps {
 
 export default function MuseumPage({ params }: MuseumPageProps) {
 	const { museumId } = use(params);
-	const router = useRouter();
-	const searchParams = useSearchParams();
+	const [{ search, page }, setQueryStates] = useQueryStates(
+		{
+			search: parseAsString.withDefault(""),
+			page: parseAsInteger.withDefault(1),
+		},
+		{
+			history: "replace",
+			scroll: false,
+			shallow: true,
+			clearOnDefault: true,
+		},
+	);
 
-	const [searchTerm, setSearchTerm] = useState(
-		searchParams.get("search") || "",
-	);
-	const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(
-		searchParams.get("search") || "",
-	);
+	const [searchInput, setSearchInput] = useState(search);
+	const [debouncedSearch] = useDebounce(searchInput, 500);
 	const [items, setItems] = useState<Items[]>([]);
 	const [totalPages, setTotalPages] = useState(1);
-	const [page, setPage] = useState(Number(searchParams.get("page")) || 1);
 
 	useEffect(() => {
-		const timer = setTimeout(() => {
-			setDebouncedSearchTerm(searchTerm);
-			setPage(1);
-		}, 500);
-
-		return () => clearTimeout(timer);
-	}, [searchTerm]);
-
-	useEffect(() => {
-		const params = new URLSearchParams();
-		if (debouncedSearchTerm) {
-			params.set("search", debouncedSearchTerm);
+		if (debouncedSearch !== search) {
+			setQueryStates({
+				search: debouncedSearch || null,
+				page: 1,
+			});
 		}
-		if (page > 1) {
-			params.set("page", String(page));
-		}
-
-		const newUrl = params.toString() ? `?${params.toString()}` : "";
-		router.replace(`/${museumId}${newUrl}`, { scroll: false });
-	}, [debouncedSearchTerm, page, museumId, router]);
+	}, [debouncedSearch, search, setQueryStates]);
 
 	const { data, isLoading, error, isError } = useQuery({
-		queryKey: ["museum-items", museumId, page, debouncedSearchTerm],
-		queryFn: () =>
-			tainacanService.getItems(museumId, page, debouncedSearchTerm),
+		queryKey: ["museum-items", museumId, page, search],
+		queryFn: () => tainacanService.getItems(museumId, page, search),
 		enabled: !!museumId,
 	});
 
@@ -117,7 +109,7 @@ export default function MuseumPage({ params }: MuseumPageProps) {
 	const { title, link, description } = museum;
 
 	const changePage = (newPage: number) => {
-		setPage(newPage);
+		setQueryStates({ page: newPage });
 	};
 
 	return (
@@ -132,14 +124,12 @@ export default function MuseumPage({ params }: MuseumPageProps) {
 
 			<div className="flex flex-grow flex-col">
 				<div className="flex flex-col items-center space-y-8 p-6">
-					{!isLoading && (
-						<SearchBar
-							value={searchTerm}
-							onChange={(e: ChangeEvent<HTMLInputElement>) => {
-								setSearchTerm(e.target.value);
-							}}
-						/>
-					)}
+					<SearchBar
+						value={searchInput}
+						onChange={(e: ChangeEvent<HTMLInputElement>) => {
+							setSearchInput(e.target.value);
+						}}
+					/>
 
 					<div className="w-full max-w-screen-2xl px-4">
 						{isLoading ? (
@@ -181,7 +171,7 @@ export default function MuseumPage({ params }: MuseumPageProps) {
 										Nenhum item encontrado
 									</AlertTitle>
 									<AlertDescription className="text-gray-600 text-sm">
-										{searchTerm
+										{search
 											? "Tente ajustar sua busca ou use outros termos."
 											: "Não há itens disponíveis no momento."}
 									</AlertDescription>
