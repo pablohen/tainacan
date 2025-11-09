@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, PackageOpen } from "lucide-react";
 import { parseAsInteger, parseAsString, useQueryStates } from "nuqs";
-import { type ChangeEvent, use, useEffect, useState } from "react";
+import { type ChangeEvent, Suspense, use, useEffect, useState } from "react";
 import { useDebounce } from "use-debounce";
 import { Card } from "@/components/Card";
 import { CardSkeleton } from "@/components/CardSkeleton";
@@ -32,8 +32,7 @@ interface MuseumPageProps {
 	}>;
 }
 
-export default function MuseumPage({ params }: MuseumPageProps) {
-	const { museumId } = use(params);
+function MuseumContent({ museumId }: { museumId: string }) {
 	const [{ search, page }, setQueryStates] = useQueryStates({
 		search: parseAsString.withDefault(""),
 		page: parseAsInteger.withDefault(1),
@@ -73,27 +72,24 @@ export default function MuseumPage({ params }: MuseumPageProps) {
 	}, [data, museumId]);
 
 	const museum = getMuseumById(museumId);
+
 	if (!museum) {
 		return (
-			<div className="flex min-h-screen flex-col">
-				<Header />
-				<div className="flex flex-grow items-center justify-center p-4">
-					<div className="animate-fade-in">
-						<Alert
-							variant="destructive"
-							className="max-w-md rounded-2xl shadow-[0_20px_60px_rgb(0,0,0,0.15)]"
-						>
-							<AlertCircle className="h-5 w-5" />
-							<AlertTitle className="font-semibold text-lg">
-								Museu não encontrado
-							</AlertTitle>
-							<AlertDescription className="text-sm">
-								O museu que você está procurando não existe.
-							</AlertDescription>
-						</Alert>
-					</div>
+			<div className="flex flex-grow items-center justify-center p-4">
+				<div className="animate-fade-in">
+					<Alert
+						variant="destructive"
+						className="max-w-md rounded-2xl shadow-[0_20px_60px_rgb(0,0,0,0.15)]"
+					>
+						<AlertCircle className="h-5 w-5" />
+						<AlertTitle className="font-semibold text-lg">
+							Museu não encontrado
+						</AlertTitle>
+						<AlertDescription className="text-sm">
+							O museu que você está procurando não existe.
+						</AlertDescription>
+					</Alert>
 				</div>
-				<Footer />
 			</div>
 		);
 	}
@@ -105,8 +101,7 @@ export default function MuseumPage({ params }: MuseumPageProps) {
 	};
 
 	return (
-		<div className="flex min-h-screen flex-col bg-white">
-			<Header />
+		<>
 			<HeroBanner
 				title={title}
 				link={link}
@@ -236,6 +231,19 @@ export default function MuseumPage({ params }: MuseumPageProps) {
 					)}
 				</div>
 			</div>
+		</>
+	);
+}
+
+export default function MuseumPage({ params }: MuseumPageProps) {
+	const { museumId } = use(params);
+
+	return (
+		<div className="flex min-h-screen flex-col bg-white">
+			<Header />
+			<Suspense fallback={<div className="flex flex-grow" />}>
+				<MuseumContent museumId={museumId} />
+			</Suspense>
 			<Footer />
 		</div>
 	);
