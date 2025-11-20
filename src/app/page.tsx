@@ -1,54 +1,51 @@
-import { AlertTriangle, ExternalLink } from "lucide-react";
-import Link from "next/link";
+"use client";
+
+import { useState } from "react";
+import { useDebounce } from "use-debounce";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { HeroBanner } from "@/components/HeroBanner";
+import { MuseumCard } from "@/components/MuseumCard";
+import { SearchBar } from "@/components/SearchBar";
+import { museums } from "@/utils/museums";
 
 export default function Home() {
+	const [search, setSearch] = useState("");
+	const [debouncedSearch] = useDebounce(search, 300);
+
+	const filteredMuseums = museums.filter((museum) =>
+		museum.title.toLowerCase().includes(debouncedSearch.toLowerCase()),
+	);
+
 	return (
 		<div className="flex min-h-screen flex-col bg-white">
 			<Header />
 
 			<HeroBanner
-				title="Casos de Uso"
-				description="Lugares onde o sistema foi implementado e pode ser visualizado."
+				title="Explore Acervos Culturais"
+				description="Navegue por dezenas de museus e instituições brasileiras"
 			/>
 
-			<div className="flex flex-grow flex-col items-center px-4 py-16">
-				<div className="flex flex-grow flex-col items-center justify-center">
-					<div className="w-full max-w-2xl">
-						<div className="space-y-6 rounded-2xl border border-gray-200 bg-white p-8">
-							<div className="flex items-center justify-center gap-3">
-								<div className="rounded-lg bg-yellow-100 p-2">
-									<AlertTriangle className="h-6 w-6 text-yellow-600" />
-								</div>
-								<h3 className="font-bold text-2xl text-gray-900">
-									Aviso Importante
-								</h3>
-							</div>
-
-							<div className="space-y-4 text-center">
-								<p className="text-base text-gray-600 leading-relaxed">
-									Este site não substitui o site oficial do projeto ou o de cada
-									museu. O único objetivo é reunir o conteúdo e facilitar a
-									busca por informação.
-								</p>
-
-								<div className="pt-4">
-									<Link
-										href="https://tainacan.org"
-										target="_blank"
-										rel="noreferrer"
-										className="inline-flex items-center gap-2 rounded-full bg-gray-900 px-5 py-2.5 font-medium text-white transition-colors duration-200 hover:bg-gray-800"
-									>
-										<span>Visitar site oficial</span>
-										<ExternalLink className="h-4 w-4" />
-									</Link>
-								</div>
-							</div>
-						</div>
-					</div>
+			<div className="container mx-auto flex-grow px-4 py-8">
+				<div className="mx-auto max-w-2xl">
+					<SearchBar
+						value={search}
+						onChange={(e) => setSearch(e.target.value)}
+						placeholder="Buscar museus..."
+					/>
 				</div>
+
+				<div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+					{filteredMuseums.map((museum) => (
+						<MuseumCard key={museum.id} museum={museum} />
+					))}
+				</div>
+
+				{filteredMuseums.length === 0 && (
+					<div className="mt-12 text-center text-gray-500">
+						Nenhum museu encontrado para "{search}"
+					</div>
+				)}
 			</div>
 
 			<Footer />

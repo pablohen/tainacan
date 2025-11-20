@@ -3,6 +3,7 @@ import {
 	CardFooter,
 	Card as ShadcnCard,
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function CardSkeleton() {
 	return (
@@ -11,13 +12,13 @@ export function CardSkeleton() {
 				<CardContent className="p-0">
 					<div className="relative flex items-start justify-center bg-gray-50">
 						{/* Image skeleton */}
-						<div className="h-64 w-full animate-pulse bg-gray-200" />
+						<Skeleton className="h-64 w-full rounded-none" />
 					</div>
 				</CardContent>
 
 				<CardFooter className="border-gray-100 border-t bg-white px-4 py-3">
 					{/* Title skeleton */}
-					<div className="mx-auto h-4 w-3/4 animate-pulse rounded bg-gray-200" />
+					<Skeleton className="mx-auto h-4 w-3/4" />
 				</CardFooter>
 			</ShadcnCard>
 		</div>

@@ -3,12 +3,14 @@
 import { Heart } from "lucide-react";
 import Link from "next/link";
 import { useFavorites } from "@/contexts/FavoritesContext";
+import { useFavoriteMuseums } from "@/hooks/useFavoriteMuseums";
 import { cn } from "@/lib/utils";
 import { MuseumList } from "./MuseumList";
 
 export function Header() {
 	const { favorites } = useFavorites();
-	const favoritesCount = favorites.length;
+	const { favorites: favoriteMuseums } = useFavoriteMuseums();
+	const favoritesCount = favorites.length + favoriteMuseums.length;
 
 	return (
 		<header className="sticky top-0 z-50 border-gray-200/80 border-b bg-white/95 backdrop-blur-sm">
