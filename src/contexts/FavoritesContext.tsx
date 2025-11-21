@@ -16,54 +16,85 @@ export interface FavoriteItem {
 }
 
 interface FavoritesContextType {
-	favorites: FavoriteItem[];
-	toggleFavorite: (item: FavoriteItem) => void;
-	isFavorite: (museumId: string, itemId: number) => boolean;
+	favoriteItems: FavoriteItem[];
+	toggleFavoriteItem: (item: FavoriteItem) => void;
+	isFavoriteItem: (museumId: string, itemId: number) => boolean;
 	getFavoritesByMuseum: (museumId: string) => FavoriteItem[];
+	favoriteMuseums: string[];
+	toggleFavoriteMuseum: (museumId: string) => void;
+	isFavoriteMuseum: (museumId: string) => boolean;
 }
 
 const FavoritesContext = createContext<FavoritesContextType | undefined>(
 	undefined,
 );
 
-const FAVORITES_KEY = "item-favorites";
+const ITEM_FAVORITES_KEY = "item-favorites";
+const MUSEUM_FAVORITES_KEY = "museum-favorites";
 
-function loadFavorites(): FavoriteItem[] {
+function loadFavoriteItems(): FavoriteItem[] {
 	if (typeof window === "undefined") return [];
 	try {
-		const stored = localStorage.getItem(FAVORITES_KEY);
+		const stored = localStorage.getItem(ITEM_FAVORITES_KEY);
 		return stored ? JSON.parse(stored) : [];
 	} catch {
 		return [];
 	}
 }
 
-function saveFavorites(favorites: FavoriteItem[]): void {
+function loadFavoriteMuseums(): string[] {
+	if (typeof window === "undefined") return [];
+	try {
+		const stored = localStorage.getItem(MUSEUM_FAVORITES_KEY);
+		return stored ? JSON.parse(stored) : [];
+	} catch {
+		return [];
+	}
+}
+
+function saveFavoriteItems(favorites: FavoriteItem[]): void {
 	if (typeof window === "undefined") return;
 	try {
-		localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+		localStorage.setItem(ITEM_FAVORITES_KEY, JSON.stringify(favorites));
 	} catch (error) {
-		console.error("Failed to save favorites:", error);
+		console.error("Failed to save favorite items:", error);
+	}
+}
+
+function saveFavoriteMuseums(favorites: string[]): void {
+	if (typeof window === "undefined") return;
+	try {
+		localStorage.setItem(MUSEUM_FAVORITES_KEY, JSON.stringify(favorites));
+	} catch (error) {
+		console.error("Failed to save favorite museums:", error);
 	}
 }
 
 export function FavoritesProvider({ children }: { children: ReactNode }) {
-	const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
+	const [favoriteItems, setFavoriteItems] = useState<FavoriteItem[]>([]);
+	const [favoriteMuseums, setFavoriteMuseums] = useState<string[]>([]);
 	const [isHydrated, setIsHydrated] = useState(false);
 
 	useEffect(() => {
-		setFavorites(loadFavorites());
+		setFavoriteItems(loadFavoriteItems());
+		setFavoriteMuseums(loadFavoriteMuseums());
 		setIsHydrated(true);
 	}, []);
 
 	useEffect(() => {
 		if (isHydrated) {
-			saveFavorites(favorites);
+			saveFavoriteItems(favoriteItems);
 		}
-	}, [favorites, isHydrated]);
+	}, [favoriteItems, isHydrated]);
 
-	const toggleFavorite = (item: FavoriteItem) => {
-		setFavorites((prev) => {
+	useEffect(() => {
+		if (isHydrated) {
+			saveFavoriteMuseums(favoriteMuseums);
+		}
+	}, [favoriteMuseums, isHydrated]);
+
+	const toggleFavoriteItem = (item: FavoriteItem) => {
+		setFavoriteItems((prev) => {
 			const exists = prev.find(
 				(fav) => fav.museumId === item.museumId && fav.itemId === item.itemId,
 			);
@@ -77,19 +108,41 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
 		});
 	};
 
-	const isFavorite = (museumId: string, itemId: number) => {
-		return favorites.some(
+	const isFavoriteItem = (museumId: string, itemId: number) => {
+		return favoriteItems.some(
 			(fav) => fav.museumId === museumId && fav.itemId === itemId,
 		);
 	};
 
 	const getFavoritesByMuseum = (museumId: string) => {
-		return favorites.filter((fav) => fav.museumId === museumId);
+		return favoriteItems.filter((fav) => fav.museumId === museumId);
+	};
+
+	const toggleFavoriteMuseum = (museumId: string) => {
+		setFavoriteMuseums((prev) => {
+			const exists = prev.includes(museumId);
+			if (exists) {
+				return prev.filter((id) => id !== museumId);
+			}
+			return [...prev, museumId];
+		});
+	};
+
+	const isFavoriteMuseum = (museumId: string) => {
+		return favoriteMuseums.includes(museumId);
 	};
 
 	return (
 		<FavoritesContext.Provider
-			value={{ favorites, toggleFavorite, isFavorite, getFavoritesByMuseum }}
+			value={{
+				favoriteItems,
+				toggleFavoriteItem,
+				isFavoriteItem,
+				getFavoritesByMuseum,
+				favoriteMuseums,
+				toggleFavoriteMuseum,
+				isFavoriteMuseum,
+			}}
 		>
 			{children}
 		</FavoritesContext.Provider>

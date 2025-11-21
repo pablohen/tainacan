@@ -5,10 +5,10 @@ import Link from "next/link";
 import { useFavorites } from "@/contexts/FavoritesContext";
 import { getMuseumById } from "@/utils/museums";
 
-export function FavoritesSection() {
-	const { favorites } = useFavorites();
+export function FavoriteItemsSection() {
+	const { favoriteItems } = useFavorites();
 
-	if (favorites.length === 0) {
+	if (favoriteItems.length === 0) {
 		return null;
 	}
 
@@ -22,7 +22,7 @@ export function FavoritesSection() {
 			</div>
 
 			<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-				{favorites.slice(0, 6).map((favorite) => {
+				{favoriteItems.slice(0, 6).map((favorite) => {
 					const museum = getMuseumById(favorite.museumId);
 					return (
 						<Link
@@ -45,13 +45,13 @@ export function FavoritesSection() {
 				})}
 			</div>
 
-			{favorites.length > 6 && (
+			{favoriteItems.length > 6 && (
 				<div className="text-center">
 					<Link
 						href="/favorites"
 						className="inline-block font-medium text-gray-700 transition-colors duration-200 hover:text-gray-900"
 					>
-						Ver todos os favoritos ({favorites.length})
+						Ver todos os favoritos ({favoriteItems.length})
 					</Link>
 				</div>
 			)}

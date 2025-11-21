@@ -17,7 +17,8 @@ export function FavoriteButton({
 	variant = "default",
 	className,
 }: FavoriteButtonProps) {
-	const { toggleFavorite, isFavorite } = useFavorites();
+	const { toggleFavoriteItem: toggleFavorite, isFavoriteItem: isFavorite } =
+		useFavorites();
 	const [isAnimating, setIsAnimating] = useState(false);
 
 	const favorited = isFavorite(item.museumId, item.itemId);

@@ -11,7 +11,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { useFavoriteMuseums } from "@/hooks/useFavoriteMuseums";
+import { useFavorites } from "@/contexts/FavoritesContext";
 import type { Museum } from "@/interfaces/Museum";
 import { cn } from "@/lib/utils";
 
@@ -21,8 +21,8 @@ interface MuseumCardProps {
 }
 
 export function MuseumCard({ museum, className }: MuseumCardProps) {
-	const { isFavorite, toggleFavorite } = useFavoriteMuseums();
-	const favorited = isFavorite(museum.id);
+	const { isFavoriteMuseum, toggleFavoriteMuseum } = useFavorites();
+	const favorited = isFavoriteMuseum(museum.id);
 
 	return (
 		<Card
@@ -44,7 +44,7 @@ export function MuseumCard({ museum, className }: MuseumCardProps) {
 						className="h-8 w-8 shrink-0"
 						onClick={(e) => {
 							e.preventDefault();
-							toggleFavorite(museum.id);
+							toggleFavoriteMuseum(museum.id);
 						}}
 						aria-label={
 							favorited ? "Remover dos favoritos" : "Adicionar aos favoritos"

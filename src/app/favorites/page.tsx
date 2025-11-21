@@ -18,12 +18,10 @@ import {
 	Card as ShadcnCard,
 } from "@/components/ui/card";
 import { useFavorites } from "@/contexts/FavoritesContext";
-import { useFavoriteMuseums } from "@/hooks/useFavoriteMuseums";
 import { getMuseumById } from "@/utils/museums";
 
 function FavoritesContent() {
-	const { favorites } = useFavorites();
-	const { favorites: favoriteMuseums } = useFavoriteMuseums();
+	const { favoriteItems, favoriteMuseums } = useFavorites();
 
 	const [search, setSearch] = useQueryState(
 		"search",
@@ -33,7 +31,7 @@ function FavoritesContent() {
 	const [searchInput, setSearchInput] = useState(search);
 	const [debouncedSearch] = useDebounce(searchInput, 500);
 
-	const filteredFavorites = favorites.filter((favorite) => {
+	const filteredFavorites = favoriteItems.filter((favorite) => {
 		if (!search) return true;
 
 		const searchLower = search.toLowerCase();
@@ -58,7 +56,8 @@ function FavoritesContent() {
 		}
 	}, [debouncedSearch, search, setSearch]);
 
-	const hasAnyFavorites = favorites.length > 0 || favoriteMuseums.length > 0;
+	const hasAnyFavorites =
+		favoriteItems.length > 0 || favoriteMuseums.length > 0;
 	const hasAnyResults =
 		filteredFavorites.length > 0 || filteredMuseums.length > 0;
 
@@ -72,8 +71,8 @@ function FavoritesContent() {
 					</div>
 					<p className="text-gray-600">
 						{hasAnyFavorites
-							? `Você tem ${favorites.length + favoriteMuseums.length} ${
-									favorites.length + favoriteMuseums.length === 1
+							? `Você tem ${favoriteItems.length + favoriteMuseums.length} ${
+									favoriteItems.length + favoriteMuseums.length === 1
 										? "item favoritado"
 										: "itens favoritados"
 								}`
