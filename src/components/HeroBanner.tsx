@@ -21,22 +21,22 @@ export function HeroBanner({
 	return (
 		<div className={`${background} border-gray-200 border-b`}>
 			<div className="flex flex-col items-center">
-				<div className="w-full max-w-5xl space-y-6 px-6 py-16 sm:px-8 sm:py-24 lg:px-12">
+				<div className="w-full max-w-screen-2xl space-y-2 p-6">
 					<div className="flex items-center justify-between gap-4">
-						<h2 className="font-bold text-4xl text-gray-900 tracking-tight lg:text-6xl">
+						<h2 className="flex items-center gap-2 font-bold text-3xl text-gray-900 tracking-tight lg:text-5xl">
 							{title}
+							{museumId && (
+								<FavoriteButton
+									type="museum"
+									museumId={museumId}
+									className="h-12 w-12"
+								/>
+							)}
 						</h2>
-						{museumId && (
-							<FavoriteButton
-								type="museum"
-								museumId={museumId}
-								className="h-12 w-12"
-							/>
-						)}
 					</div>
 
 					{description && (
-						<p className="max-w-2xl text-gray-600 text-lg leading-relaxed lg:text-xl">
+						<p className="max-w-2xl text-base text-gray-600 leading-relaxed lg:text-lg">
 							{description}
 						</p>
 					)}
