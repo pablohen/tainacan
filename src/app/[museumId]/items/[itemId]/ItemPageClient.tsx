@@ -64,11 +64,12 @@ export default function ItemPageClient({
 											<p className="text-gray-600 text-sm">{museumName}</p>
 										</div>
 										<FavoriteButton
+											type="item"
 											item={{
 												museumId,
 												itemId: item.id,
 												title: item.title,
-												imageUrl: imgPath,
+												imageUrl: checkImagePath(item),
 											}}
 											variant="detail"
 										/>

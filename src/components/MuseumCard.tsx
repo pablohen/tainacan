@@ -1,7 +1,8 @@
 "use client";
 
-import { Heart } from "lucide-react";
 import Link from "next/link";
+
+import { FavoriteButton } from "@/components/FavoriteButton";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -11,7 +12,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { useFavorites } from "@/contexts/FavoritesContext";
 import type { Museum } from "@/interfaces/Museum";
 import { cn } from "@/lib/utils";
 
@@ -21,9 +21,6 @@ interface MuseumCardProps {
 }
 
 export function MuseumCard({ museum, className }: MuseumCardProps) {
-	const { isFavoriteMuseum, toggleFavoriteMuseum } = useFavorites();
-	const favorited = isFavoriteMuseum(museum.id);
-
 	return (
 		<Card
 			className={cn(
@@ -38,25 +35,12 @@ export function MuseumCard({ museum, className }: MuseumCardProps) {
 							{museum.title}
 						</Link>
 					</CardTitle>
-					<Button
-						variant="ghost"
-						size="icon"
+					<FavoriteButton
+						type="museum"
+						museumId={museum.id}
+						variant="default"
 						className="h-8 w-8 shrink-0"
-						onClick={(e) => {
-							e.preventDefault();
-							toggleFavoriteMuseum(museum.id);
-						}}
-						aria-label={
-							favorited ? "Remover dos favoritos" : "Adicionar aos favoritos"
-						}
-					>
-						<Heart
-							className={cn(
-								"h-5 w-5 transition-colors",
-								favorited ? "fill-red-500 text-red-500" : "text-gray-400",
-							)}
-						/>
-					</Button>
+					/>
 				</div>
 			</CardHeader>
 			<CardContent className="flex-grow">

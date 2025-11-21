@@ -27,6 +27,7 @@ export function Card({ museumId, item }: CardProps) {
 					<CardContent className="p-0">
 						<div className="relative flex items-start justify-center bg-gray-50">
 							<FavoriteButton
+								type="item"
 								item={{
 									museumId,
 									itemId: item.id,

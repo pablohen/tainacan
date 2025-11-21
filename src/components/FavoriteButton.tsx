@@ -6,27 +6,40 @@ import { type FavoriteItem, useFavorites } from "@/contexts/FavoritesContext";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 
-interface FavoriteButtonProps {
-	item: FavoriteItem;
+export type FavoriteButtonProps = {
 	variant?: "default" | "card" | "detail";
 	className?: string;
-}
+} & (
+	| { type: "item"; item: FavoriteItem }
+	| { type: "museum"; museumId: string }
+);
 
 export function FavoriteButton({
-	item,
 	variant = "default",
 	className,
+	...props
 }: FavoriteButtonProps) {
-	const { toggleFavoriteItem: toggleFavorite, isFavoriteItem: isFavorite } =
-		useFavorites();
+	const {
+		toggleFavoriteItem,
+		isFavoriteItem,
+		toggleFavoriteMuseum,
+		isFavoriteMuseum,
+	} = useFavorites();
 	const [isAnimating, setIsAnimating] = useState(false);
 
-	const favorited = isFavorite(item.museumId, item.itemId);
+	const isItem = props.type === "item";
+	const favorited = isItem
+		? isFavoriteItem(props.item.museumId, props.item.itemId)
+		: isFavoriteMuseum(props.museumId);
 
 	const handleClick = (e: React.MouseEvent) => {
 		e.preventDefault();
 		e.stopPropagation();
-		toggleFavorite(item);
+		if (isItem) {
+			toggleFavoriteItem(props.item);
+		} else {
+			toggleFavoriteMuseum(props.museumId);
+		}
 		setIsAnimating(true);
 		setTimeout(() => setIsAnimating(false), 300);
 	};

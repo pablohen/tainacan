@@ -121,8 +121,10 @@ function FavoritesContent() {
 														<CardContent className="p-0">
 															<div className="relative flex items-start justify-center bg-gray-50">
 																<FavoriteButton
+																	type="item"
 																	item={favorite}
 																	variant="card"
+																	className="absolute top-2 right-2"
 																/>
 																<motion.img
 																	src={favorite.imageUrl}
