@@ -11,11 +11,10 @@ Projeto pessoal para agregar conteúdo de diversos sites que estão usando a fer
 - Next-SEO
 - Next-Themes
 - Tailwind CSS
-- Heroicons
+- shadcn/ui
+- Lucide Icons
 - Axios
-- React Loader Spinner
-- Material-UI
-- SWR
+- TanStack Query (React Query)
 
 ## Back-end:
 

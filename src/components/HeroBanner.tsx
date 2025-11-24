@@ -1,42 +1,58 @@
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { FavoriteButton } from "@/components/FavoriteButton";
+import { Button } from "@/components/ui/button";
 
-interface Props {
-  title: string;
-  link?: string;
-  description: string;
-  background?: string;
+interface HeroBannerProps {
+	title: string;
+	link?: string;
+	description: string;
+	background?: string;
+	museumId?: string;
 }
 
-const HeroBanner = ({
-  title = "Lorem ipsum",
-  link = "#",
-  description = "",
-  background = "bg-primary dark:bg-primary",
-}: Props) => (
-  <div className={background}>
-    <div className="flex flex-col items-center">
-      <div className="w-10/12 py-8 sm:py-16 space-y-8">
-        <h2 className="flex items-center text-3xl lg:text-5xl font-light text-gray-100">
-          {title}
-        </h2>
+export function HeroBanner({
+	title = "Lorem ipsum",
+	link = "#",
+	description = "",
+	background = "bg-gray-50",
+	museumId,
+}: HeroBannerProps) {
+	return (
+		<div className={`${background} border-gray-200 border-b`}>
+			<div className="flex flex-col items-center">
+				<div className="w-full max-w-screen-2xl space-y-2 p-6">
+					<div className="flex items-center justify-between gap-4">
+						<h2 className="flex items-center gap-2 font-bold text-3xl text-gray-900 tracking-tight lg:text-5xl">
+							{title}
+							{museumId && (
+								<FavoriteButton
+									type="museum"
+									museumId={museumId}
+									className="h-12 w-12"
+								/>
+							)}
+						</h2>
+					</div>
 
-        {description && <p className="text-lg text-gray-100">{description}</p>}
+					{description && (
+						<p className="max-w-2xl text-base text-gray-600 leading-relaxed lg:text-lg">
+							{description}
+						</p>
+					)}
 
-        {link !== "#" && (
-          <Link href={link} passHref>
-            <button
-              type="button"
-              className="flex justify-between items-center space-x-4 rounded border bg-white px-4 py-2 text-primary transform transition-all ease-in-out hover:shadow-xl hover:border hover:border-white"
-            >
-              Ir para o site
-              <ArrowForwardIcon className="h-4 ml-2" />
-            </button>
-          </Link>
-        )}
-      </div>
-    </div>
-  </div>
-);
-
-export default HeroBanner;
+					{link !== "#" && (
+						<div className="pt-2">
+							<Link href={link} passHref>
+								<Button className="group flex cursor-pointer items-center gap-2 rounded-full bg-gray-900 px-6 py-3 font-medium text-white transition-all duration-200 hover:bg-gray-800">
+									<span>Ir para o site</span>
+									<ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+								</Button>
+							</Link>
+						</div>
+					)}
+				</div>
+			</div>
+		</div>
+	);
+}

@@ -1,46 +1,57 @@
-/* eslint-disable @next/next/no-img-element */
+"use client";
+
 import { motion } from "framer-motion";
 import Link from "next/link";
-import checkImagePath from "../utils/checkImagePath";
+import {
+	CardContent,
+	CardFooter,
+	Card as ShadcnCard,
+} from "@/components/ui/card";
+import type { Item } from "@/types/Item";
+import { checkImagePath } from "@/utils/checkImagePath";
+import { FavoriteButton } from "./FavoriteButton";
 
-interface Item {
-  id: number;
-  title: string;
+interface CardProps {
+	museumId: string;
+	item: Item;
 }
 
-interface Props {
-  museumId: string;
-  item: Item;
+export function Card({ museumId, item }: CardProps) {
+	const imgPath = checkImagePath(item);
+	const cardTitle = `${item.id} - ${item.title}`;
+
+	return (
+		<div className="mb-4 animate-fade-in break-inside-avoid">
+			<Link href={`/${museumId}/items/${item.id}`}>
+				<ShadcnCard className="group relative overflow-hidden rounded-lg border border-gray-200 transition-all duration-200 hover:border-gray-300 hover:shadow-lg">
+					<CardContent className="p-0">
+						<div className="relative flex items-start justify-center bg-gray-50">
+							<FavoriteButton
+								type="item"
+								item={{
+									museumId,
+									itemId: item.id,
+									title: item.title,
+									imageUrl: imgPath,
+								}}
+								variant="card"
+							/>
+							<motion.img
+								src={imgPath}
+								alt={String(item.id)}
+								className="h-auto w-full object-contain object-top transition-transform duration-200 group-hover:scale-105"
+								layoutId={String(item.id)}
+							/>
+						</div>
+					</CardContent>
+
+					<CardFooter className="border-gray-100 border-t bg-white px-4 py-3">
+						<p className="w-full truncate text-center font-medium text-gray-700 text-sm">
+							{cardTitle}
+						</p>
+					</CardFooter>
+				</ShadcnCard>
+			</Link>
+		</div>
+	);
 }
-
-const Card = ({ museumId, item }: Props) => {
-  const imgPath = checkImagePath(item);
-  const cardTitle = `${item.id} - ${item.title}`;
-
-  return (
-    <div
-      className="w-6/12 sm:w-4/12 md:w-3/12 lg:w-2/12"
-      key={`ItemMuseu__${museumId}`}
-    >
-      <Link href={`/${museumId}/items/${item.id}`}>
-        <div className="m-2 bg-white dark:bg-gray-800 border dark:border-gray-900 shadow transform transition-all ease-in-out duration-500 hover:shadow-lg hover:-translate-y-1">
-          <div className="flex justify-center items-center p-4">
-            <motion.img
-              src={imgPath}
-              alt={String(item.id)}
-              className="object-center object-contain h-36"
-              layoutId={String(item.id)}
-            />
-          </div>
-          <div className="px-4 pb-4 ">
-            <p className="font-semibold text-gray-700 dark:text-gray-200 text-center truncate">
-              {cardTitle}
-            </p>
-          </div>
-        </div>
-      </Link>
-    </div>
-  );
-};
-
-export default Card;

@@ -1,0 +1,201 @@
+"use client";
+
+import { motion } from "framer-motion";
+import { Heart, PackageOpen } from "lucide-react";
+import Link from "next/link";
+import { parseAsString, useQueryState } from "nuqs";
+import { type ChangeEvent, Suspense, useEffect, useState } from "react";
+import { useDebounce } from "use-debounce";
+import { FavoriteButton } from "@/components/FavoriteButton";
+import { Footer } from "@/components/Footer";
+import { Header } from "@/components/Header";
+import { MuseumCard } from "@/components/MuseumCard";
+import { SearchBar } from "@/components/SearchBar";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+	CardContent,
+	CardFooter,
+	Card as ShadcnCard,
+} from "@/components/ui/card";
+import { useFavorites } from "@/contexts/FavoritesContext";
+import { getMuseumById } from "@/utils/museums";
+
+function FavoritesContent() {
+	const { favoriteItems, favoriteMuseums } = useFavorites();
+
+	const [search, setSearch] = useQueryState(
+		"search",
+		parseAsString.withDefault(""),
+	);
+
+	const [searchInput, setSearchInput] = useState(search);
+	const [debouncedSearch] = useDebounce(searchInput, 500);
+
+	const filteredFavorites = favoriteItems.filter((favorite) => {
+		if (!search) return true;
+
+		const searchLower = search.toLowerCase();
+		const museum = getMuseumById(favorite.museumId);
+		const museumTitle = museum?.title.toLowerCase() || "";
+		const itemTitle = favorite.title.toLowerCase();
+
+		return itemTitle.includes(searchLower) || museumTitle.includes(searchLower);
+	});
+
+	const filteredMuseums = favoriteMuseums
+		.map((id) => getMuseumById(id))
+		.filter((museum) => museum !== null)
+		.filter((museum) => {
+			if (!search) return true;
+			return museum.title.toLowerCase().includes(search.toLowerCase());
+		});
+
+	useEffect(() => {
+		if (debouncedSearch !== search) {
+			setSearch(debouncedSearch || null);
+		}
+	}, [debouncedSearch, search, setSearch]);
+
+	const hasAnyFavorites =
+		favoriteItems.length > 0 || favoriteMuseums.length > 0;
+	const hasAnyResults =
+		filteredFavorites.length > 0 || filteredMuseums.length > 0;
+
+	return (
+		<div className="flex flex-grow flex-col p-4">
+			<div className="mx-auto w-full max-w-screen-2xl space-y-4">
+				<div className="space-y-2">
+					<div className="flex items-center gap-3">
+						<Heart className="h-8 w-8 fill-red-500 text-red-500" />
+						<h1 className="font-bold text-3xl text-gray-900">Meus Favoritos</h1>
+					</div>
+					<p className="text-gray-600">
+						{hasAnyFavorites
+							? `Você tem ${favoriteItems.length + favoriteMuseums.length} ${
+									favoriteItems.length + favoriteMuseums.length === 1
+										? "item favoritado"
+										: "itens favoritados"
+								}`
+							: "Você ainda não possui itens favoritos"}
+					</p>
+				</div>
+
+				{hasAnyFavorites && (
+					<SearchBar
+						value={searchInput}
+						onChange={(e: ChangeEvent<HTMLInputElement>) => {
+							setSearchInput(e.target.value);
+						}}
+						placeholder="Buscar nos favoritos..."
+					/>
+				)}
+
+				{hasAnyFavorites ? (
+					<div className="space-y-8">
+						{filteredMuseums.length > 0 && (
+							<div className="space-y-4">
+								<h2 className="font-semibold text-gray-900 text-xl">Museus</h2>
+								<div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+									{filteredMuseums.map((museum) => (
+										<MuseumCard key={museum.id} museum={museum} />
+									))}
+								</div>
+							</div>
+						)}
+
+						{filteredFavorites.length > 0 && (
+							<div className="space-y-4">
+								<h2 className="font-semibold text-gray-900 text-xl">Itens</h2>
+								<div className="animate-fade-in columns-2 gap-4 sm:columns-3 md:columns-4 lg:columns-5 xl:columns-6">
+									{filteredFavorites.map((favorite) => {
+										const museum = getMuseumById(favorite.museumId);
+										return (
+											<div
+												key={`${favorite.museumId}-${favorite.itemId}`}
+												className="mb-4 break-inside-avoid"
+											>
+												<Link
+													href={`/${favorite.museumId}/items/${favorite.itemId}`}
+												>
+													<ShadcnCard className="group relative overflow-hidden rounded-lg border border-gray-200 transition-all duration-200 hover:border-gray-300 hover:shadow-lg">
+														<CardContent className="p-0">
+															<div className="relative flex items-start justify-center bg-gray-50">
+																<FavoriteButton
+																	type="item"
+																	item={favorite}
+																	variant="card"
+																	className="absolute top-2 right-2"
+																/>
+																<motion.img
+																	src={favorite.imageUrl}
+																	alt={favorite.title}
+																	className="h-auto w-full object-contain object-top transition-transform duration-200 group-hover:scale-105"
+																	layoutId={`favorite-${favorite.itemId}`}
+																/>
+															</div>
+														</CardContent>
+
+														<CardFooter className="flex flex-col items-start gap-1 border-gray-100 border-t bg-white px-4 py-3">
+															<p className="w-full truncate font-medium text-gray-700 text-sm">
+																{favorite.title}
+															</p>
+															{museum && (
+																<p className="w-full truncate text-gray-500 text-xs">
+																	{museum.title}
+																</p>
+															)}
+														</CardFooter>
+													</ShadcnCard>
+												</Link>
+											</div>
+										);
+									})}
+								</div>
+							</div>
+						)}
+
+						{!hasAnyResults && (
+							<div className="flex animate-fade-in justify-center py-16">
+								<Alert className="max-w-md rounded-xl border border-gray-200 bg-white">
+									<PackageOpen className="h-5 w-5 text-gray-600" />
+									<AlertTitle className="font-semibold text-base text-gray-900">
+										Nenhum resultado encontrado
+									</AlertTitle>
+									<AlertDescription className="text-gray-600 text-sm">
+										Nenhum favorito corresponde à sua busca. Tente usar outros
+										termos.
+									</AlertDescription>
+								</Alert>
+							</div>
+						)}
+					</div>
+				) : (
+					<div className="flex animate-fade-in justify-center py-16">
+						<Alert className="max-w-md rounded-xl border border-gray-200 bg-white">
+							<PackageOpen className="h-5 w-5 text-gray-600" />
+							<AlertTitle className="font-semibold text-base text-gray-900">
+								Nenhum favorito ainda
+							</AlertTitle>
+							<AlertDescription className="text-gray-600 text-sm">
+								Explore os museus e adicione itens aos seus favoritos clicando
+								no ícone de coração.
+							</AlertDescription>
+						</Alert>
+					</div>
+				)}
+			</div>
+		</div>
+	);
+}
+
+export default function FavoritesPage() {
+	return (
+		<div className="flex min-h-screen flex-col bg-white">
+			<Header />
+			<Suspense fallback={<div className="flex flex-grow" />}>
+				<FavoritesContent />
+			</Suspense>
+			<Footer />
+		</div>
+	);
+}

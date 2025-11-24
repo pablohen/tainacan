@@ -1,16 +1,11 @@
-import ThemeToggler from './ThemeToggler';
+export function Footer() {
+	const currentYear = new Date().getFullYear();
 
-const Footer = () => {
-  const currentYear = new Date().getFullYear();
-
-  return (
-    <footer className="bg-primary dark:bg-primary w-full">
-      <div className="flex flex-col items-center justify-center py-8 space-y-4">
-        <p className="text-sm font-bold text-white">{`Tainacan @ ${currentYear}`}</p>
-        <ThemeToggler />
-      </div>
-    </footer>
-  );
-};
-
-export default Footer;
+	return (
+		<footer className="border-gray-200 border-t bg-white">
+			<div className="flex flex-col items-center justify-center px-6 py-12">
+				<p className="text-gray-600 text-sm">{`Tainacan © ${currentYear}`}</p>
+			</div>
+		</footer>
+	);
+}

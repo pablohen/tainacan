@@ -1,26 +1,30 @@
-import SearchIcon from "@mui/icons-material/Search";
-import { ChangeEvent } from "react";
+import { Search } from "lucide-react";
+import type { ChangeEvent } from "react";
+import { Input } from "@/components/ui/input";
 
-interface Props {
-  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  results: number;
+interface SearchBarProps {
+	value: string;
+	onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+	placeholder?: string;
 }
 
-const SearchBar = ({ onChange, results }: Props) => (
-  <>
-    <div className="flex items-center bg-white dark:bg-gray-800 border dark:border-gray-900 p-2 rounded-full shadow-sm text-gray-500 focus-within:text-gray-800 dark:focus-within:text-gray-200 focus-within:shadow-md">
-      <SearchIcon className="h-6" />
-      <input
-        type="text"
-        placeholder="buscar..."
-        className="bg-transparent outline-none px-2"
-        onChange={onChange}
-      />
-    </div>
-    {results && (
-      <p className="text-gray-700 dark:text-gray-200 text-sm">{`${results} items carregados`}</p>
-    )}
-  </>
-);
-
-export default SearchBar;
+export function SearchBar({
+	value,
+	onChange,
+	placeholder = "Buscar itens do museu...",
+}: SearchBarProps) {
+	return (
+		<div className="w-full max-w-2xl animate-fade-in">
+			<div className="relative">
+				<Search className="-translate-y-1/2 absolute top-1/2 left-4 h-5 w-5 text-gray-400" />
+				<Input
+					type="text"
+					value={value}
+					placeholder={placeholder}
+					onChange={onChange}
+					className="h-12 rounded-lg border border-gray-300 bg-white pl-12 text-base transition-colors duration-200 hover:border-gray-400 focus-visible:border-gray-900"
+				/>
+			</div>
+		</div>
+	);
+}

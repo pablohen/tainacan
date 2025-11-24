@@ -1,99 +1,93 @@
-import axios, { AxiosError } from 'axios';
-import { ItemDTO, Metadata } from '../interfaces/ItemDTO';
-import { ItemsDTO } from '../interfaces/ItemsDTO';
-import Museums from '../utils/museums';
+import axios from "axios";
+import type { GetItemResponse, Item } from "@/types/Item";
+import type { GetItemsResponse } from "@/types/Items";
+import { getMuseumById } from "@/utils/museums";
 
-export interface Items {
-  id: number;
-  title: string;
-  description: string;
-  document_as_html: string;
-}
-
-export interface Item {
-  id: number;
-  title: string;
-  description: string;
-  document_as_html: string;
-  metadata: Metadata;
-}
 export interface FormattedItemsRes {
-  items: Items[];
-  wpTotal: number;
-  wpTotalPages: number;
+	items: Item[];
+	wpTotal: number;
+	wpTotalPages: number;
 }
 
-const getItems = async (
-  museumId: number,
-  page: number = 1,
-  searchTerm: string = ''
-) => {
-  const perpage = 50;
-  const paged = page;
-  const metaqueryCompare = 'LIKE';
-  const metaqueryValue = searchTerm;
+export const getItems = async (
+	museumId: string,
+	page: number = 1,
+	searchTerm: string = "",
+): Promise<FormattedItemsRes | null> => {
+	const perpage = 50;
+	const paged = page;
 
-  if (!!museumId) {
-    try {
-      const res = await axios.get(`${Museums[Number(museumId)].api}/items`, {
-        params: {
-          perpage,
-          paged,
-          'metaquery[1][compare]': metaqueryCompare,
-          'metaquery[1][value]': metaqueryValue,
-        },
-      });
-      const wpTotal = res.headers['x-wp-total'] as unknown as number;
-      const wpTotalPages = res.headers['x-wp-totalpages'] as unknown as number;
-      const results = (await res.data) as ItemsDTO;
-      const items: Items[] = results.items.map(
-        ({ id, title, description, document_as_html }) => ({
-          id,
-          title,
-          description,
-          document_as_html,
-        })
-      );
+	if (!museumId || typeof museumId !== "string") {
+		return null;
+	}
 
-      const data: FormattedItemsRes = {
-        items,
-        wpTotal,
-        wpTotalPages,
-      };
+	const museum = getMuseumById(museumId);
+	if (!museum) {
+		return null;
+	}
 
-      return data;
-    } catch (error) {
-      const AxiosError = error as AxiosError;
-      console.log(AxiosError.message);
-      return [];
-    }
-  }
+	const apiUrl = `${museum.api}/items`;
+
+	const params: Record<string, number | string> = {
+		perpage,
+		paged,
+	};
+
+	if (searchTerm && searchTerm.trim() !== "") {
+		params.search = searchTerm.trim();
+	}
+
+	const res = await axios
+		.get<GetItemsResponse>(apiUrl, { params })
+		.catch(() => null);
+
+	if (!res) return null;
+
+	const wpTotal = res.headers["x-wp-total"] as unknown as number;
+	const wpTotalPages = res.headers["x-wp-totalpages"] as unknown as number;
+	const results = res.data;
+
+	if (!results.items || !Array.isArray(results.items)) {
+		return null;
+	}
+
+	const items = results.items.map(
+		({ id, title, description, document_as_html, metadata }) => ({
+			id,
+			title,
+			description,
+			document_as_html,
+			metadata,
+		}),
+	);
+
+	return {
+		items,
+		wpTotal: Number(wpTotal) ?? 0,
+		wpTotalPages: Number(wpTotalPages) ?? 1,
+	};
 };
 
-const getItem = async (museumId: number, itemId: number) => {
-  try {
-    const res = await axios.get<ItemDTO>(
-      `${Museums[museumId].api}/items/${itemId}`
-    );
-    const item: Item = {
-      id: res.data.id,
-      title: res.data.title,
-      description: res.data.description,
-      document_as_html: res.data.document_as_html,
-      metadata: res.data.metadata,
-    };
+export const getItem = async (
+	museumId: string,
+	itemId: number,
+): Promise<Item | null> => {
+	const museum = getMuseumById(museumId);
+	if (!museum) {
+		return null;
+	}
 
-    return item;
-  } catch (error) {
-    const AxiosError = error as AxiosError;
-    console.log(AxiosError.message);
-    return {};
-  }
+	const res = await axios
+		.get<GetItemResponse>(`${museum.api}/items/${itemId}`)
+		.catch(() => null);
+
+	if (!res) return null;
+
+	return {
+		id: res.data.id,
+		title: res.data.title,
+		description: res.data.description,
+		document_as_html: res.data.document_as_html,
+		metadata: res.data.metadata,
+	};
 };
-
-const tainacanService = {
-  getItems,
-  getItem,
-};
-
-export default tainacanService;

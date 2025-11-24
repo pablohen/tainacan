@@ -1,22 +1,21 @@
-import Metadata from '../interfaces/Metadata';
+import type { Metadata } from "../types/Metadata";
 
-interface Props {
-  metadata: Metadata;
+interface ItemMetadataProps {
+	metadata: Metadata;
 }
 
-const ItemMetadata = ({ metadata }: Props) => {
-  if (!metadata.value_as_string) {
-    return null;
-  }
-  return (
-    <p className="flex flex-col">
-      <span className="font-bold text-black dark:text-white text-lg">{`${metadata.name}:`}</span>
-      <span> </span>
-      <span className="font-semibold text-gray-600 dark:text-gray-300">
-        {metadata.value_as_string}
-      </span>
-    </p>
-  );
-};
-
-export default ItemMetadata;
+export function ItemMetadata({ metadata }: ItemMetadataProps) {
+	if (!metadata.value_as_string) {
+		return null;
+	}
+	return (
+		<div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+			<div className="space-y-1">
+				<h3 className="font-semibold text-gray-900 text-sm">{metadata.name}</h3>
+				<p className="text-gray-600 text-sm leading-relaxed">
+					{metadata.value_as_string}
+				</p>
+			</div>
+		</div>
+	);
+}

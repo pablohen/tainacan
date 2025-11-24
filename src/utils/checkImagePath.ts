@@ -1,17 +1,36 @@
-const checkImagePath = (item: any) => {
-  if (item?.document_as_html?.split("src='")[1]) {
-    return item.document_as_html.split("src='")[1]?.split("'")[0];
-  }
+import type { Item } from "@/types/Item";
 
-  if (item?.document_as_html?.split("href='")[1]) {
-    return item.document_as_html.split("href='")[1]?.split("'")[0];
-  }
+const DEFAULT_IMAGE = "/imgs/no-image.png";
 
-  if (item?.document_as_html?.includes('.pdf')) {
-    return '/imgs/no-image.png';
-  }
+export function checkImagePath(item: Item): string {
+	if (!item?.document_as_html) {
+		return DEFAULT_IMAGE;
+	}
 
-  return '/imgs/no-image.png';
-};
+	const html = item.document_as_html;
 
-export default checkImagePath;
+	if (html.includes(".pdf")) {
+		return DEFAULT_IMAGE;
+	}
+
+	const imgSrcMatch = html.match(/src=["']([^"']+)["']/i);
+	if (imgSrcMatch?.[1]) {
+		return imgSrcMatch[1];
+	}
+
+	const imgHrefMatch = html.match(
+		/href=["']([^"']+\.(jpg|jpeg|png|gif|webp|svg))["']/i,
+	);
+	if (imgHrefMatch?.[1]) {
+		return imgHrefMatch[1];
+	}
+
+	const anyImgMatch = html.match(
+		/(https?:\/\/[^\s"'<>]+\.(jpg|jpeg|png|gif|webp))/i,
+	);
+	if (anyImgMatch?.[1]) {
+		return anyImgMatch[1];
+	}
+
+	return DEFAULT_IMAGE;
+}
