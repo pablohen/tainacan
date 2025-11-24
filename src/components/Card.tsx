@@ -7,13 +7,13 @@ import {
 	CardFooter,
 	Card as ShadcnCard,
 } from "@/components/ui/card";
-import type { Items } from "@/services/tainacanService";
-import { checkImagePath } from "../utils/checkImagePath";
+import type { Item } from "@/types/Item";
+import { checkImagePath } from "@/utils/checkImagePath";
 import { FavoriteButton } from "./FavoriteButton";
 
 interface CardProps {
 	museumId: string;
-	item: Items;
+	item: Item;
 }
 
 export function Card({ museumId, item }: CardProps) {

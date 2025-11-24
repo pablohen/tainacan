@@ -12,8 +12,8 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import type { Museum } from "@/interfaces/Museum";
 import { cn } from "@/lib/utils";
+import type { Museum } from "@/types/Museum";
 
 interface MuseumCardProps {
 	museum: Museum;

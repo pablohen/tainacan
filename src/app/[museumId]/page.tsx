@@ -22,8 +22,8 @@ import {
 	PaginationNext,
 	PaginationPrevious,
 } from "@/components/ui/pagination";
-import type { FormattedItemsRes, Items } from "@/services/tainacanService";
-import { tainacanService } from "@/services/tainacanService";
+import { getItems } from "@/services/tainacanService";
+import type { Item } from "@/types/Item";
 import { getMuseumById } from "@/utils/museums";
 
 interface MuseumPageProps {
@@ -40,7 +40,7 @@ function MuseumContent({ museumId }: { museumId: string }) {
 
 	const [searchInput, setSearchInput] = useState(search);
 	const [debouncedSearch] = useDebounce(searchInput, 500);
-	const [items, setItems] = useState<Items[]>([]);
+	const [items, setItems] = useState<Item[]>([]);
 	const [totalPages, setTotalPages] = useState(1);
 
 	useEffect(() => {
@@ -54,14 +54,14 @@ function MuseumContent({ museumId }: { museumId: string }) {
 
 	const { data, isLoading, error, isError } = useQuery({
 		queryKey: ["museum-items", museumId, page, search],
-		queryFn: () => tainacanService.getItems(museumId, page, search),
+		queryFn: () => getItems(museumId, page, search),
 		enabled: !!museumId,
 	});
 
 	useEffect(() => {
 		if (museumId && data) {
 			if (data && typeof data === "object" && "items" in data) {
-				const { items: fetchedItems, wpTotalPages } = data as FormattedItemsRes;
+				const { items: fetchedItems, wpTotalPages } = data;
 				setItems(fetchedItems || []);
 				setTotalPages(wpTotalPages || 1);
 			} else {

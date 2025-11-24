@@ -1,8 +1,8 @@
-import type { Item, Items } from "@/services/tainacanService";
+import type { Item } from "@/types/Item";
 
 const DEFAULT_IMAGE = "/imgs/no-image.png";
 
-export function checkImagePath(item: Item | Items): string {
+export function checkImagePath(item: Item): string {
 	if (!item?.document_as_html) {
 		return DEFAULT_IMAGE;
 	}

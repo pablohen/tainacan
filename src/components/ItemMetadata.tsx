@@ -1,4 +1,4 @@
-import type { Metadata } from "../interfaces/Metadata";
+import type { Metadata } from "../types/Metadata";
 
 interface ItemMetadataProps {
 	metadata: Metadata;

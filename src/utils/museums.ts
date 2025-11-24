@@ -1,4 +1,4 @@
-import type { Museum } from "../interfaces/Museum";
+import type { Museum } from "@/types/Museum";
 
 export const museums: Museum[] = [
 	{

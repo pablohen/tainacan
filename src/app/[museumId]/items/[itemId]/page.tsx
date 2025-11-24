@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { tainacanService } from "@/services/tainacanService";
+import { getItem } from "@/services/tainacanService";
 import { getMuseumById } from "@/utils/museums";
 import ItemPageClient from "./ItemPageClient";
 
@@ -18,7 +18,7 @@ export async function generateMetadata({
 	const itemId = Number(itemIdStr);
 
 	const museum = getMuseumById(museumId);
-	const item = await tainacanService.getItem(museumId, itemId);
+	const item = await getItem(museumId, itemId);
 
 	if (!museum || !item) {
 		return {
@@ -52,7 +52,7 @@ export default async function ItemPage({ params }: ItemPageProps) {
 		notFound();
 	}
 
-	const item = await tainacanService.getItem(museumId, itemId);
+	const item = await getItem(museumId, itemId);
 
 	if (!item) {
 		notFound();

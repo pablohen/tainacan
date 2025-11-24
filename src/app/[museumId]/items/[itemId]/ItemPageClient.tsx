@@ -7,7 +7,7 @@ import { FavoriteButton } from "@/components/FavoriteButton";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { ItemMetadata } from "@/components/ItemMetadata";
-import type { Item } from "@/services/tainacanService";
+import type { Item } from "@/types/Item";
 import { checkImagePath } from "@/utils/checkImagePath";
 
 interface ItemPageProps {

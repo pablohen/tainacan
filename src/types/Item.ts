@@ -1,4 +1,12 @@
-export interface ItemDTO {
+export interface Item {
+	id: number;
+	title: string;
+	description: string;
+	document_as_html: string;
+	metadata: Metadata;
+}
+
+export interface ItemDetails {
 	status: string;
 	id: number;
 	title: string;
@@ -20,6 +28,8 @@ export interface ItemDTO {
 	exposer_urls: unknown[];
 	metadata: Metadata;
 }
+
+export interface GetItemResponse extends ItemDetails {}
 
 export interface Metadata {
 	"numero-de-registro": Altura;
