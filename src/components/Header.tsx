@@ -37,7 +37,7 @@ export function Header() {
 							)}
 						/>
 						{favoritesCount > 0 && (
-							<span className="-right-1 -top-1 absolute flex h-5 w-5 items-center justify-center rounded-full bg-red-500 font-bold text-white text-xs">
+							<span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 font-bold text-white text-xs">
 								{favoritesCount > 9 ? "9+" : favoritesCount}
 							</span>
 						)}
