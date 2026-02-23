@@ -1,13 +1,19 @@
-import axios from "axios";
-import type { GetItemResponse, Item } from "@/types/Item";
-import type { GetItemsResponse } from "@/types/Items";
+import {
+	GetCollectionsResponseSchema,
+	GetFiltersResponseSchema,
+	GetItemsResponseSchema,
+	GetTaxonomiesResponseSchema,
+	TainacanItemSchema,
+} from "@/schemas/tainacan";
+import { fetchAndValidate } from "@/services/apiClient";
+import type {
+	FormattedItemsRes,
+	TainacanCollection,
+	TainacanFilter,
+	TainacanItem,
+	TainacanTaxonomy,
+} from "@/types/tainacan";
 import { getMuseumById } from "@/utils/museums";
-
-export interface FormattedItemsRes {
-	items: Item[];
-	wpTotal: number;
-	wpTotalPages: number;
-}
 
 export const getItems = async (
 	museumId: string,
@@ -37,57 +43,93 @@ export const getItems = async (
 		params.search = searchTerm.trim();
 	}
 
-	const res = await axios
-		.get<GetItemsResponse>(apiUrl, { params })
-		.catch(() => null);
+	try {
+		const res = await fetchAndValidate(apiUrl, GetItemsResponseSchema, params);
 
-	if (!res) return null;
+		const wpTotal = res.headers["x-wp-total"] as number;
+		const wpTotalPages = res.headers["x-wp-totalpages"] as number;
 
-	const wpTotal = res.headers["x-wp-total"] as unknown as number;
-	const wpTotalPages = res.headers["x-wp-totalpages"] as unknown as number;
-	const results = res.data;
-
-	if (!results.items || !Array.isArray(results.items)) {
+		return {
+			items: res.data.items,
+			wpTotal: Number(wpTotal) || 0,
+			wpTotalPages: Number(wpTotalPages) || 1,
+		};
+	} catch (error) {
+		console.error("Error fetching items:", error);
 		return null;
 	}
-
-	const items = results.items.map(
-		({ id, title, description, document_as_html, metadata }) => ({
-			id,
-			title,
-			description,
-			document_as_html,
-			metadata,
-		}),
-	);
-
-	return {
-		items,
-		wpTotal: Number(wpTotal) ?? 0,
-		wpTotalPages: Number(wpTotalPages) ?? 1,
-	};
 };
 
 export const getItem = async (
 	museumId: string,
 	itemId: number,
-): Promise<Item | null> => {
+): Promise<TainacanItem | null> => {
 	const museum = getMuseumById(museumId);
 	if (!museum) {
 		return null;
 	}
 
-	const res = await axios
-		.get<GetItemResponse>(`${museum.api}/items/${itemId}`)
-		.catch(() => null);
+	const apiUrl = `${museum.api}/items/${itemId}`;
 
-	if (!res) return null;
+	try {
+		const res = await fetchAndValidate(apiUrl, TainacanItemSchema);
+		return res.data;
+	} catch (error) {
+		console.error("Error fetching item:", error);
+		return null;
+	}
+};
 
-	return {
-		id: res.data.id,
-		title: res.data.title,
-		description: res.data.description,
-		document_as_html: res.data.document_as_html,
-		metadata: res.data.metadata,
-	};
+export const getCollections = async (
+	museumId: string,
+): Promise<TainacanCollection[] | null> => {
+	const museum = getMuseumById(museumId);
+	if (!museum) return null;
+
+	const apiUrl = `${museum.api}/collections`;
+
+	try {
+		const res = await fetchAndValidate(apiUrl, GetCollectionsResponseSchema);
+		return res.data;
+	} catch (error) {
+		console.error("Error fetching collections:", error);
+		return null;
+	}
+};
+
+export const getTaxonomies = async (
+	museumId: string,
+): Promise<TainacanTaxonomy[] | null> => {
+	const museum = getMuseumById(museumId);
+	if (!museum) return null;
+
+	const apiUrl = `${museum.api}/taxonomies`;
+
+	try {
+		const res = await fetchAndValidate(apiUrl, GetTaxonomiesResponseSchema);
+		return res.data;
+	} catch (error) {
+		console.error("Error fetching taxonomies:", error);
+		return null;
+	}
+};
+
+export const getFilters = async (
+	museumId: string,
+	collectionId?: number,
+): Promise<TainacanFilter[] | null> => {
+	const museum = getMuseumById(museumId);
+	if (!museum) return null;
+
+	const apiUrl = collectionId
+		? `${museum.api}/collection/${collectionId}/filters`
+		: `${museum.api}/filters`;
+
+	try {
+		const res = await fetchAndValidate(apiUrl, GetFiltersResponseSchema);
+		return res.data;
+	} catch (error) {
+		console.error("Error fetching filters:", error);
+		return null;
+	}
 };

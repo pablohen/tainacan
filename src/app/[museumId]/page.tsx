@@ -23,7 +23,7 @@ import {
 	PaginationPrevious,
 } from "@/components/ui/pagination";
 import { getItems } from "@/services/tainacanService";
-import type { Item } from "@/types/Item";
+import type { TainacanItem as Item } from "@/types/tainacan";
 import { getMuseumById } from "@/utils/museums";
 
 interface MuseumPageProps {

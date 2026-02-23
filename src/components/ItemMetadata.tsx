@@ -1,4 +1,4 @@
-import type { Metadata } from "../types/Metadata";
+import type { TainacanMetadatum as Metadata } from "../types/tainacan";
 
 interface ItemMetadataProps {
 	metadata: Metadata;

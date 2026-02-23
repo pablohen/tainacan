@@ -1,4 +1,4 @@
-import type { Item } from "@/types/Item";
+import type { TainacanItem as Item } from "@/types/tainacan";
 
 const DEFAULT_IMAGE = "/imgs/no-image.png";
 
