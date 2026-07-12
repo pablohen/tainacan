@@ -73,3 +73,30 @@ body {
 	background-color: var(--color-overlay);
 	pointer-events: none;
 }
+
+/* Immersive item detail hero chrome */
+.item-detail {
+	position: relative;
+	overflow: clip;
+}
+
+.item-detail__favorite {
+	position: absolute;
+	inset-block-start: 0;
+	inset-inline-end: 0;
+	z-index: 1;
+	pointer-events: none;
+}
+
+.item-detail__favorite > * {
+	pointer-events: auto;
+}
+
+.item-detail__meta {
+	position: absolute;
+	inset-inline: 0;
+	inset-block-end: 0;
+	z-index: 1;
+	background-color: var(--color-overlay);
+	pointer-events: none;
+}
