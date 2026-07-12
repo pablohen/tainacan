@@ -1,10 +1,9 @@
 "use client";
 
-import { Card } from "@astryxdesign/core/Card";
-import { HStack } from "@astryxdesign/core/HStack";
-import { Layout, LayoutContent, LayoutHeader } from "@astryxdesign/core/Layout";
 import { Link } from "@astryxdesign/core/Link";
+import { Section } from "@astryxdesign/core/Section";
 import { Heading, Text } from "@astryxdesign/core/Text";
+import { MediaTheme } from "@astryxdesign/core/theme";
 import { VStack } from "@astryxdesign/core/VStack";
 import Image from "next/image";
 import { FavoriteButton } from "@/components/FavoriteButton";
@@ -23,9 +22,12 @@ export default function ItemPageClient({
 	museumId,
 	museumName,
 }: ItemPageProps) {
-	const metadata = Object.entries(item?.metadata || {});
-	const { title } = item;
+	const metadata = Object.entries(item.metadata || {}).filter(([, meta]) =>
+		Boolean(meta.value_as_string),
+	);
+	const { title, description } = item;
 	const imgPath = checkImagePath(item);
+	const trimmedDescription = description?.trim() ?? "";
 
 	return (
 		<VStack gap={4} maxWidth={1280}>
@@ -33,69 +35,76 @@ export default function ItemPageClient({
 				Voltar para a coleção
 			</Link>
 
-			<Card padding={0}>
-				<Layout
-					height="auto"
-					header={
-						<LayoutHeader hasDivider>
-							<HStack gap={4} vAlign="start" hAlign="between" wrap="wrap">
-								<VStack gap={1}>
-									<Heading level={1}>Detalhes do Item</Heading>
-									<Text type="supporting" as="p">
-										{museumName}
-									</Text>
-									<Text type="body" as="p">
-										{title}
-									</Text>
-								</VStack>
-								<FavoriteButton
-									type="item"
-									item={{
-										museumId,
-										itemId: item.id,
-										title: item.title,
-										imageUrl: checkImagePath(item),
-									}}
-									variant="detail"
-								/>
-							</HStack>
-						</LayoutHeader>
-					}
-					content={
-						<LayoutContent>
-							<HStack gap={6} wrap="wrap" vAlign="start">
-								<Image
-									src={imgPath}
-									alt={title}
-									width={480}
-									height={480}
-									style={{
-										width: "100%",
-										maxWidth: 480,
-										height: "auto",
-										borderRadius: "var(--radius-container)",
-									}}
-									unoptimized
-								/>
-								<VStack gap={3} maxWidth={480} isScrollable height={600}>
-									{metadata.length > 0 ? (
-										metadata.map((meta) => (
-											<ItemMetadata
-												key={`ItemMetadata__${meta[0]}`}
-												metadata={meta[1]}
-											/>
-										))
-									) : (
-										<Text type="supporting" justify="center" as="p">
-											Nenhum metadado disponível
-										</Text>
-									)}
-								</VStack>
-							</HStack>
-						</LayoutContent>
-					}
+			<Section variant="transparent" padding={0} className="item-detail">
+				<Image
+					src={imgPath}
+					alt={title}
+					width={960}
+					height={960}
+					style={{
+						width: "100%",
+						height: "auto",
+						display: "block",
+						objectFit: "contain",
+						objectPosition: "top",
+					}}
+					unoptimized
 				/>
-			</Card>
+				<Section
+					variant="transparent"
+					padding={2}
+					className="item-detail__favorite"
+				>
+					<MediaTheme mode="dark">
+						<FavoriteButton
+							type="item"
+							item={{
+								museumId,
+								itemId: item.id,
+								title: item.title,
+								imageUrl: imgPath,
+							}}
+							variant="card"
+						/>
+					</MediaTheme>
+				</Section>
+				<Section
+					variant="transparent"
+					padding={3}
+					className="item-detail__meta"
+				>
+					<MediaTheme mode="dark">
+						<VStack gap={0.5}>
+							<Heading level={1} maxLines={2} color="inherit">
+								{title}
+							</Heading>
+							<Text type="supporting" maxLines={1} color="inherit" as="p">
+								{museumName}
+							</Text>
+						</VStack>
+					</MediaTheme>
+				</Section>
+			</Section>
+
+			<VStack gap={4}>
+				{trimmedDescription ? (
+					<Text type="body" as="p">
+						{trimmedDescription}
+					</Text>
+				) : null}
+
+				{metadata.length > 0 ? (
+					<VStack gap={3}>
+						{metadata.map(([key, meta]) => (
+							<ItemMetadata key={`ItemMetadata__${key}`} metadata={meta} />
+						))}
+					</VStack>
+				) : (
+					<Text type="supporting" justify="center" as="p">
+						Nenhum metadado disponível
+					</Text>
+				)}
+			</VStack>
 		</VStack>
 	);
 }
