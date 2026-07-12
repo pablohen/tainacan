@@ -1,13 +1,12 @@
 "use client";
 
-import { Button } from "@astryxdesign/core/Button";
 import { Icon } from "@astryxdesign/core/Icon";
 import { IconButton } from "@astryxdesign/core/IconButton";
 import { HeartFilledIcon, HeartIcon } from "@/components/icons/HeartIcon";
 import { type FavoriteItem, useFavorites } from "@/contexts/FavoritesContext";
 
 export type FavoriteButtonProps = {
-	variant?: "default" | "card" | "detail";
+	variant?: "default" | "card";
 } & (
 	| { type: "item"; item: FavoriteItem }
 	| { type: "museum"; museumId: string }
@@ -47,18 +46,6 @@ export function FavoriteButton({
 			color={favorited ? "error" : "primary"}
 		/>
 	);
-
-	if (variant === "detail") {
-		return (
-			<Button
-				label={label}
-				variant="secondary"
-				size="sm"
-				icon={heart}
-				onClick={handleClick}
-			/>
-		);
-	}
 
 	return (
 		<IconButton
