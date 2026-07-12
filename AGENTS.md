@@ -17,17 +17,17 @@ Always use Superpowers in this repo.
 
 ## Commands
 
-Package manager: **pnpm**.
+Package manager: **Bun**. Next.js CLI (`dev` / `build` / `start`) runs under Bun via `bun --bun`.
 
 ```bash
-pnpm dev          # development server
-pnpm build        # production build
-pnpm start        # production server
-pnpm typecheck    # tsc --noEmit
-pnpm lint         # biome check .
+bun run dev          # development server
+bun run build        # production build
+bun run start        # production server
+bun run typecheck    # tsc --noEmit
+bun run lint         # biome check .
 ```
 
-Before claiming done: `pnpm typecheck && pnpm lint && pnpm build`.
+Before claiming done: `bun run typecheck && bun run lint && bun run build`.
 
 No automated test suite is configured.
 
