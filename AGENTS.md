@@ -7,8 +7,12 @@ Personal aggregator for external [Tainacan](https://tainacan.org/) (WordPress) m
 Always use Superpowers in this repo.
 
 - Before any response or action, check whether a Superpowers skill applies. If there is even a small chance it does, invoke it and follow it.
+- **Plan gate:** Before Plan mode or writing an implementation plan, always run the brainstorming skill first. Do not plan, scaffold, or implement until the design is approved.
+- **Docs gate:** Always generate Superpowers docs on disk (not chat-only):
+  - Design: `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md`
+  - Plan: `docs/superpowers/plans/YYYY-MM-DD-<feature-name>.md`
 - Prefer the relevant skill over ad-hoc process, for example:
-  - brainstorming before creative / feature work
+  - brainstorming before creative / feature work **and before any plan**
   - writing-plans before multi-step implementation
   - systematic-debugging before fixing bugs
   - test-driven-development when adding behavior
@@ -85,6 +89,8 @@ Only commit when explicitly asked. Never amend or push unless asked.
 - Validate Tainacan API shapes with Zod
 - Match existing layout and patterns
 - Use Superpowers when a skill applies
+- Run brainstorming before any plan
+- Persist Superpowers specs and plans under `docs/superpowers/`
 - Use atomic conventional commits when committing
 
 **Ask first**
