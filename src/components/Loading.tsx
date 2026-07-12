@@ -1,7 +1,10 @@
+import { Center } from "@astryxdesign/core/Center";
+import { Spinner } from "@astryxdesign/core/Spinner";
+
 const Loading = () => (
-	<div className="flex min-h-screen items-center justify-center">
-		<p>Carregando...</p>
-	</div>
+	<Center minHeight={200}>
+		<Spinner label="Carregando..." />
+	</Center>
 );
 
 export default Loading;

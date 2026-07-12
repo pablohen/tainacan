@@ -1,9 +1,10 @@
 "use client";
 
-import { AlertTriangle } from "lucide-react";
+import { Banner } from "@astryxdesign/core/Banner";
+import { Button } from "@astryxdesign/core/Button";
+import { Center } from "@astryxdesign/core/Center";
+import { VStack } from "@astryxdesign/core/VStack";
 import { useEffect } from "react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
 
 export default function ErrorPage({
 	error,
@@ -17,27 +18,16 @@ export default function ErrorPage({
 	}, [error]);
 
 	return (
-		<div className="flex min-h-screen flex-col items-center justify-center bg-white p-4">
-			<div className="w-full max-w-md animate-fade-in space-y-6">
-				<Alert variant="destructive" className="rounded-xl border">
-					<AlertTriangle className="h-5 w-5" />
-					<AlertTitle className="font-bold text-lg">
-						Algo deu errado!
-					</AlertTitle>
-					<AlertDescription className="mt-2 text-sm">
-						{error.message || "Ocorreu um erro inesperado."}
-					</AlertDescription>
-				</Alert>
-
-				<div className="flex justify-center">
-					<Button
-						onClick={reset}
-						className="rounded-full bg-gray-900 text-white transition-colors duration-200 hover:bg-gray-800"
-					>
-						Tentar novamente
-					</Button>
-				</div>
-			</div>
-		</div>
+		<Center minHeight={320}>
+			<VStack gap={4} maxWidth={448} hAlign="center">
+				<Banner
+					status="error"
+					title="Algo deu errado!"
+					description={error.message || "Ocorreu um erro inesperado."}
+					container="card"
+				/>
+				<Button label="Tentar novamente" variant="primary" onClick={reset} />
+			</VStack>
+		</Center>
 	);
 }

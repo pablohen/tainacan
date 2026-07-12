@@ -8,6 +8,7 @@
 		"start": "bun --bun next start",
 		"lint": "biome check .",
 		"typecheck": "tsc --noEmit",
+		"astryx": "node node_modules/@astryxdesign/cli/bin/astryx.mjs",
 		"biome:check": "biome check .",
 		"biome:fix": "biome check --write .",
 		"biome:fix:unsafe": "biome check --write --unsafe .",
@@ -15,29 +16,24 @@
 		"biome:lint": "biome lint ."
 	},
 	"dependencies": {
+		"@astryxdesign/core": "^0.1.4",
+		"@astryxdesign/theme-neutral": "^0.1.4",
+		"@stylexjs/stylex": "0.18.3",
 		"@tanstack/react-query": "^5.101.2",
 		"@tanstack/react-query-devtools": "^5.101.2",
 		"axios": "^1.18.1",
-		"class-variance-authority": "^0.7.1",
-		"clsx": "^2.1.1",
-		"framer-motion": "^12.42.2",
-		"lucide-react": "^1.24.0",
 		"next": "^16.2.10",
 		"nuqs": "^2.9.0",
 		"react": "^19.2.7",
 		"react-dom": "^19.2.7",
-		"tailwind-merge": "^3.6.0",
 		"use-debounce": "^10.1.1",
 		"zod": "^4.4.3"
 	},
 	"devDependencies": {
+		"@astryxdesign/cli": "^0.1.4",
 		"@biomejs/biome": "2.5.3",
-		"@tailwindcss/postcss": "^4.3.2",
 		"@types/node": "^26.1.1",
 		"@types/react": "^19.2.17",
-		"autoprefixer": "^10.5.2",
-		"postcss": "^8.5.17",
-		"tailwindcss": "^4.3.2",
 		"typescript": "^5.9.3"
 	}
 }

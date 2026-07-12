@@ -1,3 +1,6 @@
+import { Card } from "@astryxdesign/core/Card";
+import { Heading, Text } from "@astryxdesign/core/Text";
+import { VStack } from "@astryxdesign/core/VStack";
 import type { TainacanMetadatum as Metadata } from "../types/tainacan";
 
 interface ItemMetadataProps {
@@ -9,13 +12,13 @@ export function ItemMetadata({ metadata }: ItemMetadataProps) {
 		return null;
 	}
 	return (
-		<div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-			<div className="space-y-1">
-				<h3 className="font-semibold text-gray-900 text-sm">{metadata.name}</h3>
-				<p className="text-gray-600 text-sm leading-relaxed">
+		<Card variant="muted" padding={3}>
+			<VStack gap={1}>
+				<Heading level={4}>{metadata.name}</Heading>
+				<Text type="supporting" as="p">
 					{metadata.value_as_string}
-				</p>
-			</div>
-		</div>
+				</Text>
+			</VStack>
+		</Card>
 	);
 }

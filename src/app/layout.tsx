@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AppChrome } from "@/components/AppChrome";
 import { Providers } from "./providers";
 import "../styles/globals.css";
 
@@ -27,7 +28,9 @@ export default function RootLayout({
 	return (
 		<html lang="pt-BR">
 			<body>
-				<Providers>{children}</Providers>
+				<Providers>
+					<AppChrome>{children}</AppChrome>
+				</Providers>
 			</body>
 		</html>
 	);

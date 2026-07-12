@@ -14,21 +14,16 @@ bun run build
 bun run start
 bun run typecheck
 bun run lint
+bun run astryx --help
 ```
 
-## Front-end:
+## Front-end
 
 - TypeScript
 - React
 - Next.js
-- Next-SEO
-- Next-Themes
-- Tailwind CSS
-- shadcn/ui
-- Lucide Icons
-- Axios
+- Astryx (`@astryxdesign/core` + `theme-neutral`)
 - TanStack Query (React Query)
-
-## Back-end:
-
-- Todas as instâncias do Tainacan que eu encontrei e que respondiam em um tempo aceitável
+- Axios
+- Zod
+- nuqs

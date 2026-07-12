@@ -1,11 +1,13 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
+import { Card } from "@astryxdesign/core/Card";
+import { HStack } from "@astryxdesign/core/HStack";
+import { Layout, LayoutContent, LayoutHeader } from "@astryxdesign/core/Layout";
+import { Link } from "@astryxdesign/core/Link";
+import { Heading, Text } from "@astryxdesign/core/Text";
+import { VStack } from "@astryxdesign/core/VStack";
+import Image from "next/image";
 import { FavoriteButton } from "@/components/FavoriteButton";
-import { Footer } from "@/components/Footer";
-import { Header } from "@/components/Header";
 import { ItemMetadata } from "@/components/ItemMetadata";
 import type { TainacanItem as Item } from "@/types/tainacan";
 import { checkImagePath } from "@/utils/checkImagePath";
@@ -26,79 +28,74 @@ export default function ItemPageClient({
 	const imgPath = checkImagePath(item);
 
 	return (
-		<div className="flex min-h-screen flex-col bg-white">
-			<Header />
+		<VStack gap={4} maxWidth={1280}>
+			<Link href={`/${museumId}`} isStandalone>
+				Voltar para a coleção
+			</Link>
 
-			<div className="flex flex-grow flex-col p-4">
-				<div className="mx-auto w-full max-w-7xl space-y-4">
-					<div className="flex items-center justify-between">
-						<Link
-							href={`/${museumId}`}
-							className="inline-flex items-center gap-2 font-medium text-gray-700 transition-colors duration-200 hover:text-gray-900"
-						>
-							<ArrowLeft className="h-5 w-5" />
-							<span>Voltar para a coleção</span>
-						</Link>
-					</div>
-
-					<div className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
-						<div className="flex flex-col lg:flex-row-reverse">
-							<div className="flex items-center justify-center bg-gray-50 p-8 lg:w-1/2">
-								<motion.img
+			<Card padding={0}>
+				<Layout
+					height="auto"
+					header={
+						<LayoutHeader hasDivider>
+							<HStack gap={4} vAlign="start" hAlign="between" wrap="wrap">
+								<VStack gap={1}>
+									<Heading level={1}>Detalhes do Item</Heading>
+									<Text type="supporting" as="p">
+										{museumName}
+									</Text>
+									<Text type="body" as="p">
+										{title}
+									</Text>
+								</VStack>
+								<FavoriteButton
+									type="item"
+									item={{
+										museumId,
+										itemId: item.id,
+										title: item.title,
+										imageUrl: checkImagePath(item),
+									}}
+									variant="detail"
+								/>
+							</HStack>
+						</LayoutHeader>
+					}
+					content={
+						<LayoutContent>
+							<HStack gap={6} wrap="wrap" vAlign="start">
+								<Image
 									src={imgPath}
 									alt={title}
-									width={960}
-									height={960}
-									className="h-auto max-w-full rounded-lg"
-									layoutId={String(item.id)}
+									width={480}
+									height={480}
+									style={{
+										width: "100%",
+										maxWidth: 480,
+										height: "auto",
+										borderRadius: "var(--radius-container)",
+									}}
+									unoptimized
 								/>
-							</div>
-
-							<div className="space-y-6 p-8 lg:w-1/2">
-								<div className="space-y-2 border-gray-200 border-b pb-4">
-									<div className="flex items-start justify-between gap-4">
-										<div className="flex-1">
-											<h1 className="font-bold text-2xl text-gray-900">
-												Detalhes do Item
-											</h1>
-											<p className="text-gray-600 text-sm">{museumName}</p>
-										</div>
-										<FavoriteButton
-											type="item"
-											item={{
-												museumId,
-												itemId: item.id,
-												title: item.title,
-												imageUrl: checkImagePath(item),
-											}}
-											variant="detail"
-										/>
-									</div>
-								</div>
-
-								<div className="scrollbar-thin max-h-[600px] space-y-4 overflow-y-auto pr-2">
+								<VStack gap={3} maxWidth={480} isScrollable height={600}>
 									{metadata.length > 0 ? (
 										metadata.map((meta) => (
 											<ItemMetadata
-												key={`ItemMetadata__${crypto.randomUUID()}`}
+												key={`ItemMetadata__${meta[0]}`}
 												metadata={meta[1]}
 											/>
 										))
 									) : (
-										<div className="py-8 text-center">
-											<p className="text-gray-500">
-												Nenhum metadado disponível
-											</p>
-										</div>
+										<Text type="supporting" justify="center" as="p">
+											Nenhum metadado disponível
+										</Text>
 									)}
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<Footer />
-		</div>
+								</VStack>
+							</HStack>
+						</LayoutContent>
+					}
+				/>
+			</Card>
+		</VStack>
 	);
 }

@@ -1,22 +1,23 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Heart, PackageOpen } from "lucide-react";
-import Link from "next/link";
+import { Banner } from "@astryxdesign/core/Banner";
+import { Card } from "@astryxdesign/core/Card";
+import { Center } from "@astryxdesign/core/Center";
+import { Grid } from "@astryxdesign/core/Grid";
+import { HStack } from "@astryxdesign/core/HStack";
+import { Icon } from "@astryxdesign/core/Icon";
+import { Layout, LayoutContent, LayoutFooter } from "@astryxdesign/core/Layout";
+import { Link } from "@astryxdesign/core/Link";
+import { Heading, Text } from "@astryxdesign/core/Text";
+import { VStack } from "@astryxdesign/core/VStack";
+import Image from "next/image";
 import { parseAsString, useQueryState } from "nuqs";
 import { type ChangeEvent, Suspense, useEffect, useState } from "react";
 import { useDebounce } from "use-debounce";
 import { FavoriteButton } from "@/components/FavoriteButton";
-import { Footer } from "@/components/Footer";
-import { Header } from "@/components/Header";
+import { HeartFilledIcon } from "@/components/icons/HeartIcon";
 import { MuseumCard } from "@/components/MuseumCard";
 import { SearchBar } from "@/components/SearchBar";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import {
-	CardContent,
-	CardFooter,
-	Card as ShadcnCard,
-} from "@/components/ui/card";
 import { useFavorites } from "@/contexts/FavoritesContext";
 import { getMuseumById } from "@/utils/museums";
 
@@ -60,142 +61,138 @@ function FavoritesContent() {
 		favoriteItems.length > 0 || favoriteMuseums.length > 0;
 	const hasAnyResults =
 		filteredFavorites.length > 0 || filteredMuseums.length > 0;
+	const totalCount = favoriteItems.length + favoriteMuseums.length;
 
 	return (
-		<div className="flex flex-grow flex-col p-4">
-			<div className="mx-auto w-full max-w-screen-2xl space-y-4">
-				<div className="space-y-2">
-					<div className="flex items-center gap-3">
-						<Heart className="h-8 w-8 fill-red-500 text-red-500" />
-						<h1 className="font-bold text-3xl text-gray-900">Meus Favoritos</h1>
-					</div>
-					<p className="text-gray-600">
-						{hasAnyFavorites
-							? `Você tem ${favoriteItems.length + favoriteMuseums.length} ${
-									favoriteItems.length + favoriteMuseums.length === 1
-										? "item favoritado"
-										: "itens favoritados"
-								}`
-							: "Você ainda não possui itens favoritos"}
-					</p>
-				</div>
+		<VStack gap={4}>
+			<VStack gap={2}>
+				<HStack gap={2} vAlign="center">
+					<Icon icon={HeartFilledIcon} color="error" size="lg" />
+					<Heading level={1}>Meus Favoritos</Heading>
+				</HStack>
+				<Text type="supporting" as="p">
+					{hasAnyFavorites
+						? `Você tem ${totalCount} ${
+								totalCount === 1 ? "item favoritado" : "itens favoritados"
+							}`
+						: "Você ainda não possui itens favoritos"}
+				</Text>
+			</VStack>
 
-				{hasAnyFavorites && (
-					<SearchBar
-						value={searchInput}
-						onChange={(e: ChangeEvent<HTMLInputElement>) => {
-							setSearchInput(e.target.value);
-						}}
-						placeholder="Buscar nos favoritos..."
-					/>
-				)}
+			{hasAnyFavorites ? (
+				<SearchBar
+					value={searchInput}
+					onChange={(e: ChangeEvent<HTMLInputElement>) => {
+						setSearchInput(e.target.value);
+					}}
+					placeholder="Buscar nos favoritos..."
+				/>
+			) : null}
 
-				{hasAnyFavorites ? (
-					<div className="space-y-8">
-						{filteredMuseums.length > 0 && (
-							<div className="space-y-4">
-								<h2 className="font-semibold text-gray-900 text-xl">Museus</h2>
-								<div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-									{filteredMuseums.map((museum) => (
-										<MuseumCard key={museum.id} museum={museum} />
-									))}
-								</div>
-							</div>
-						)}
+			{hasAnyFavorites ? (
+				<VStack gap={6}>
+					{filteredMuseums.length > 0 ? (
+						<VStack gap={3}>
+							<Heading level={2}>Museus</Heading>
+							<Grid columns={{ minWidth: 240, max: 4 }} gap={4}>
+								{filteredMuseums.map((museum) => (
+									<MuseumCard key={museum.id} museum={museum} />
+								))}
+							</Grid>
+						</VStack>
+					) : null}
 
-						{filteredFavorites.length > 0 && (
-							<div className="space-y-4">
-								<h2 className="font-semibold text-gray-900 text-xl">Itens</h2>
-								<div className="animate-fade-in columns-2 gap-4 sm:columns-3 md:columns-4 lg:columns-5 xl:columns-6">
-									{filteredFavorites.map((favorite) => {
-										const museum = getMuseumById(favorite.museumId);
-										return (
-											<div
-												key={`${favorite.museumId}-${favorite.itemId}`}
-												className="mb-4 break-inside-avoid"
-											>
-												<Link
-													href={`/${favorite.museumId}/items/${favorite.itemId}`}
-												>
-													<ShadcnCard className="group relative overflow-hidden rounded-lg border border-gray-200 transition-all duration-200 hover:border-gray-300 hover:shadow-lg">
-														<CardContent className="p-0">
-															<div className="relative flex items-start justify-center bg-gray-50">
+					{filteredFavorites.length > 0 ? (
+						<VStack gap={3}>
+							<Heading level={2}>Itens</Heading>
+							<Grid columns={{ minWidth: 180, max: 6 }} gap={4}>
+								{filteredFavorites.map((favorite) => {
+									const museum = getMuseumById(favorite.museumId);
+									return (
+										<Link
+											key={`${favorite.museumId}-${favorite.itemId}`}
+											href={`/${favorite.museumId}/items/${favorite.itemId}`}
+											isStandalone
+										>
+											<Card padding={0}>
+												<Layout
+													height="auto"
+													content={
+														<LayoutContent>
+															<VStack>
 																<FavoriteButton
 																	type="item"
 																	item={favorite}
 																	variant="card"
-																	className="absolute top-2 right-2"
 																/>
-																<motion.img
+																<Image
 																	src={favorite.imageUrl}
 																	alt={favorite.title}
-																	className="h-auto w-full object-contain object-top transition-transform duration-200 group-hover:scale-105"
-																	layoutId={`favorite-${favorite.itemId}`}
+																	width={400}
+																	height={400}
+																	style={{
+																		width: "100%",
+																		height: "auto",
+																		objectFit: "contain",
+																		objectPosition: "top",
+																	}}
+																	unoptimized
 																/>
-															</div>
-														</CardContent>
+															</VStack>
+														</LayoutContent>
+													}
+													footer={
+														<LayoutFooter hasDivider>
+															<VStack gap={1}>
+																<Text type="label" maxLines={1} as="p">
+																	{favorite.title}
+																</Text>
+																{museum ? (
+																	<Text type="supporting" maxLines={1} as="p">
+																		{museum.title}
+																	</Text>
+																) : null}
+															</VStack>
+														</LayoutFooter>
+													}
+												/>
+											</Card>
+										</Link>
+									);
+								})}
+							</Grid>
+						</VStack>
+					) : null}
 
-														<CardFooter className="flex flex-col items-start gap-1 border-gray-100 border-t bg-white px-4 py-3">
-															<p className="w-full truncate font-medium text-gray-700 text-sm">
-																{favorite.title}
-															</p>
-															{museum && (
-																<p className="w-full truncate text-gray-500 text-xs">
-																	{museum.title}
-																</p>
-															)}
-														</CardFooter>
-													</ShadcnCard>
-												</Link>
-											</div>
-										);
-									})}
-								</div>
-							</div>
-						)}
-
-						{!hasAnyResults && (
-							<div className="flex animate-fade-in justify-center py-16">
-								<Alert className="max-w-md rounded-xl border border-gray-200 bg-white">
-									<PackageOpen className="h-5 w-5 text-gray-600" />
-									<AlertTitle className="font-semibold text-base text-gray-900">
-										Nenhum resultado encontrado
-									</AlertTitle>
-									<AlertDescription className="text-gray-600 text-sm">
-										Nenhum favorito corresponde à sua busca. Tente usar outros
-										termos.
-									</AlertDescription>
-								</Alert>
-							</div>
-						)}
-					</div>
-				) : (
-					<div className="flex animate-fade-in justify-center py-16">
-						<Alert className="max-w-md rounded-xl border border-gray-200 bg-white">
-							<PackageOpen className="h-5 w-5 text-gray-600" />
-							<AlertTitle className="font-semibold text-base text-gray-900">
-								Nenhum favorito ainda
-							</AlertTitle>
-							<AlertDescription className="text-gray-600 text-sm">
-								Explore os museus e adicione itens aos seus favoritos clicando
-								no ícone de coração.
-							</AlertDescription>
-						</Alert>
-					</div>
-				)}
-			</div>
-		</div>
+					{!hasAnyResults ? (
+						<Center minHeight={200}>
+							<Banner
+								status="info"
+								title="Nenhum resultado encontrado"
+								description="Nenhum favorito corresponde à sua busca. Tente usar outros termos."
+								container="card"
+							/>
+						</Center>
+					) : null}
+				</VStack>
+			) : (
+				<Center minHeight={200}>
+					<Banner
+						status="info"
+						title="Nenhum favorito ainda"
+						description="Explore os museus e adicione itens aos seus favoritos clicando no ícone de coração."
+						container="card"
+					/>
+				</Center>
+			)}
+		</VStack>
 	);
 }
 
 export default function FavoritesPage() {
 	return (
-		<div className="flex min-h-screen flex-col bg-white">
-			<Header />
-			<Suspense fallback={<div className="flex flex-grow" />}>
-				<FavoritesContent />
-			</Suspense>
-			<Footer />
-		</div>
+		<Suspense fallback={null}>
+			<FavoritesContent />
+		</Suspense>
 	);
 }

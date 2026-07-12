@@ -1,56 +1,11 @@
-@import "tailwindcss";
-
-@theme {
-	--font-sans: "Raleway", ui-sans-serif, system-ui, sans-serif;
-
-	--color-primary: #01295c;
-	--color-secondary: #298596;
-	--color-accent: #3b82f6;
-}
-
-body {
-	background: #ffffff;
-	min-height: 100vh;
-}
-
-:root {
-	font-size: 16px;
-}
-
-::-webkit-scrollbar {
-	width: 8px;
-	height: 8px;
-}
-
-::-webkit-scrollbar-track {
-	background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-	background: #d1d5db;
-	border-radius: 4px;
-	transition: all 0.2s ease;
-}
-
-::-webkit-scrollbar-thumb:hover {
-	background: #9ca3af;
-}
+@import "@astryxdesign/core/reset.css";
+@import "@astryxdesign/core/astryx.css";
+@import "@astryxdesign/theme-neutral/theme.css";
 
 html {
 	scroll-behavior: smooth;
 }
 
-@keyframes fadeIn {
-	from {
-		opacity: 0;
-		transform: translateY(10px);
-	}
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
-}
-
-.animate-fade-in {
-	animation: fadeIn 0.3s ease-out forwards;
+body {
+	min-height: 100vh;
 }

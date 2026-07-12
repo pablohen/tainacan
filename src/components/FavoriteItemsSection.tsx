@@ -1,7 +1,13 @@
 "use client";
 
-import { Heart } from "lucide-react";
-import Link from "next/link";
+import { Card } from "@astryxdesign/core/Card";
+import { Grid } from "@astryxdesign/core/Grid";
+import { HStack } from "@astryxdesign/core/HStack";
+import { Icon } from "@astryxdesign/core/Icon";
+import { Link } from "@astryxdesign/core/Link";
+import { Heading, Text } from "@astryxdesign/core/Text";
+import { VStack } from "@astryxdesign/core/VStack";
+import { HeartFilledIcon } from "@/components/icons/HeartIcon";
 import { useFavorites } from "@/contexts/FavoritesContext";
 import { getMuseumById } from "@/utils/museums";
 
@@ -13,48 +19,43 @@ export function FavoriteItemsSection() {
 	}
 
 	return (
-		<div className="w-full max-w-7xl space-y-6 px-4 pb-16">
-			<div className="flex items-center gap-3">
-				<Heart className="h-6 w-6 fill-red-500 text-red-500" />
-				<h2 className="font-bold text-2xl text-gray-900">
-					Meus Itens Favoritos
-				</h2>
-			</div>
+		<VStack gap={4} maxWidth={1280}>
+			<HStack gap={2} vAlign="center">
+				<Icon icon={HeartFilledIcon} color="error" />
+				<Heading level={2}>Meus Itens Favoritos</Heading>
+			</HStack>
 
-			<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+			<Grid columns={{ minWidth: 240, max: 3 }} gap={4}>
 				{favoriteItems.slice(0, 6).map((favorite) => {
 					const museum = getMuseumById(favorite.museumId);
 					return (
 						<Link
 							key={`${favorite.museumId}-${favorite.itemId}`}
 							href={`/${favorite.museumId}/items/${favorite.itemId}`}
-							className="group overflow-hidden rounded-xl border border-gray-200 bg-white transition-all duration-200 hover:border-gray-300 hover:shadow-lg"
+							isStandalone
 						>
-							<div className="space-y-3 p-6">
-								<h3 className="line-clamp-2 font-semibold text-gray-900 text-lg transition-colors duration-200 group-hover:text-primary">
-									{favorite.title}
-								</h3>
-								{museum && (
-									<p className="line-clamp-1 text-gray-600 text-sm">
-										{museum.title}
-									</p>
-								)}
-							</div>
+							<Card>
+								<VStack gap={2}>
+									<Heading level={3} maxLines={2}>
+										{favorite.title}
+									</Heading>
+									{museum ? (
+										<Text type="supporting" maxLines={1} as="p">
+											{museum.title}
+										</Text>
+									) : null}
+								</VStack>
+							</Card>
 						</Link>
 					);
 				})}
-			</div>
+			</Grid>
 
-			{favoriteItems.length > 6 && (
-				<div className="text-center">
-					<Link
-						href="/favorites"
-						className="inline-block font-medium text-gray-700 transition-colors duration-200 hover:text-gray-900"
-					>
-						Ver todos os favoritos ({favoriteItems.length})
-					</Link>
-				</div>
-			)}
-		</div>
+			{favoriteItems.length > 6 ? (
+				<Link href="/favorites" isStandalone>
+					Ver todos os favoritos ({favoriteItems.length})
+				</Link>
+			) : null}
+		</VStack>
 	);
 }

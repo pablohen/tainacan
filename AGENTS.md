@@ -25,6 +25,7 @@ bun run build        # production build
 bun run start        # production server
 bun run typecheck    # tsc --noEmit
 bun run lint         # biome check .
+bun run astryx       # Astryx CLI (component docs, templates, theme)
 ```
 
 Before claiming done: `bun run typecheck && bun run lint && bun run build`.
@@ -35,7 +36,7 @@ No automated test suite is configured.
 
 ```
 src/app/           App Router pages
-src/components/    App UI + shadcn primitives in ui/
+src/components/    App UI (AppChrome + domain components)
 src/contexts/      Client state (e.g. FavoritesContext + localStorage)
 src/services/      Axios + Tainacan API (tainacanService, apiClient)
 src/schemas/       Zod schemas (API response source of truth)
@@ -52,8 +53,8 @@ Path alias: `@/*` → `src/*`.
 - Client lists: React Query. Item detail: server `await` then client presenter.
 - Client persistence: localStorage contexts (mirror `FavoritesContext` for similar features).
 - URL query state: `nuqs`.
-- Page shell: Header + content + Footer. Light theme only.
-- Prefer shadcn primitives in `src/components/ui/`.
+- Page shell: Astryx `AppShell` via `AppChrome` (TopNav + SideNav + content). Theme locked to light.
+- Prefer Astryx primitives from `@astryxdesign/core/*`. Discover APIs with `bun run astryx component <Name>`.
 - Biome: tabs, double quotes.
 
 ## Commits
@@ -96,5 +97,36 @@ Only commit when explicitly asked. Never amend or push unless asked.
 
 - Invent museum API URLs
 - Commit secrets or `.env` files
-- Assume the README stack is current (e.g. Next-SEO / Next-Themes are listed but not installed)
+- Assume the README stack is current without checking package.json
 - Skip Superpowers when a skill clearly applies
+- Reintroduce Tailwind, shadcn/ui, framer-motion, or direct lucide-react imports for app UI
+
+<!-- ASTRYX:START -->
+Astryx v0.1.4 · 90+ components
+CLI: run every command as `bunx astryx <cmd>` (shown below as `astryx ...`).
+
+SETUP (once, in your app entry e.g. main.tsx) — without these, components render unstyled:
+  import "@astryxdesign/core/reset.css";
+  import "@astryxdesign/core/astryx.css";
+
+WORKFLOW — discover, don't guess. Before writing UI:
+1. `astryx build "<idea>"` — START HERE: returns a kit (closest [page] + [block]s + [component]s). No args = full playbook.
+2. `astryx template <name> [--skeleton]` — scaffold the [page]/[block]s it named, or study their layout. Templates are reference code.
+3. `astryx component <Name>` — props + examples for every component you use.
+
+RULES:
+- No <div> — components do all layout/spacing. Full page → AppShell; sidebar nav → SideNav.
+- Frame first: pick the shell (AppShell / Layout+LayoutPanel) and budget regions in px BEFORE writing content (`astryx docs layout`).
+- Dense data = rows (Table, List/Item) edge-to-edge — never Card-wrapped list items. Card = dashboard widgets, galleries, settings groups only.
+- Status → StatusDot/Token; Badge only for counts and enumerated states, never decoration.
+- Custom styling: component props first; StyleX `xstyle` or tokens. No raw hex/px for brand colors.
+- Tokens for every value (`astryx docs tokens`). Brand/accent via `astryx theme` — never override --color-* in :root.
+
+MORE CLI:
+  search "<query>"   find any component / hook / doc / template / block
+  component --list   90+ components by category
+  template --list    page + block recipes
+  docs <topic>       color, elevation, icons, illustrations, layout, migration, motion, principles, shape, spacing, styling, theme, tokens, typography
+  swizzle <Name>     eject component source for deep customization
+  upgrade --apply    run after any @astryxdesign/core bump
+<!-- ASTRYX:END -->
