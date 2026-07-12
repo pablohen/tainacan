@@ -2,7 +2,6 @@
 
 import { Banner } from "@astryxdesign/core/Banner";
 import { Center } from "@astryxdesign/core/Center";
-import { Grid } from "@astryxdesign/core/Grid";
 import { Pagination } from "@astryxdesign/core/Pagination";
 import { VStack } from "@astryxdesign/core/VStack";
 import { useQuery } from "@tanstack/react-query";
@@ -12,9 +11,11 @@ import { useDebounce } from "use-debounce";
 import { Card } from "@/components/Card";
 import { CardSkeleton } from "@/components/CardSkeleton";
 import { HeroBanner } from "@/components/HeroBanner";
+import { ItemMasonry } from "@/components/ItemMasonry";
 import { SearchBar } from "@/components/SearchBar";
 import { getItems } from "@/services/tainacanService";
 import type { TainacanItem as Item } from "@/types/tainacan";
+import { checkImagePath } from "@/utils/checkImagePath";
 import { getMuseumById } from "@/utils/museums";
 
 interface MuseumPageProps {
@@ -99,7 +100,7 @@ function MuseumContent({ museumId }: { museumId: string }) {
 				</VStack>
 
 				{isLoading ? (
-					<Grid columns={{ minWidth: 180, max: 6 }} gap={4} width="100%">
+					<ItemMasonry>
 						{[...Array(12)].map((_, i) => (
 							<CardSkeleton
 								key={
@@ -108,7 +109,7 @@ function MuseumContent({ museumId }: { museumId: string }) {
 								}
 							/>
 						))}
-					</Grid>
+					</ItemMasonry>
 				) : isError ? (
 					<Banner
 						status="error"
@@ -121,11 +122,17 @@ function MuseumContent({ museumId }: { museumId: string }) {
 						container="card"
 					/>
 				) : items?.length ? (
-					<Grid columns={{ minWidth: 180, max: 6 }} gap={4} width="100%">
+					<ItemMasonry>
 						{items.map((item) => (
-							<Card key={item.id} museumId={museumId} item={item} />
+							<Card
+								key={item.id}
+								museumId={museumId}
+								itemId={item.id}
+								title={item.title}
+								imageUrl={checkImagePath(item)}
+							/>
 						))}
-					</Grid>
+					</ItemMasonry>
 				) : (
 					<Banner
 						status="info"

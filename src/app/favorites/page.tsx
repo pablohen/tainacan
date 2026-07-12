@@ -1,20 +1,17 @@
 "use client";
 
 import { Banner } from "@astryxdesign/core/Banner";
-import { Card } from "@astryxdesign/core/Card";
 import { Center } from "@astryxdesign/core/Center";
 import { Grid } from "@astryxdesign/core/Grid";
 import { HStack } from "@astryxdesign/core/HStack";
 import { Icon } from "@astryxdesign/core/Icon";
-import { Layout, LayoutContent, LayoutFooter } from "@astryxdesign/core/Layout";
-import { Link } from "@astryxdesign/core/Link";
 import { Heading, Text } from "@astryxdesign/core/Text";
 import { VStack } from "@astryxdesign/core/VStack";
-import Image from "next/image";
 import { parseAsString, useQueryState } from "nuqs";
 import { type ChangeEvent, Suspense, useEffect, useState } from "react";
 import { useDebounce } from "use-debounce";
-import { FavoriteButton } from "@/components/FavoriteButton";
+import { Card } from "@/components/Card";
+import { ItemMasonry } from "@/components/ItemMasonry";
 import { HeartFilledIcon } from "@/components/icons/HeartIcon";
 import { MuseumCard } from "@/components/MuseumCard";
 import { SearchBar } from "@/components/SearchBar";
@@ -105,62 +102,21 @@ function FavoritesContent() {
 					{filteredFavorites.length > 0 ? (
 						<VStack gap={3}>
 							<Heading level={2}>Itens</Heading>
-							<Grid columns={{ minWidth: 180, max: 6 }} gap={4}>
+							<ItemMasonry>
 								{filteredFavorites.map((favorite) => {
 									const museum = getMuseumById(favorite.museumId);
 									return (
-										<Link
+										<Card
 											key={`${favorite.museumId}-${favorite.itemId}`}
-											href={`/${favorite.museumId}/items/${favorite.itemId}`}
-											isStandalone
-										>
-											<Card padding={0}>
-												<Layout
-													height="auto"
-													content={
-														<LayoutContent>
-															<VStack>
-																<FavoriteButton
-																	type="item"
-																	item={favorite}
-																	variant="card"
-																/>
-																<Image
-																	src={favorite.imageUrl}
-																	alt={favorite.title}
-																	width={400}
-																	height={400}
-																	style={{
-																		width: "100%",
-																		height: "auto",
-																		objectFit: "contain",
-																		objectPosition: "top",
-																	}}
-																	unoptimized
-																/>
-															</VStack>
-														</LayoutContent>
-													}
-													footer={
-														<LayoutFooter hasDivider>
-															<VStack gap={1}>
-																<Text type="label" maxLines={1} as="p">
-																	{favorite.title}
-																</Text>
-																{museum ? (
-																	<Text type="supporting" maxLines={1} as="p">
-																		{museum.title}
-																	</Text>
-																) : null}
-															</VStack>
-														</LayoutFooter>
-													}
-												/>
-											</Card>
-										</Link>
+											museumId={favorite.museumId}
+											itemId={favorite.itemId}
+											title={favorite.title}
+											imageUrl={favorite.imageUrl}
+											subtitle={museum?.title}
+										/>
 									);
 								})}
-							</Grid>
+							</ItemMasonry>
 						</VStack>
 					) : null}
 

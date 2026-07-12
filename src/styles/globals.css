@@ -9,3 +9,67 @@ html {
 body {
 	min-height: 100vh;
 }
+
+/* CSS multi-column masonry for item galleries (StyleX not compiled in this Next app). */
+.item-masonry {
+	width: 100%;
+	column-count: 1;
+	column-gap: var(--spacing-4);
+}
+
+.item-masonry__item {
+	width: 100%;
+	break-inside: avoid;
+	margin-bottom: var(--spacing-4);
+}
+
+@media (min-width: 480px) {
+	.item-masonry {
+		column-count: 2;
+	}
+}
+
+@media (min-width: 768px) {
+	.item-masonry {
+		column-count: 3;
+	}
+}
+
+@media (min-width: 1024px) {
+	.item-masonry {
+		column-count: 4;
+	}
+}
+
+@media (min-width: 1280px) {
+	.item-masonry {
+		column-count: 5;
+	}
+}
+
+/* Image-first item card chrome. Avoid Astryx Overlay inside ClickableCard —
+   Overlay marks itself data-pressable-container and blocks card navigation. */
+.item-card {
+	overflow: clip;
+}
+
+.item-card__favorite {
+	position: absolute;
+	inset-block-start: 0;
+	inset-inline-end: 0;
+	z-index: 1;
+	pointer-events: none;
+}
+
+.item-card__favorite > * {
+	pointer-events: auto;
+}
+
+.item-card__meta {
+	position: absolute;
+	inset-inline: 0;
+	inset-block-end: 0;
+	z-index: 1;
+	background-color: var(--color-overlay);
+	pointer-events: none;
+}
