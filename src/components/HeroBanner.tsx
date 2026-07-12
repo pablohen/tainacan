@@ -1,6 +1,6 @@
 import { Button } from "@astryxdesign/core/Button";
 import { HStack } from "@astryxdesign/core/HStack";
-import { Link } from "@astryxdesign/core/Link";
+import { Icon } from "@astryxdesign/core/Icon";
 import { Heading, Text } from "@astryxdesign/core/Text";
 import { VStack } from "@astryxdesign/core/VStack";
 import { FavoriteButton } from "@/components/FavoriteButton";
@@ -32,9 +32,14 @@ export function HeroBanner({
 			) : null}
 
 			{link !== "#" ? (
-				<Link href={link} isExternalLink isStandalone>
-					<Button label="Ir para o site" variant="primary" />
-				</Link>
+				<Button
+					label="Ir para o site"
+					variant="primary"
+					href={link}
+					target="_blank"
+					rel="noopener noreferrer"
+					endContent={<Icon icon="externalLink" />}
+				/>
 			) : null}
 		</VStack>
 	);
