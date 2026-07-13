@@ -10,10 +10,11 @@ import { type ChangeEvent, Suspense, use, useEffect, useState } from "react";
 import { useDebounce } from "use-debounce";
 import { Card } from "@/components/Card";
 import { CardSkeleton } from "@/components/CardSkeleton";
+import { CollectionTabs } from "@/components/CollectionTabs";
 import { HeroBanner } from "@/components/HeroBanner";
 import { ItemMasonry } from "@/components/ItemMasonry";
 import { SearchBar } from "@/components/SearchBar";
-import { getItems } from "@/services/tainacanService";
+import { getCollections, getItems } from "@/services/tainacanService";
 import type { TainacanItem as Item } from "@/types/tainacan";
 import { checkImagePath } from "@/utils/checkImagePath";
 import { getMuseumById } from "@/utils/museums";
@@ -25,9 +26,10 @@ interface MuseumPageProps {
 }
 
 function MuseumContent({ museumId }: { museumId: string }) {
-	const [{ search, page }, setQueryStates] = useQueryStates({
+	const [{ search, page, collection }, setQueryStates] = useQueryStates({
 		search: parseAsString.withDefault(""),
 		page: parseAsInteger.withDefault(1),
+		collection: parseAsInteger,
 	});
 
 	const [searchInput, setSearchInput] = useState(search);
@@ -44,9 +46,41 @@ function MuseumContent({ museumId }: { museumId: string }) {
 		}
 	}, [debouncedSearch, search, setQueryStates]);
 
+	const {
+		data: collections = [],
+		isLoading: isCollectionsLoading,
+		isError: isCollectionsError,
+	} = useQuery({
+		queryKey: ["museum-collections", museumId],
+		queryFn: () => getCollections(museumId),
+		enabled: !!museumId,
+		select: (data) => data ?? [],
+	});
+
+	useEffect(() => {
+		if (isCollectionsLoading || isCollectionsError) return;
+		if (collection === null) return;
+		const exists = collections.some((c) => c.id === collection);
+		if (!exists) {
+			setQueryStates({ collection: null });
+		}
+	}, [
+		collection,
+		collections,
+		isCollectionsLoading,
+		isCollectionsError,
+		setQueryStates,
+	]);
+
 	const { data, isLoading, error, isError } = useQuery({
-		queryKey: ["museum-items", museumId, page, search],
-		queryFn: () => getItems(museumId, page, search),
+		queryKey: ["museum-items", museumId, page, search, collection],
+		queryFn: () =>
+			getItems(
+				museumId,
+				page,
+				search,
+				collection === null ? undefined : collection,
+			),
 		enabled: !!museumId,
 	});
 
@@ -88,6 +122,20 @@ function MuseumContent({ museumId }: { museumId: string }) {
 				description={description}
 				museumId={museumId}
 			/>
+
+			{!isCollectionsError ? (
+				<CollectionTabs
+					collections={collections}
+					isLoading={isCollectionsLoading}
+					value={collection === null ? "all" : String(collection)}
+					onChange={(next) => {
+						setQueryStates({
+							collection: next === "all" ? null : Number(next),
+							page: 1,
+						});
+					}}
+				/>
+			) : null}
 
 			<VStack gap={4} hAlign="center">
 				<VStack maxWidth={672} width="100%">
