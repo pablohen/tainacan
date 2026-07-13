@@ -19,6 +19,7 @@ export const getItems = async (
 	museumId: string,
 	page: number = 1,
 	searchTerm: string = "",
+	collectionId?: number,
 ): Promise<FormattedItemsRes | null> => {
 	const perpage = 50;
 	const paged = page;
@@ -32,7 +33,10 @@ export const getItems = async (
 		return null;
 	}
 
-	const apiUrl = `${museum.api}/items`;
+	const apiUrl =
+		typeof collectionId === "number"
+			? `${museum.api}/collection/${collectionId}/items`
+			: `${museum.api}/items`;
 
 	const params: Record<string, number | string> = {
 		perpage,
