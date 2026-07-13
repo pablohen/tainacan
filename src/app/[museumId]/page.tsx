@@ -50,27 +50,27 @@ function MuseumContent({ museumId }: { museumId: string }) {
 		data: collections = [],
 		isLoading: isCollectionsLoading,
 		isError: isCollectionsError,
+		isSuccess: isCollectionsSuccess,
 	} = useQuery({
 		queryKey: ["museum-collections", museumId],
-		queryFn: () => getCollections(museumId),
+		queryFn: async () => {
+			const data = await getCollections(museumId);
+			if (data === null) {
+				throw new Error("Falha ao carregar coleções");
+			}
+			return data;
+		},
 		enabled: !!museumId,
-		select: (data) => data ?? [],
 	});
 
 	useEffect(() => {
-		if (isCollectionsLoading || isCollectionsError) return;
+		if (!isCollectionsSuccess) return;
 		if (collection === null) return;
 		const exists = collections.some((c) => c.id === collection);
 		if (!exists) {
 			setQueryStates({ collection: null });
 		}
-	}, [
-		collection,
-		collections,
-		isCollectionsLoading,
-		isCollectionsError,
-		setQueryStates,
-	]);
+	}, [collection, collections, isCollectionsSuccess, setQueryStates]);
 
 	const { data, isLoading, error, isError } = useQuery({
 		queryKey: ["museum-items", museumId, page, search, collection],
