@@ -14,10 +14,12 @@ import { Text } from "@astryxdesign/core/Text";
 import { TopNav, TopNavHeading } from "@astryxdesign/core/TopNav";
 import { VStack } from "@astryxdesign/core/VStack";
 import { usePathname, useRouter } from "next/navigation";
-import type { ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import { HeartFilledIcon, HeartIcon } from "@/components/icons/HeartIcon";
+import { SearchBar } from "@/components/SearchBar";
 import { useFavorites } from "@/contexts/FavoritesContext";
 import { museums } from "@/utils/museums";
+import { normalizeText } from "@/utils/normalizeText";
 
 function FavoritesNavAction() {
 	const router = useRouter();
@@ -48,11 +50,28 @@ function FavoritesNavAction() {
 function MuseumSideNav() {
 	const pathname = usePathname();
 	const museumId = pathname?.split("/")[1] ?? "";
+	const [query, setQuery] = useState("");
+
+	const normalizedQuery = normalizeText(query);
+	const filteredMuseums = normalizedQuery
+		? museums.filter((museum) =>
+				normalizeText(museum.title).includes(normalizedQuery),
+			)
+		: museums;
 
 	return (
-		<SideNav collapsible>
+		<SideNav
+			collapsible
+			topContent={
+				<SearchBar
+					value={query}
+					onChange={(e) => setQuery(e.target.value)}
+					placeholder="Filtrar museus..."
+				/>
+			}
+		>
 			<SideNavSection title="Museus">
-				{museums.map((museum) => (
+				{filteredMuseums.map((museum) => (
 					<SideNavItem
 						key={museum.id}
 						label={museum.title}
@@ -60,6 +79,11 @@ function MuseumSideNav() {
 						isSelected={museumId === museum.id}
 					/>
 				))}
+				{filteredMuseums.length === 0 ? (
+					<VStack paddingInline={3} paddingBlock={2}>
+						<Text type="supporting">Nenhum museu encontrado</Text>
+					</VStack>
+				) : null}
 			</SideNavSection>
 		</SideNav>
 	);
