@@ -3,6 +3,7 @@ import {
 	GetFiltersResponseSchema,
 	GetItemsResponseSchema,
 	GetTaxonomiesResponseSchema,
+	GetTaxonomyTermsResponseSchema,
 	TainacanItemSchema,
 } from "@/schemas/tainacan";
 import { fetchAndValidate } from "@/services/apiClient";
@@ -12,6 +13,7 @@ import type {
 	TainacanFilter,
 	TainacanItem,
 	TainacanTaxonomy,
+	TainacanTerm,
 } from "@/types/tainacan";
 import { getMuseumById } from "@/utils/museums";
 
@@ -20,6 +22,7 @@ export const getItems = async (
 	page: number = 1,
 	searchTerm: string = "",
 	collectionId?: number,
+	filterParams?: Record<string, unknown>,
 ): Promise<FormattedItemsRes | null> => {
 	const perpage = 50;
 	const paged = page;
@@ -38,9 +41,10 @@ export const getItems = async (
 			? `${museum.api}/collection/${collectionId}/items`
 			: `${museum.api}/items`;
 
-	const params: Record<string, number | string> = {
+	const params: Record<string, unknown> = {
 		perpage,
 		paged,
+		...(filterParams ?? {}),
 	};
 
 	if (searchTerm && searchTerm.trim() !== "") {
@@ -114,6 +118,27 @@ export const getTaxonomies = async (
 		return res.data;
 	} catch (error) {
 		console.error("Error fetching taxonomies:", error);
+		return null;
+	}
+};
+
+export const getTaxonomyTerms = async (
+	museumId: string,
+	taxonomyId: number,
+): Promise<TainacanTerm[] | null> => {
+	const museum = getMuseumById(museumId);
+	if (!museum) return null;
+
+	const apiUrl = `${museum.api}/taxonomy/${taxonomyId}/terms`;
+
+	try {
+		const res = await fetchAndValidate(
+			apiUrl,
+			GetTaxonomyTermsResponseSchema,
+		);
+		return res.data;
+	} catch (error) {
+		console.error("Error fetching taxonomy terms:", error);
 		return null;
 	}
 };

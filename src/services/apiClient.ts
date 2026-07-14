@@ -16,7 +16,7 @@ export interface ValidatedResponse<T> {
 export const fetchAndValidate = async <T extends z.ZodTypeAny>(
 	url: string,
 	schema: T,
-	params?: Record<string, string | number>,
+	params?: Record<string, unknown>,
 ): Promise<ValidatedResponse<z.infer<T>>> => {
 	const response: AxiosResponse = await apiClient.get(url, { params });
 
