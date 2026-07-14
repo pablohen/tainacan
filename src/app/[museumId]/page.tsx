@@ -124,8 +124,11 @@ function MuseumContent({ museumId }: { museumId: string }) {
 	}, [filters, filterDefs, isFiltersSuccess, setQueryStates]);
 
 	const filterParams = buildFilterQueryParams(filters, filterDefs);
+	const hasActiveFilters = countActiveFilters(filters) > 0;
+	const filtersReadyForItems =
+		!hasActiveFilters || isFiltersSuccess || isFiltersError;
 
-	const { data, isLoading, error, isError } = useQuery({
+	const { data, isLoading, isPending, error, isError } = useQuery({
 		queryKey: ["museum-items", museumId, page, search, collection, filters],
 		queryFn: () =>
 			getItems(
@@ -135,8 +138,10 @@ function MuseumContent({ museumId }: { museumId: string }) {
 				collection === null ? undefined : collection,
 				filterParams,
 			),
-		enabled: !!museumId,
+		enabled: !!museumId && filtersReadyForItems,
 	});
+
+	const showItemsLoading = isLoading || isPending;
 
 	useEffect(() => {
 		if (museumId && data) {
@@ -217,7 +222,7 @@ function MuseumContent({ museumId }: { museumId: string }) {
 					/>
 				) : null}
 
-				{isLoading ? (
+				{showItemsLoading ? (
 					<ItemMasonry>
 						{[...Array(12)].map((_, i) => (
 							<CardSkeleton

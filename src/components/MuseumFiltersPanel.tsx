@@ -158,6 +158,13 @@ export function MuseumFiltersPanel({
 	const supported = filterDefs.filter(isSupportedFilter);
 	const activeCount = countActiveFilters(filters);
 	const hasActive = activeCount > 0;
+	const [isOpen, setIsOpen] = useState(hasActive);
+
+	useEffect(() => {
+		if (hasActive) {
+			setIsOpen(true);
+		}
+	}, [hasActive]);
 
 	if (isLoading || supported.length === 0) {
 		return null;
@@ -176,7 +183,8 @@ export function MuseumFiltersPanel({
 
 	return (
 		<Collapsible
-			defaultIsOpen={hasActive}
+			isOpen={isOpen}
+			onOpenChange={setIsOpen}
 			trigger={
 				<Text type="label" as="span">
 					{hasActive ? `Filtros (${activeCount})` : "Filtros"}
