@@ -74,6 +74,31 @@ export function countActiveFilters(filters: FiltersState | null): number {
 	return Object.values(filters).filter((v) => !isEmptyFilterValue(v)).length;
 }
 
+function valueMatchesFamily(family: FilterFamily, value: FilterValue): boolean {
+	switch (family) {
+		case "taxonomy":
+			return (
+				Array.isArray(value) &&
+				value.length > 0 &&
+				value.every((term) => typeof term === "string")
+			);
+		case "text":
+			return typeof value === "string" && value.trim() !== "";
+		case "interval":
+			return (
+				typeof value === "object" &&
+				!Array.isArray(value) &&
+				Boolean(value.min?.trim() || value.max?.trim())
+			);
+		case "unsupported":
+			return false;
+		default: {
+			const exhaustiveCheck: never = family;
+			return exhaustiveCheck;
+		}
+	}
+}
+
 /** Drop empty values, unknown ids, and unsupported filter types. */
 export function sanitizeFiltersState(
 	filters: FiltersState | null,
@@ -86,6 +111,7 @@ export function sanitizeFiltersState(
 		const def = byId.get(key);
 		if (!def || !isSupportedFilter(def)) continue;
 		if (isEmptyFilterValue(value)) continue;
+		if (!valueMatchesFamily(getFilterFamily(def.filter_type), value)) continue;
 		next[key] = value;
 	}
 	return Object.keys(next).length > 0 ? next : null;
@@ -108,9 +134,13 @@ export function buildFilterQueryParams(
 		if (family === "taxonomy" && Array.isArray(value)) {
 			const taxonomy = getTaxonomyDbIdentifier(def);
 			if (!taxonomy) continue;
+			const terms = value
+				.map((id) => Number(id))
+				.filter((n) => Number.isFinite(n));
+			if (terms.length === 0) continue;
 			taxquery.push({
 				taxonomy,
-				terms: value.map((id) => Number(id)).filter((n) => Number.isFinite(n)),
+				terms,
 				compare: "IN",
 			});
 			continue;
