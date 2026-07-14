@@ -158,7 +158,11 @@ export function buildFilterQueryParams(
 			continue;
 		}
 
-		if (family === "interval" && typeof value === "object" && !Array.isArray(value)) {
+		if (
+			family === "interval" &&
+			typeof value === "object" &&
+			!Array.isArray(value)
+		) {
 			const min = value.min?.trim();
 			const max = value.max?.trim();
 			if (min && max) {

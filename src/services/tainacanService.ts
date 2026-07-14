@@ -132,10 +132,7 @@ export const getTaxonomyTerms = async (
 	const apiUrl = `${museum.api}/taxonomy/${taxonomyId}/terms`;
 
 	try {
-		const res = await fetchAndValidate(
-			apiUrl,
-			GetTaxonomyTermsResponseSchema,
-		);
+		const res = await fetchAndValidate(apiUrl, GetTaxonomyTermsResponseSchema);
 		return res.data;
 	} catch (error) {
 		console.error("Error fetching taxonomy terms:", error);
