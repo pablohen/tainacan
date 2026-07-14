@@ -47,7 +47,9 @@ function TaxonomyFilterControl({
 			if (taxonomyId === null) return [];
 			const data = await getTaxonomyTerms(museumId, taxonomyId);
 			if (data === null) throw new Error("Falha ao carregar termos");
-			return data;
+			return [...data].sort((a, b) =>
+				a.name.localeCompare(b.name, "pt-BR", { sensitivity: "base" }),
+			);
 		},
 		enabled: taxonomyId !== null,
 	});
