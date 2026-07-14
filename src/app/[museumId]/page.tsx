@@ -5,7 +5,12 @@ import { Center } from "@astryxdesign/core/Center";
 import { Pagination } from "@astryxdesign/core/Pagination";
 import { VStack } from "@astryxdesign/core/VStack";
 import { useQuery } from "@tanstack/react-query";
-import { parseAsInteger, parseAsString, useQueryStates } from "nuqs";
+import {
+	parseAsInteger,
+	parseAsJson,
+	parseAsString,
+	useQueryStates,
+} from "nuqs";
 import { type ChangeEvent, Suspense, use, useEffect, useState } from "react";
 import { useDebounce } from "use-debounce";
 import { Card } from "@/components/Card";
@@ -13,11 +18,22 @@ import { CardSkeleton } from "@/components/CardSkeleton";
 import { CollectionTabs } from "@/components/CollectionTabs";
 import { HeroBanner } from "@/components/HeroBanner";
 import { ItemMasonry } from "@/components/ItemMasonry";
+import { MuseumFiltersPanel } from "@/components/MuseumFiltersPanel";
 import { SearchBar } from "@/components/SearchBar";
-import { getCollections, getItems } from "@/services/tainacanService";
+import {
+	getCollections,
+	getFilters,
+	getItems,
+} from "@/services/tainacanService";
 import type { TainacanItem as Item } from "@/types/tainacan";
 import { checkImagePath } from "@/utils/checkImagePath";
 import { getMuseumById } from "@/utils/museums";
+import {
+	buildFilterQueryParams,
+	countActiveFilters,
+	FiltersStateSchema,
+	sanitizeFiltersState,
+} from "@/utils/tainacanFilters";
 
 interface MuseumPageProps {
 	params: Promise<{
@@ -26,11 +42,16 @@ interface MuseumPageProps {
 }
 
 function MuseumContent({ museumId }: { museumId: string }) {
-	const [{ search, page, collection }, setQueryStates] = useQueryStates({
-		search: parseAsString.withDefault(""),
-		page: parseAsInteger.withDefault(1),
-		collection: parseAsInteger,
-	});
+	const [{ search, page, collection, filters }, setQueryStates] =
+		useQueryStates({
+			search: parseAsString.withDefault(""),
+			page: parseAsInteger.withDefault(1),
+			collection: parseAsInteger,
+			filters: parseAsJson((value) => {
+				const parsed = FiltersStateSchema.safeParse(value);
+				return parsed.success ? parsed.data : null;
+			}),
+		});
 
 	const [searchInput, setSearchInput] = useState(search);
 	const [debouncedSearch] = useDebounce(searchInput, 500);
@@ -72,14 +93,47 @@ function MuseumContent({ museumId }: { museumId: string }) {
 		}
 	}, [collection, collections, isCollectionsSuccess, setQueryStates]);
 
+	const {
+		data: filterDefs = [],
+		isLoading: isFiltersLoading,
+		isError: isFiltersError,
+		isSuccess: isFiltersSuccess,
+	} = useQuery({
+		queryKey: ["museum-filters", museumId, collection],
+		queryFn: async () => {
+			const data = await getFilters(
+				museumId,
+				collection === null ? undefined : collection,
+			);
+			if (data === null) {
+				throw new Error("Falha ao carregar filtros");
+			}
+			return data;
+		},
+		enabled: !!museumId,
+	});
+
+	useEffect(() => {
+		if (!isFiltersSuccess) return;
+		const sanitized = sanitizeFiltersState(filters, filterDefs);
+		const currentJson = JSON.stringify(filters ?? null);
+		const nextJson = JSON.stringify(sanitized);
+		if (currentJson !== nextJson) {
+			setQueryStates({ filters: sanitized });
+		}
+	}, [filters, filterDefs, isFiltersSuccess, setQueryStates]);
+
+	const filterParams = buildFilterQueryParams(filters, filterDefs);
+
 	const { data, isLoading, error, isError } = useQuery({
-		queryKey: ["museum-items", museumId, page, search, collection],
+		queryKey: ["museum-items", museumId, page, search, collection, filters],
 		queryFn: () =>
 			getItems(
 				museumId,
 				page,
 				search,
 				collection === null ? undefined : collection,
+				filterParams,
 			),
 		enabled: !!museumId,
 	});
@@ -132,6 +186,7 @@ function MuseumContent({ museumId }: { museumId: string }) {
 						setQueryStates({
 							collection: next === "all" ? null : Number(next),
 							page: 1,
+							filters: null,
 						});
 					}}
 				/>
@@ -146,6 +201,21 @@ function MuseumContent({ museumId }: { museumId: string }) {
 						}}
 					/>
 				</VStack>
+
+				{!isFiltersError ? (
+					<MuseumFiltersPanel
+						museumId={museumId}
+						filters={filters}
+						filterDefs={filterDefs}
+						isLoading={isFiltersLoading}
+						onChange={(next) => {
+							setQueryStates({
+								filters: next,
+								page: 1,
+							});
+						}}
+					/>
+				) : null}
 
 				{isLoading ? (
 					<ItemMasonry>
@@ -186,8 +256,8 @@ function MuseumContent({ museumId }: { museumId: string }) {
 						status="info"
 						title="Nenhum item encontrado"
 						description={
-							search
-								? "Tente ajustar sua busca ou use outros termos."
+							search || countActiveFilters(filters) > 0
+								? "Tente ajustar sua busca ou os filtros."
 								: "Não há itens disponíveis no momento."
 						}
 						container="card"
