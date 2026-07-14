@@ -46,12 +46,16 @@ export function isSupportedFilter(filter: TainacanFilter): boolean {
 }
 
 export function getTaxonomyId(filter: TainacanFilter): number | null {
-	const id = filter.metadatum?.metadata_type_object?.options?.taxonomy_id;
+	const options = filter.metadatum?.metadata_type_object?.options;
+	if (!options || Array.isArray(options)) return null;
+	const id = options.taxonomy_id;
 	return typeof id === "number" ? id : null;
 }
 
 export function getTaxonomyDbIdentifier(filter: TainacanFilter): string | null {
-	const taxonomy = filter.metadatum?.metadata_type_object?.options?.taxonomy;
+	const options = filter.metadatum?.metadata_type_object?.options;
+	if (!options || Array.isArray(options)) return null;
+	const taxonomy = options.taxonomy;
 	return typeof taxonomy === "string" && taxonomy.length > 0 ? taxonomy : null;
 }
 

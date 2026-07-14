@@ -42,12 +42,17 @@ export const TainacanFilterMetadatumSchema = z
 		metadatum_name: z.string().optional(),
 		metadata_type_object: z
 			.object({
+				// Taxonomy metadata: object with taxonomy_id; numeric/etc. often [].
 				options: z
-					.object({
-						taxonomy_id: z.number().optional(),
-						taxonomy: z.string().optional(),
-					})
-					.passthrough()
+					.union([
+						z
+							.object({
+								taxonomy_id: z.number().optional(),
+								taxonomy: z.string().optional(),
+							})
+							.passthrough(),
+						z.array(z.unknown()),
+					])
 					.optional(),
 			})
 			.passthrough()
