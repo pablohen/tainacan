@@ -5,7 +5,12 @@ import { Center } from "@astryxdesign/core/Center";
 import { Pagination } from "@astryxdesign/core/Pagination";
 import { VStack } from "@astryxdesign/core/VStack";
 import { useQuery } from "@tanstack/react-query";
-import { parseAsInteger, parseAsString, useQueryStates } from "nuqs";
+import {
+	parseAsInteger,
+	parseAsString,
+	parseAsStringLiteral,
+	useQueryStates,
+} from "nuqs";
 import { type ChangeEvent, Suspense, use, useEffect, useState } from "react";
 import { useDebounce } from "use-debounce";
 import { Card } from "@/components/Card";
@@ -13,10 +18,12 @@ import { CardSkeleton } from "@/components/CardSkeleton";
 import { CollectionTabs } from "@/components/CollectionTabs";
 import { HeroBanner } from "@/components/HeroBanner";
 import { ItemMasonry } from "@/components/ItemMasonry";
+import { ItemSortSelector } from "@/components/ItemSortSelector";
 import { SearchBar } from "@/components/SearchBar";
 import { getCollections, getItems } from "@/services/tainacanService";
 import type { TainacanItem as Item } from "@/types/tainacan";
 import { checkImagePath } from "@/utils/checkImagePath";
+import { ITEM_SORT_VALUES, sortToQueryParams } from "@/utils/itemSort";
 import { getMuseumById } from "@/utils/museums";
 
 interface MuseumPageProps {
@@ -26,10 +33,11 @@ interface MuseumPageProps {
 }
 
 function MuseumContent({ museumId }: { museumId: string }) {
-	const [{ search, page, collection }, setQueryStates] = useQueryStates({
+	const [{ search, page, collection, sort }, setQueryStates] = useQueryStates({
 		search: parseAsString.withDefault(""),
 		page: parseAsInteger.withDefault(1),
 		collection: parseAsInteger,
+		sort: parseAsStringLiteral(ITEM_SORT_VALUES),
 	});
 
 	const [searchInput, setSearchInput] = useState(search);
@@ -72,14 +80,17 @@ function MuseumContent({ museumId }: { museumId: string }) {
 		}
 	}, [collection, collections, isCollectionsSuccess, setQueryStates]);
 
+	const sortParams = sortToQueryParams(sort);
+
 	const { data, isLoading, error, isError } = useQuery({
-		queryKey: ["museum-items", museumId, page, search, collection],
+		queryKey: ["museum-items", museumId, page, search, collection, sort],
 		queryFn: () =>
 			getItems(
 				museumId,
 				page,
 				search,
 				collection === null ? undefined : collection,
+				sortParams,
 			),
 		enabled: !!museumId,
 	});
@@ -138,11 +149,20 @@ function MuseumContent({ museumId }: { museumId: string }) {
 			) : null}
 
 			<VStack gap={4} hAlign="center">
-				<VStack maxWidth={672} width="100%">
+				<VStack maxWidth={672} width="100%" gap={3}>
 					<SearchBar
 						value={searchInput}
 						onChange={(e: ChangeEvent<HTMLInputElement>) => {
 							setSearchInput(e.target.value);
+						}}
+					/>
+					<ItemSortSelector
+						value={sort}
+						onChange={(next) => {
+							setQueryStates({
+								sort: next,
+								page: 1,
+							});
 						}}
 					/>
 				</VStack>
