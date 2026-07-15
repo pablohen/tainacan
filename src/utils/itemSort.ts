@@ -8,10 +8,10 @@ export const ITEM_SORT_VALUES = [
 export type ItemSort = (typeof ITEM_SORT_VALUES)[number];
 
 export const ITEM_SORT_OPTIONS: { value: ItemSort; label: string }[] = [
-	{ value: "title-asc", label: "Título A–Z" },
-	{ value: "title-desc", label: "Título Z–A" },
 	{ value: "date-asc", label: "Data crescente" },
 	{ value: "date-desc", label: "Data decrescente" },
+	{ value: "title-asc", label: "Título A–Z" },
+	{ value: "title-desc", label: "Título Z–A" },
 ];
 
 export function isItemSort(value: string): value is ItemSort {
