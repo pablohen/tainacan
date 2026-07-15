@@ -4,11 +4,13 @@ import type {
 	GetFiltersResponseSchema,
 	GetItemsResponseSchema,
 	GetTaxonomiesResponseSchema,
+	GetTaxonomyTermsResponseSchema,
 	TainacanCollectionSchema,
 	TainacanFilterSchema,
 	TainacanItemSchema,
 	TainacanMetadatumSchema,
 	TainacanTaxonomySchema,
+	TainacanTermSchema,
 } from "../schemas/tainacan";
 
 export type TainacanItem = z.infer<typeof TainacanItemSchema>;
@@ -22,6 +24,10 @@ export type GetCollectionsResponse = z.infer<
 >;
 export type GetTaxonomiesResponse = z.infer<typeof GetTaxonomiesResponseSchema>;
 export type GetFiltersResponse = z.infer<typeof GetFiltersResponseSchema>;
+export type TainacanTerm = z.infer<typeof TainacanTermSchema>;
+export type GetTaxonomyTermsResponse = z.infer<
+	typeof GetTaxonomyTermsResponseSchema
+>;
 
 export interface FormattedItemsRes {
 	items: TainacanItem[];
