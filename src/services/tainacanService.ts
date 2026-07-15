@@ -23,6 +23,7 @@ export const getItems = async (
 	searchTerm: string = "",
 	collectionId?: number,
 	filterParams?: Record<string, unknown>,
+	sortParams?: { orderby: string; order: string },
 ): Promise<FormattedItemsRes | null> => {
 	const perpage = 50;
 	const paged = page;
@@ -49,6 +50,11 @@ export const getItems = async (
 
 	if (searchTerm && searchTerm.trim() !== "") {
 		params.search = searchTerm.trim();
+	}
+
+	if (sortParams) {
+		params.orderby = sortParams.orderby;
+		params.order = sortParams.order;
 	}
 
 	try {

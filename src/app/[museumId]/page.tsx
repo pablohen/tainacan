@@ -9,6 +9,7 @@ import {
 	parseAsInteger,
 	parseAsJson,
 	parseAsString,
+	parseAsStringLiteral,
 	useQueryStates,
 } from "nuqs";
 import { type ChangeEvent, Suspense, use, useEffect, useState } from "react";
@@ -18,6 +19,7 @@ import { CardSkeleton } from "@/components/CardSkeleton";
 import { CollectionTabs } from "@/components/CollectionTabs";
 import { HeroBanner } from "@/components/HeroBanner";
 import { ItemMasonry } from "@/components/ItemMasonry";
+import { ItemSortSelector } from "@/components/ItemSortSelector";
 import { MuseumFiltersPanel } from "@/components/MuseumFiltersPanel";
 import { SearchBar } from "@/components/SearchBar";
 import {
@@ -27,6 +29,7 @@ import {
 } from "@/services/tainacanService";
 import type { TainacanItem as Item } from "@/types/tainacan";
 import { checkImagePath } from "@/utils/checkImagePath";
+import { ITEM_SORT_VALUES, sortToQueryParams } from "@/utils/itemSort";
 import { getMuseumById } from "@/utils/museums";
 import {
 	buildFilterQueryParams,
@@ -42,7 +45,7 @@ interface MuseumPageProps {
 }
 
 function MuseumContent({ museumId }: { museumId: string }) {
-	const [{ search, page, collection, filters }, setQueryStates] =
+	const [{ search, page, collection, filters, sort }, setQueryStates] =
 		useQueryStates({
 			search: parseAsString.withDefault(""),
 			page: parseAsInteger.withDefault(1),
@@ -51,6 +54,7 @@ function MuseumContent({ museumId }: { museumId: string }) {
 				const parsed = FiltersStateSchema.safeParse(value);
 				return parsed.success ? parsed.data : null;
 			}),
+			sort: parseAsStringLiteral(ITEM_SORT_VALUES),
 		});
 
 	const [searchInput, setSearchInput] = useState(search);
@@ -124,12 +128,21 @@ function MuseumContent({ museumId }: { museumId: string }) {
 	}, [filters, filterDefs, isFiltersSuccess, setQueryStates]);
 
 	const filterParams = buildFilterQueryParams(filters, filterDefs);
+	const sortParams = sortToQueryParams(sort);
 	const hasActiveFilters = countActiveFilters(filters) > 0;
 	const filtersReadyForItems =
 		!hasActiveFilters || isFiltersSuccess || isFiltersError;
 
 	const { data, isLoading, isPending, error, isError } = useQuery({
-		queryKey: ["museum-items", museumId, page, search, collection, filters],
+		queryKey: [
+			"museum-items",
+			museumId,
+			page,
+			search,
+			collection,
+			filters,
+			sort,
+		],
 		queryFn: () =>
 			getItems(
 				museumId,
@@ -137,6 +150,7 @@ function MuseumContent({ museumId }: { museumId: string }) {
 				search,
 				collection === null ? undefined : collection,
 				filterParams,
+				sortParams,
 			),
 		enabled: !!museumId && filtersReadyForItems,
 	});
@@ -198,11 +212,20 @@ function MuseumContent({ museumId }: { museumId: string }) {
 			) : null}
 
 			<VStack gap={4} hAlign="center">
-				<VStack maxWidth={672} width="100%">
+				<VStack maxWidth={672} width="100%" gap={3}>
 					<SearchBar
 						value={searchInput}
 						onChange={(e: ChangeEvent<HTMLInputElement>) => {
 							setSearchInput(e.target.value);
+						}}
+					/>
+					<ItemSortSelector
+						value={sort}
+						onChange={(next) => {
+							setQueryStates({
+								sort: next,
+								page: 1,
+							});
 						}}
 					/>
 				</VStack>
