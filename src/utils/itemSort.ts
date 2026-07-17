@@ -38,3 +38,31 @@ export function sortToQueryParams(
 		}
 	}
 }
+
+/** Client-side sort for local favorites (no API). Date uses list order (= favorited order). */
+export function sortFavoriteItems<T extends { title: string }>(
+	items: T[],
+	sort: ItemSort | null,
+): T[] {
+	if (sort === null) return items;
+
+	const next = [...items];
+	switch (sort) {
+		case "title-asc":
+			return next.sort((a, b) =>
+				a.title.localeCompare(b.title, "pt-BR", { sensitivity: "base" }),
+			);
+		case "title-desc":
+			return next.sort((a, b) =>
+				b.title.localeCompare(a.title, "pt-BR", { sensitivity: "base" }),
+			);
+		case "date-asc":
+			return next;
+		case "date-desc":
+			return next.reverse();
+		default: {
+			const _exhaustive: never = sort;
+			return _exhaustive;
+		}
+	}
+}

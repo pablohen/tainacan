@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Amendment (2026-07-17):** Favorites page **Itens** section also supports Galeria / Tabela via the same `?view=table` param and `ItemViewModeSelector`. Table adds a **Museu** column (`showMuseum`).
+**Amendment (2026-07-17):** Favorites page **Itens** section also supports Galeria / Tabela via the same `?view=table` param and `ItemViewModeSelector`. Table adds a **Museu** column (`showMuseum`). **Ordenar** uses the same `?sort=` values client-side (`sortFavoriteItems`: title by label; date by favorited list order).
 
 **Architecture:** Pure `itemView` helpers + presentational `ItemViewModeSelector` and `ItemResultsTable`. Museum page owns `nuqs` `view` and swaps the results body only.
 

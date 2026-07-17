@@ -21,6 +21,7 @@ Let users switch the museum item results between today’s **Galeria** (CSS maso
 | Page / filters / sort / chips | Unchanged when switching view; only the results body swaps |
 | Loading | Masonry: existing card skeletons; table: compact skeleton / spinner |
 | Scope | Museum browse page **and** favorites **Itens** section |
+| Favorites sort | Same **Ordenar** / `?sort=`; client-side via `sortFavoriteItems` (title by label; date = favorited list order) |
 | Invalid `?view=` | Treat as masonry and strip |
 | Copy | Brazilian Portuguese |
 
