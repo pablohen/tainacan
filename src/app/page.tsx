@@ -12,7 +12,8 @@ import { HeartFilledIcon } from "@/components/icons/HeartIcon";
 import { MuseumCard } from "@/components/MuseumCard";
 import { SearchBar } from "@/components/SearchBar";
 import { useFavorites } from "@/contexts/FavoritesContext";
-import { getMuseumById, museums } from "@/utils/museums";
+import { museums } from "@/utils/museums";
+import { partitionMuseumsByFavorite } from "@/utils/partitionMuseumsByFavorite";
 
 export default function Home() {
 	const { favoriteMuseums } = useFavorites();
@@ -20,17 +21,12 @@ export default function Home() {
 	const [debouncedSearch] = useDebounce(search, 300);
 
 	const searchLower = debouncedSearch.toLowerCase();
-	const matchesSearch = (title: string) =>
-		title.toLowerCase().includes(searchLower);
-
-	const filteredMuseums = museums.filter((museum) =>
-		matchesSearch(museum.title),
-	);
-
-	const favoriteSection = favoriteMuseums
-		.map((id) => getMuseumById(id))
-		.filter((museum) => museum !== null)
-		.filter((museum) => matchesSearch(museum.title));
+	const { favorites: favoriteSection, all: filteredMuseums } =
+		partitionMuseumsByFavorite({
+			museums,
+			favoriteIds: favoriteMuseums,
+			matches: (museum) => museum.title.toLowerCase().includes(searchLower),
+		});
 
 	const hasResults = filteredMuseums.length > 0;
 
