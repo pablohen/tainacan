@@ -12,12 +12,19 @@ import { Text } from "@astryxdesign/core/Text";
 import Image from "next/image";
 import { FavoriteButton } from "@/components/FavoriteButton";
 import Loading from "@/components/Loading";
-import type { TainacanItem } from "@/types/tainacan";
-import { checkImagePath } from "@/utils/checkImagePath";
+
+export type ItemResultsTableItem = {
+	museumId: string;
+	itemId: number;
+	title: string;
+	imageUrl: string;
+	museumTitle?: string;
+};
 
 export type ItemResultsTableProps = {
-	museumId: string;
-	items: TainacanItem[];
+	items: ItemResultsTableItem[];
+	/** When true, show a Museu column (favorites / cross-museum lists). */
+	showMuseum?: boolean;
 };
 
 type ItemTableRow = {
@@ -25,89 +32,115 @@ type ItemTableRow = {
 	title: string;
 	imageUrl: string;
 	museumId: string;
+	museumTitle: string;
 } & Record<string, unknown>;
 
-function toRows(museumId: string, items: TainacanItem[]): ItemTableRow[] {
+function toRows(items: ItemResultsTableItem[]): ItemTableRow[] {
 	return items.map((item) => ({
-		id: item.id,
+		id: item.itemId,
 		title: item.title,
-		imageUrl: checkImagePath(item),
-		museumId,
+		imageUrl: item.imageUrl,
+		museumId: item.museumId,
+		museumTitle: item.museumTitle ?? "",
 	}));
 }
 
-const columns: TableColumn<ItemTableRow>[] = [
-	{
-		key: "imageUrl",
-		header: "Imagem",
-		width: pixel(72),
-		align: "center",
-		renderCell: (row) => (
-			<Link href={`/${row.museumId}/items/${row.id}`} label={row.title}>
-				<Image
-					src={row.imageUrl}
-					alt=""
-					width={48}
-					height={48}
-					style={{
-						width: 48,
-						height: 48,
-						objectFit: "cover",
-						display: "block",
-					}}
-					unoptimized
-				/>
-			</Link>
-		),
-	},
-	{
-		key: "title",
-		header: "Título",
-		width: proportional(1, { minWidth: 160 }),
-		renderCell: (row) => (
-			<Link href={`/${row.museumId}/items/${row.id}`} isStandalone>
-				{row.title}
-			</Link>
-		),
-	},
-	{
-		key: "id",
-		header: "ID",
-		width: pixel(96),
-		renderCell: (row) => (
-			<Text type="supporting" as="span">
-				{String(row.id)}
-			</Text>
-		),
-	},
-	{
-		key: "favorite",
-		header: "Favorito",
-		width: pixel(88),
-		align: "center",
-		renderCell: (row) => (
-			<FavoriteButton
-				type="item"
-				item={{
-					museumId: row.museumId,
-					itemId: row.id,
-					title: row.title,
-					imageUrl: row.imageUrl,
-				}}
-			/>
-		),
-	},
-];
+function buildColumns(showMuseum: boolean): TableColumn<ItemTableRow>[] {
+	const columns: TableColumn<ItemTableRow>[] = [
+		{
+			key: "imageUrl",
+			header: "Imagem",
+			width: pixel(72),
+			align: "center",
+			renderCell: (row) => (
+				<Link href={`/${row.museumId}/items/${row.id}`} label={row.title}>
+					<Image
+						src={row.imageUrl}
+						alt=""
+						width={48}
+						height={48}
+						style={{
+							width: 48,
+							height: 48,
+							objectFit: "cover",
+							display: "block",
+						}}
+						unoptimized
+					/>
+				</Link>
+			),
+		},
+		{
+			key: "title",
+			header: "Título",
+			width: proportional(1, { minWidth: 160 }),
+			renderCell: (row) => (
+				<Link href={`/${row.museumId}/items/${row.id}`} isStandalone>
+					{row.title}
+				</Link>
+			),
+		},
+	];
 
-export function ItemResultsTable({ museumId, items }: ItemResultsTableProps) {
-	const data = toRows(museumId, items);
+	if (showMuseum) {
+		columns.push({
+			key: "museumTitle",
+			header: "Museu",
+			width: proportional(1, { minWidth: 140 }),
+			renderCell: (row) => (
+				<Link href={`/${row.museumId}`} isStandalone>
+					{row.museumTitle || row.museumId}
+				</Link>
+			),
+		});
+	}
+
+	columns.push(
+		{
+			key: "id",
+			header: "ID",
+			width: pixel(96),
+			renderCell: (row) => (
+				<Text type="supporting" as="span">
+					{String(row.id)}
+				</Text>
+			),
+		},
+		{
+			key: "favorite",
+			header: "Favorito",
+			width: pixel(88),
+			align: "center",
+			renderCell: (row) => (
+				<FavoriteButton
+					type="item"
+					item={{
+						museumId: row.museumId,
+						itemId: row.id,
+						title: row.title,
+						imageUrl: row.imageUrl,
+					}}
+				/>
+			),
+		},
+	);
+
+	return columns;
+}
+
+export function ItemResultsTable({
+	items,
+	showMuseum = false,
+}: ItemResultsTableProps) {
+	const data = toRows(items);
+	const columns = buildColumns(showMuseum);
 
 	return (
 		<Section variant="transparent" padding={0} width="100%">
 			<Table
 				data={data}
 				columns={columns}
-				idKey="id"
+				idKey={(row) => `${row.museumId}-${row.id}`}
 				density="compact"
 				dividers="rows"
 				hasHover
