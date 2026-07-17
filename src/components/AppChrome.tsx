@@ -20,6 +20,7 @@ import { SearchBar } from "@/components/SearchBar";
 import { useFavorites } from "@/contexts/FavoritesContext";
 import { museums } from "@/utils/museums";
 import { normalizeText } from "@/utils/normalizeText";
+import { partitionMuseumsByFavorite } from "@/utils/partitionMuseumsByFavorite";
 
 function FavoritesNavAction() {
 	const router = useRouter();
@@ -51,13 +52,18 @@ function MuseumSideNav() {
 	const pathname = usePathname();
 	const museumId = pathname?.split("/")[1] ?? "";
 	const [query, setQuery] = useState("");
+	const { favoriteMuseums } = useFavorites();
 
 	const normalizedQuery = normalizeText(query);
-	const filteredMuseums = normalizedQuery
-		? museums.filter((museum) =>
-				normalizeText(museum.title).includes(normalizedQuery),
-			)
-		: museums;
+	const { favorites: favoriteSection, all: filteredMuseums } =
+		partitionMuseumsByFavorite({
+			museums,
+			favoriteIds: favoriteMuseums,
+			matches: (museum) =>
+				normalizedQuery
+					? normalizeText(museum.title).includes(normalizedQuery)
+					: true,
+		});
 
 	return (
 		<SideNav
@@ -70,7 +76,20 @@ function MuseumSideNav() {
 				/>
 			}
 		>
-			<SideNavSection title="Museus">
+			{favoriteSection.length > 0 ? (
+				<SideNavSection title="Meus museus">
+					{favoriteSection.map((museum) => (
+						<SideNavItem
+							key={`favorite-${museum.id}`}
+							label={museum.title}
+							href={`/${museum.id}`}
+							isSelected={museumId === museum.id}
+						/>
+					))}
+				</SideNavSection>
+			) : null}
+
+			<SideNavSection title="Todos os museus">
 				{filteredMuseums.map((museum) => (
 					<SideNavItem
 						key={museum.id}
