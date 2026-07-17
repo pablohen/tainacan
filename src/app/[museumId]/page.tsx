@@ -20,6 +20,7 @@ import { CollectionTabs } from "@/components/CollectionTabs";
 import { HeroBanner } from "@/components/HeroBanner";
 import { ItemMasonry } from "@/components/ItemMasonry";
 import { ItemSortSelector } from "@/components/ItemSortSelector";
+import { MuseumActiveStateBar } from "@/components/MuseumActiveStateBar";
 import { MuseumFiltersPanel } from "@/components/MuseumFiltersPanel";
 import { SearchBar } from "@/components/SearchBar";
 import {
@@ -28,6 +29,10 @@ import {
 	getItems,
 } from "@/services/tainacanService";
 import type { TainacanItem as Item } from "@/types/tainacan";
+import {
+	buildActiveStateChips,
+	removeFacetFromFilters,
+} from "@/utils/activeStateChips";
 import { checkImagePath } from "@/utils/checkImagePath";
 import { ITEM_SORT_VALUES, sortToQueryParams } from "@/utils/itemSort";
 import { getMuseumById } from "@/utils/museums";
@@ -171,6 +176,48 @@ function MuseumContent({ museumId }: { museumId: string }) {
 	}, [data, museumId]);
 
 	const museum = getMuseumById(museumId);
+	const activeChips = buildActiveStateChips({
+		search,
+		collectionId: collection,
+		collections,
+		filters,
+		filterDefs,
+		sort,
+	});
+
+	const handleRemoveChip = (id: string) => {
+		if (id === "search") {
+			setSearchInput("");
+			setQueryStates({ search: null, page: 1 });
+			return;
+		}
+		if (id === "collection") {
+			setQueryStates({ collection: null, page: 1 });
+			return;
+		}
+		if (id === "sort") {
+			setQueryStates({ sort: null, page: 1 });
+			return;
+		}
+		if (id.startsWith("facet:")) {
+			const filterId = id.slice("facet:".length);
+			setQueryStates({
+				filters: removeFacetFromFilters(filters, filterId),
+				page: 1,
+			});
+		}
+	};
+
+	const handleClearAll = () => {
+		setSearchInput("");
+		setQueryStates({
+			search: null,
+			collection: null,
+			filters: null,
+			sort: null,
+			page: 1,
+		});
+	};
 
 	if (!museum) {
 		return (
@@ -244,6 +291,12 @@ function MuseumContent({ museumId }: { museumId: string }) {
 						}}
 					/>
 				) : null}
+
+				<MuseumActiveStateBar
+					chips={activeChips}
+					onRemove={handleRemoveChip}
+					onClearAll={handleClearAll}
+				/>
 
 				{showItemsLoading ? (
 					<ItemMasonry>
