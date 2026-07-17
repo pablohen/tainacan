@@ -52,6 +52,7 @@ function MuseumSideNav() {
 	const pathname = usePathname();
 	const museumId = pathname?.split("/")[1] ?? "";
 	const [query, setQuery] = useState("");
+	const [isCollapsed, setIsCollapsed] = useState(false);
 	const { favoriteMuseums } = useFavorites();
 
 	const normalizedQuery = normalizeText(query);
@@ -67,13 +68,18 @@ function MuseumSideNav() {
 
 	return (
 		<SideNav
-			collapsible
+			collapsible={{
+				isCollapsed,
+				onCollapsedChange: setIsCollapsed,
+			}}
 			topContent={
-				<SearchBar
-					value={query}
-					onChange={(e) => setQuery(e.target.value)}
-					placeholder="Filtrar museus..."
-				/>
+				isCollapsed ? undefined : (
+					<SearchBar
+						value={query}
+						onChange={(e) => setQuery(e.target.value)}
+						placeholder="Filtrar museus..."
+					/>
+				)
 			}
 		>
 			{favoriteSection.length > 0 ? (
