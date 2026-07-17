@@ -39,3 +39,6 @@ tsconfig.tsbuildinfo
 
 # Superpowers brainstorm companion
 .superpowers/
+
+# Git worktrees
+.worktrees/
