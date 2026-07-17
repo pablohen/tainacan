@@ -15,12 +15,12 @@ Let users switch the museum item results between today’s **Galeria** (CSS maso
 | URL | `?view=table`; omit param when masonry (same pattern as sort) |
 | Control | Astryx `SegmentedControl` labeled **Visualização** — Galeria / Tabela |
 | Placement | Same toolbar row as **Ordenar** (under SearchBar) |
-| Table columns | Thumb · Título · ID · favorito |
+| Table columns | Museum: Thumb · Título · ID · favorito. Favorites: + **Museu** |
 | Navigation | Title (and thumb) link to `/{museumId}/items/{id}` |
 | Table chrome | `density="compact"`, `hasHover`, `dividers="rows"` |
 | Page / filters / sort / chips | Unchanged when switching view; only the results body swaps |
-| Loading | Masonry: existing card skeletons; table: compact skeleton rows |
-| Scope | Museum browse page only |
+| Loading | Masonry: existing card skeletons; table: compact skeleton / spinner |
+| Scope | Museum browse page **and** favorites **Itens** section |
 | Invalid `?view=` | Treat as masonry and strip |
 | Copy | Brazilian Portuguese |
 
@@ -28,11 +28,11 @@ Let users switch the museum item results between today’s **Galeria** (CSS maso
 
 - Compact / dense masonry column variants
 - List / row gallery between masonry and table
-- Table-header sorting (keep **Ordenar**)
-- Favorites page table mode
+- Table-header sorting (keep **Ordenar** on museum pages)
 - Bulk selection / row actions beyond favorito
 - View chips in the active-state strip
 - Changing `perpage` with view mode
+- Table layout for favorite **museums** grid
 
 ## Architecture
 
@@ -115,6 +115,6 @@ Pagination (shared, when applicable)
 
 ## Follow-ups (not this feature)
 
-- Favorites table mode
 - Icon-only segmented control
 - Sticky first column (thumb/title)
+- Persist view preference across museum ↔ favorites (shared URL param already; no cross-route persistence)

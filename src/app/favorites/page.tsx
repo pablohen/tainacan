@@ -7,25 +7,29 @@ import { HStack } from "@astryxdesign/core/HStack";
 import { Icon } from "@astryxdesign/core/Icon";
 import { Heading, Text } from "@astryxdesign/core/Text";
 import { VStack } from "@astryxdesign/core/VStack";
-import { parseAsString, useQueryState } from "nuqs";
+import { parseAsString, parseAsStringLiteral, useQueryStates } from "nuqs";
 import { type ChangeEvent, Suspense, useEffect, useState } from "react";
 import { useDebounce } from "use-debounce";
 import { Card } from "@/components/Card";
 import { ItemMasonry } from "@/components/ItemMasonry";
+import { ItemResultsTable } from "@/components/ItemResultsTable";
+import { ItemViewModeSelector } from "@/components/ItemViewModeSelector";
 import { HeartFilledIcon } from "@/components/icons/HeartIcon";
 import { MuseumCard } from "@/components/MuseumCard";
 import { SearchBar } from "@/components/SearchBar";
 import { useFavorites } from "@/contexts/FavoritesContext";
+import { ITEM_VIEW_VALUES, toItemViewMode } from "@/utils/itemView";
 import { getMuseumById } from "@/utils/museums";
 
 function FavoritesContent() {
 	const { favoriteItems, favoriteMuseums } = useFavorites();
 
-	const [search, setSearch] = useQueryState(
-		"search",
-		parseAsString.withDefault(""),
-	);
+	const [{ search, view }, setQueryStates] = useQueryStates({
+		search: parseAsString.withDefault(""),
+		view: parseAsStringLiteral(ITEM_VIEW_VALUES),
+	});
 
+	const viewMode = toItemViewMode(view);
 	const [searchInput, setSearchInput] = useState(search);
 	const [debouncedSearch] = useDebounce(searchInput, 500);
 
@@ -50,9 +54,9 @@ function FavoritesContent() {
 
 	useEffect(() => {
 		if (debouncedSearch !== search) {
-			setSearch(debouncedSearch || null);
+			setQueryStates({ search: debouncedSearch || null });
 		}
-	}, [debouncedSearch, search, setSearch]);
+	}, [debouncedSearch, search, setQueryStates]);
 
 	const hasAnyFavorites =
 		favoriteItems.length > 0 || favoriteMuseums.length > 0;
@@ -77,13 +81,23 @@ function FavoritesContent() {
 			</VStack>
 
 			{hasAnyFavorites ? (
-				<SearchBar
-					value={searchInput}
-					onChange={(e: ChangeEvent<HTMLInputElement>) => {
-						setSearchInput(e.target.value);
-					}}
-					placeholder="Buscar nos favoritos..."
-				/>
+				<VStack gap={3} maxWidth={672} width="100%">
+					<SearchBar
+						value={searchInput}
+						onChange={(e: ChangeEvent<HTMLInputElement>) => {
+							setSearchInput(e.target.value);
+						}}
+						placeholder="Buscar nos favoritos..."
+					/>
+					{favoriteItems.length > 0 ? (
+						<ItemViewModeSelector
+							value={view}
+							onChange={(next) => {
+								setQueryStates({ view: next });
+							}}
+						/>
+					) : null}
+				</VStack>
 			) : null}
 
 			{hasAnyFavorites ? (
@@ -102,21 +116,37 @@ function FavoritesContent() {
 					{filteredFavorites.length > 0 ? (
 						<VStack gap={3}>
 							<Heading level={2}>Itens</Heading>
-							<ItemMasonry>
-								{filteredFavorites.map((favorite) => {
-									const museum = getMuseumById(favorite.museumId);
-									return (
-										<Card
-											key={`${favorite.museumId}-${favorite.itemId}`}
-											museumId={favorite.museumId}
-											itemId={favorite.itemId}
-											title={favorite.title}
-											imageUrl={favorite.imageUrl}
-											subtitle={museum?.title}
-										/>
-									);
-								})}
-							</ItemMasonry>
+							{viewMode === "table" ? (
+								<ItemResultsTable
+									showMuseum
+									items={filteredFavorites.map((favorite) => {
+										const museum = getMuseumById(favorite.museumId);
+										return {
+											museumId: favorite.museumId,
+											itemId: favorite.itemId,
+											title: favorite.title,
+											imageUrl: favorite.imageUrl,
+											museumTitle: museum?.title,
+										};
+									})}
+								/>
+							) : (
+								<ItemMasonry>
+									{filteredFavorites.map((favorite) => {
+										const museum = getMuseumById(favorite.museumId);
+										return (
+											<Card
+												key={`${favorite.museumId}-${favorite.itemId}`}
+												museumId={favorite.museumId}
+												itemId={favorite.itemId}
+												title={favorite.title}
+												imageUrl={favorite.imageUrl}
+												subtitle={museum?.title}
+											/>
+										);
+									})}
+								</ItemMasonry>
+							)}
 						</VStack>
 					) : null}
 

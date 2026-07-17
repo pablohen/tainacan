@@ -347,7 +347,14 @@ function MuseumContent({ museumId }: { museumId: string }) {
 					/>
 				) : items?.length ? (
 					viewMode === "table" ? (
-						<ItemResultsTable museumId={museumId} items={items} />
+						<ItemResultsTable
+							items={items.map((item) => ({
+								museumId,
+								itemId: item.id,
+								title: item.title,
+								imageUrl: checkImagePath(item),
+							}))}
+						/>
 					) : (
 						<ItemMasonry>
 							{items.map((item) => (
