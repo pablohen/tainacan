@@ -4,6 +4,8 @@
 
 **Goal:** Show a removable Token strip above museum results for active search, collection, facets, and sort, with per-chip remove and **Limpar tudo**.
 
+**Amendment (2026-07-17):** Taxonomy facets emit **one chip per selected term** (`facet:{filterId}:{termId}`); removing a chip drops only that term. Text/interval remain one chip per filter key.
+
 **Architecture:** Pure `buildActiveStateChips` derives chip models from browse state. Presentational `MuseumActiveStateBar` renders Tokens + clear-all. `MuseumContent` owns nuqs patches and local `searchInput` sync. No new URL params.
 
 **Tech Stack:** Next.js App Router (client), nuqs (existing), Astryx `Token` / `HStack` / `Button` / `VStack`, existing `tainacanFilters` + `itemSort` helpers. Package manager: Bun.
