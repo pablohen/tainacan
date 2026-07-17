@@ -1,8 +1,8 @@
 import type { TainacanCollection, TainacanFilter } from "@/types/tainacan";
 import { ITEM_SORT_OPTIONS, type ItemSort } from "@/utils/itemSort";
 import {
-	type FilterValue,
 	type FiltersState,
+	type FilterValue,
 	getFilterFamily,
 	isEmptyFilterValue,
 } from "@/utils/tainacanFilters";
@@ -45,7 +45,11 @@ function formatFacetValue(
 		return value.trim();
 	}
 
-	if (family === "interval" && typeof value === "object" && !Array.isArray(value)) {
+	if (
+		family === "interval" &&
+		typeof value === "object" &&
+		!Array.isArray(value)
+	) {
 		const min = value.min?.trim() ?? "";
 		const max = value.max?.trim() ?? "";
 		if (min && max) return `${min}–${max}`;
@@ -76,7 +80,9 @@ export function buildActiveStateChips(input: {
 	}
 
 	if (input.collectionId !== null) {
-		const collection = input.collections.find((c) => c.id === input.collectionId);
+		const collection = input.collections.find(
+			(c) => c.id === input.collectionId,
+		);
 		chips.push({
 			id: "collection",
 			kind: "collection",
