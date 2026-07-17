@@ -13,36 +13,44 @@ import { useDebounce } from "use-debounce";
 import { Card } from "@/components/Card";
 import { ItemMasonry } from "@/components/ItemMasonry";
 import { ItemResultsTable } from "@/components/ItemResultsTable";
+import { ItemSortSelector } from "@/components/ItemSortSelector";
 import { ItemViewModeSelector } from "@/components/ItemViewModeSelector";
 import { HeartFilledIcon } from "@/components/icons/HeartIcon";
 import { MuseumCard } from "@/components/MuseumCard";
 import { SearchBar } from "@/components/SearchBar";
 import { useFavorites } from "@/contexts/FavoritesContext";
+import { ITEM_SORT_VALUES, sortFavoriteItems } from "@/utils/itemSort";
 import { ITEM_VIEW_VALUES, toItemViewMode } from "@/utils/itemView";
 import { getMuseumById } from "@/utils/museums";
 
 function FavoritesContent() {
 	const { favoriteItems, favoriteMuseums } = useFavorites();
 
-	const [{ search, view }, setQueryStates] = useQueryStates({
+	const [{ search, view, sort }, setQueryStates] = useQueryStates({
 		search: parseAsString.withDefault(""),
 		view: parseAsStringLiteral(ITEM_VIEW_VALUES),
+		sort: parseAsStringLiteral(ITEM_SORT_VALUES),
 	});
 
 	const viewMode = toItemViewMode(view);
 	const [searchInput, setSearchInput] = useState(search);
 	const [debouncedSearch] = useDebounce(searchInput, 500);
 
-	const filteredFavorites = favoriteItems.filter((favorite) => {
-		if (!search) return true;
+	const filteredFavorites = sortFavoriteItems(
+		favoriteItems.filter((favorite) => {
+			if (!search) return true;
 
-		const searchLower = search.toLowerCase();
-		const museum = getMuseumById(favorite.museumId);
-		const museumTitle = museum?.title.toLowerCase() || "";
-		const itemTitle = favorite.title.toLowerCase();
+			const searchLower = search.toLowerCase();
+			const museum = getMuseumById(favorite.museumId);
+			const museumTitle = museum?.title.toLowerCase() || "";
+			const itemTitle = favorite.title.toLowerCase();
 
-		return itemTitle.includes(searchLower) || museumTitle.includes(searchLower);
-	});
+			return (
+				itemTitle.includes(searchLower) || museumTitle.includes(searchLower)
+			);
+		}),
+		sort,
+	);
 
 	const filteredMuseums = favoriteMuseums
 		.map((id) => getMuseumById(id))
@@ -90,12 +98,20 @@ function FavoritesContent() {
 						placeholder="Buscar nos favoritos..."
 					/>
 					{favoriteItems.length > 0 ? (
-						<ItemViewModeSelector
-							value={view}
-							onChange={(next) => {
-								setQueryStates({ view: next });
-							}}
-						/>
+						<HStack gap={3} wrap="wrap" vAlign="end" width="100%">
+							<ItemSortSelector
+								value={sort}
+								onChange={(next) => {
+									setQueryStates({ sort: next });
+								}}
+							/>
+							<ItemViewModeSelector
+								value={view}
+								onChange={(next) => {
+									setQueryStates({ view: next });
+								}}
+							/>
+						</HStack>
 					) : null}
 				</VStack>
 			) : null}
