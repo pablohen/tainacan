@@ -15,13 +15,13 @@ Above the masonry results on a museum page, show a removable chip strip for acti
 | Placement | Immediately above the results block (loading / error / masonry / empty), after Filtros |
 | Visibility | Strip only when ≥1 chip would show |
 | Clear-all | **Limpar tudo** resets search, collection→Todos, facets, sort→Padrão, page→1; also sync local `searchInput` |
-| Per-chip remove | Clears only that dimension / facet key |
+| Per-chip remove | Clears only that dimension / facet entry |
 | Architecture | Presentational `MuseumActiveStateBar` + parent-derived chips and callbacks |
 | Chip UI | Astryx `Token` with `onRemove`, `size="sm"` |
 | Sticky meaning | Stays with the results column above masonry (not CSS `position: sticky` unless later needed) |
 | URL | No new params — chips mirror existing `search` / `collection` / `filters` / `sort` |
-| Facet chip granularity | One chip per active filter key |
-| Chip order | search → collection → facets (by filter id) → sort |
+| Facet chip granularity | Taxonomy: **one chip per selected term**; text/interval: one chip per filter key |
+| Chip order | search → collection → facets (by filter id, then term order in URL) → sort |
 | Copy | Brazilian Portuguese |
 
 ## Out of scope
@@ -52,7 +52,7 @@ MuseumContent (owns nuqs + local searchInput)
 type ActiveStateChipKind = "search" | "collection" | "facet" | "sort";
 
 type ActiveStateChip = {
-	id: string; // stable: "search" | "collection" | `facet:${filterId}` | "sort"
+	id: string; // stable: "search" | "collection" | `facet:${filterId}` | `facet:${filterId}:${termId}` | "sort"
 	kind: ActiveStateChipKind;
 	label: string;
 };
@@ -64,7 +64,7 @@ type ActiveStateChip = {
 | --- | --- |
 | Search | `Busca: {term}` |
 | Collection | Collection `name` from `collections` |
-| Facet (taxonomy multi) | `{filterName}: {termNames joined by ", "}` — fall back to raw ids until term names resolve |
+| Facet (taxonomy term) | `{filterName}: {termName}` — one chip per selected term; fall back to raw id until names resolve |
 | Facet (text) | `{filterName}: {value}` |
 | Facet (interval) | `{filterName}: {min}–{max}` (omit empty bound) |
 | Sort | Matching `ITEM_SORT_OPTIONS` label |
@@ -75,7 +75,8 @@ type ActiveStateChip = {
 | --- | --- |
 | Search | `search: null`, clear `searchInput`, `page: 1` |
 | Collection | `collection: null`, `page: 1` (keep filters/sort; existing sanitize may drop invalid facets) |
-| Facet | Delete that key from `filters` JSON (or `filters: null` if last), `page: 1` |
+| Facet (taxonomy term) | Remove that term id from the filter’s array (drop key if empty / `filters: null` if last), `page: 1` |
+| Facet (text/interval) | Delete that key from `filters` JSON (or `filters: null` if last), `page: 1` |
 | Sort | `sort: null`, `page: 1` |
 
 ### Clear-all

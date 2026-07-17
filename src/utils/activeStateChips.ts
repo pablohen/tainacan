@@ -19,22 +19,11 @@ export type ActiveStateChip = {
 /** Optional map: taxonomyId → (termId string → term name) for nicer facet labels. */
 export type TermLabelMap = Record<number, Record<string, string>>;
 
-function formatFacetValue(
+function formatScalarFacetValue(
 	filter: TainacanFilter,
 	value: FilterValue,
-	termLabels: TermLabelMap | undefined,
 ): string {
 	const family = getFilterFamily(filter.filter_type);
-
-	if (family === "taxonomy" && Array.isArray(value)) {
-		const taxonomyId = getTaxonomyId(filter);
-		const names = value.map((id) => {
-			const fromMap =
-				taxonomyId !== null ? termLabels?.[taxonomyId]?.[id] : undefined;
-			return fromMap ?? id;
-		});
-		return names.join(", ");
-	}
 
 	if (family === "text" && typeof value === "string") {
 		return value.trim();
@@ -52,6 +41,55 @@ function formatFacetValue(
 	}
 
 	return String(value);
+}
+
+function termLabel(
+	filter: TainacanFilter | undefined,
+	termId: string,
+	termLabels: TermLabelMap | undefined,
+): string {
+	if (!filter) return termId;
+	const taxonomyId = getTaxonomyId(filter);
+	if (taxonomyId === null) return termId;
+	return termLabels?.[taxonomyId]?.[termId] ?? termId;
+}
+
+function pushFacetChips(
+	chips: ActiveStateChip[],
+	filterKey: string,
+	value: FilterValue,
+	def: TainacanFilter | undefined,
+	termLabels: TermLabelMap | undefined,
+): void {
+	const filterName = def?.name ?? `Filtro ${filterKey}`;
+	const family = def ? getFilterFamily(def.filter_type) : null;
+
+	if (family === "taxonomy" || (family === null && Array.isArray(value))) {
+		if (!Array.isArray(value) || value.length === 0) return;
+		for (const termId of value) {
+			chips.push({
+				id: `facet:${filterKey}:${termId}`,
+				kind: "facet",
+				label: `${filterName}: ${termLabel(def, termId, termLabels)}`,
+			});
+		}
+		return;
+	}
+
+	if (!def) {
+		chips.push({
+			id: `facet:${filterKey}`,
+			kind: "facet",
+			label: `${filterName}: ${String(value)}`,
+		});
+		return;
+	}
+
+	chips.push({
+		id: `facet:${filterKey}`,
+		kind: "facet",
+		label: `${filterName}: ${formatScalarFacetValue(def, value)}`,
+	});
 }
 
 export function buildActiveStateChips(input: {
@@ -93,16 +131,7 @@ export function buildActiveStateChips(input: {
 		for (const key of facetKeys) {
 			const value = input.filters[key];
 			if (isEmptyFilterValue(value)) continue;
-			const def = byId.get(key);
-			const filterName = def?.name ?? `Filtro ${key}`;
-			const formatted = def
-				? formatFacetValue(def, value, input.termLabels)
-				: String(value);
-			chips.push({
-				id: `facet:${key}`,
-				kind: "facet",
-				label: `${filterName}: ${formatted}`,
-			});
+			pushFacetChips(chips, key, value, byId.get(key), input.termLabels);
 		}
 	}
 
@@ -118,11 +147,41 @@ export function buildActiveStateChips(input: {
 	return chips;
 }
 
+/** Parse `facet:{filterId}` or `facet:{filterId}:{termId}`. */
+export function parseFacetChipId(
+	id: string,
+): { filterId: string; termId?: string } | null {
+	if (!id.startsWith("facet:")) return null;
+	const rest = id.slice("facet:".length);
+	const colon = rest.indexOf(":");
+	if (colon === -1) {
+		return rest.length > 0 ? { filterId: rest } : null;
+	}
+	const filterId = rest.slice(0, colon);
+	const termId = rest.slice(colon + 1);
+	if (!filterId || !termId) return null;
+	return { filterId, termId };
+}
+
 export function removeFacetFromFilters(
 	filters: FiltersState | null,
 	filterId: string,
+	termId?: string,
 ): FiltersState | null {
 	if (!filters) return null;
+	const current = filters[filterId];
+
+	if (termId !== undefined && Array.isArray(current)) {
+		const nextTerms = current.filter((id) => id !== termId);
+		const next = { ...filters };
+		if (nextTerms.length === 0) {
+			delete next[filterId];
+		} else {
+			next[filterId] = nextTerms;
+		}
+		return Object.keys(next).length > 0 ? next : null;
+	}
+
 	const next = { ...filters };
 	delete next[filterId];
 	return Object.keys(next).length > 0 ? next : null;
