@@ -4,6 +4,7 @@ import {
 	type FiltersState,
 	type FilterValue,
 	getFilterFamily,
+	getTaxonomyId,
 	isEmptyFilterValue,
 } from "@/utils/tainacanFilters";
 
@@ -26,16 +27,10 @@ function formatFacetValue(
 	const family = getFilterFamily(filter.filter_type);
 
 	if (family === "taxonomy" && Array.isArray(value)) {
-		const taxonomyId =
-			filter.metadatum?.metadata_type_object?.options &&
-			!Array.isArray(filter.metadatum.metadata_type_object.options)
-				? filter.metadatum.metadata_type_object.options.taxonomy_id
-				: undefined;
+		const taxonomyId = getTaxonomyId(filter);
 		const names = value.map((id) => {
 			const fromMap =
-				typeof taxonomyId === "number"
-					? termLabels?.[taxonomyId]?.[id]
-					: undefined;
+				taxonomyId !== null ? termLabels?.[taxonomyId]?.[id] : undefined;
 			return fromMap ?? id;
 		});
 		return names.join(", ");
