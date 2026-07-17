@@ -1,22 +1,38 @@
 "use client";
 
 import { Grid } from "@astryxdesign/core/Grid";
-import { Text } from "@astryxdesign/core/Text";
+import { HStack } from "@astryxdesign/core/HStack";
+import { Icon } from "@astryxdesign/core/Icon";
+import { Heading, Text } from "@astryxdesign/core/Text";
 import { VStack } from "@astryxdesign/core/VStack";
 import { useState } from "react";
 import { useDebounce } from "use-debounce";
 import { HeroBanner } from "@/components/HeroBanner";
+import { HeartFilledIcon } from "@/components/icons/HeartIcon";
 import { MuseumCard } from "@/components/MuseumCard";
 import { SearchBar } from "@/components/SearchBar";
-import { museums } from "@/utils/museums";
+import { useFavorites } from "@/contexts/FavoritesContext";
+import { getMuseumById, museums } from "@/utils/museums";
 
 export default function Home() {
+	const { favoriteMuseums } = useFavorites();
 	const [search, setSearch] = useState("");
 	const [debouncedSearch] = useDebounce(search, 300);
 
+	const searchLower = debouncedSearch.toLowerCase();
+	const matchesSearch = (title: string) =>
+		title.toLowerCase().includes(searchLower);
+
 	const filteredMuseums = museums.filter((museum) =>
-		museum.title.toLowerCase().includes(debouncedSearch.toLowerCase()),
+		matchesSearch(museum.title),
 	);
+
+	const favoriteSection = favoriteMuseums
+		.map((id) => getMuseumById(id))
+		.filter((museum) => museum !== null)
+		.filter((museum) => matchesSearch(museum.title));
+
+	const hasResults = filteredMuseums.length > 0;
 
 	return (
 		<VStack gap={4}>
@@ -33,17 +49,36 @@ export default function Home() {
 				/>
 			</VStack>
 
-			<Grid columns={{ minWidth: 240, max: 4 }} gap={4}>
-				{filteredMuseums.map((museum) => (
-					<MuseumCard key={museum.id} museum={museum} />
-				))}
-			</Grid>
+			{hasResults ? (
+				<VStack gap={6}>
+					{favoriteSection.length > 0 ? (
+						<VStack gap={3}>
+							<HStack gap={2} vAlign="center">
+								<Icon icon={HeartFilledIcon} color="error" size="md" />
+								<Heading level={2}>Meus museus</Heading>
+							</HStack>
+							<Grid columns={{ minWidth: 240, max: 4 }} gap={4}>
+								{favoriteSection.map((museum) => (
+									<MuseumCard key={museum.id} museum={museum} />
+								))}
+							</Grid>
+						</VStack>
+					) : null}
 
-			{filteredMuseums.length === 0 ? (
+					<VStack gap={3}>
+						<Heading level={2}>Todos os museus</Heading>
+						<Grid columns={{ minWidth: 240, max: 4 }} gap={4}>
+							{filteredMuseums.map((museum) => (
+								<MuseumCard key={museum.id} museum={museum} />
+							))}
+						</Grid>
+					</VStack>
+				</VStack>
+			) : (
 				<Text type="supporting" justify="center" as="p">
 					Nenhum museu encontrado para "{search}"
 				</Text>
-			) : null}
+			)}
 		</VStack>
 	);
 }
