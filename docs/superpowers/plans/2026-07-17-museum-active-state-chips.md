@@ -362,5 +362,5 @@ git commit -m "feat(museums): show active browse state chips above results"
 | Placement above results | Task 3 |
 | Per-chip remove + Limpar tudo | Task 2 + 3 |
 | Token UI, no new URL params | Task 2 + 3 |
-| Facet one chip per key; order search→collection→facets→sort | Task 1 |
+| Facet one chip per taxonomy term (text/interval per key); order search→collection→facets→sort | Task 1 |
 | CSS sticky / facet counts | — out of scope |

@@ -32,6 +32,7 @@ import {
 import type { TainacanItem as Item } from "@/types/tainacan";
 import {
 	buildActiveStateChips,
+	parseFacetChipId,
 	removeFacetFromFilters,
 } from "@/utils/activeStateChips";
 import { checkImagePath } from "@/utils/checkImagePath";
@@ -202,10 +203,10 @@ function MuseumContent({ museumId }: { museumId: string }) {
 			setQueryStates({ sort: null, page: 1 });
 			return;
 		}
-		if (id.startsWith("facet:")) {
-			const filterId = id.slice("facet:".length);
+		const facet = parseFacetChipId(id);
+		if (facet) {
 			setQueryStates({
-				filters: removeFacetFromFilters(filters, filterId),
+				filters: removeFacetFromFilters(filters, facet.filterId, facet.termId),
 				page: 1,
 			});
 		}
