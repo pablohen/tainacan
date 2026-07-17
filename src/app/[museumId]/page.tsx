@@ -2,6 +2,7 @@
 
 import { Banner } from "@astryxdesign/core/Banner";
 import { Center } from "@astryxdesign/core/Center";
+import { HStack } from "@astryxdesign/core/HStack";
 import { Pagination } from "@astryxdesign/core/Pagination";
 import { VStack } from "@astryxdesign/core/VStack";
 import { useQuery } from "@tanstack/react-query";
@@ -19,7 +20,12 @@ import { CardSkeleton } from "@/components/CardSkeleton";
 import { CollectionTabs } from "@/components/CollectionTabs";
 import { HeroBanner } from "@/components/HeroBanner";
 import { ItemMasonry } from "@/components/ItemMasonry";
+import {
+	ItemResultsTable,
+	ItemResultsTableSkeleton,
+} from "@/components/ItemResultsTable";
 import { ItemSortSelector } from "@/components/ItemSortSelector";
+import { ItemViewModeSelector } from "@/components/ItemViewModeSelector";
 import { MuseumActiveStateBar } from "@/components/MuseumActiveStateBar";
 import { MuseumFiltersPanel } from "@/components/MuseumFiltersPanel";
 import { SearchBar } from "@/components/SearchBar";
@@ -37,6 +43,7 @@ import {
 } from "@/utils/activeStateChips";
 import { checkImagePath } from "@/utils/checkImagePath";
 import { ITEM_SORT_VALUES, sortToQueryParams } from "@/utils/itemSort";
+import { ITEM_VIEW_VALUES, toItemViewMode } from "@/utils/itemView";
 import { getMuseumById } from "@/utils/museums";
 import {
 	buildFilterQueryParams,
@@ -52,7 +59,7 @@ interface MuseumPageProps {
 }
 
 function MuseumContent({ museumId }: { museumId: string }) {
-	const [{ search, page, collection, filters, sort }, setQueryStates] =
+	const [{ search, page, collection, filters, sort, view }, setQueryStates] =
 		useQueryStates({
 			search: parseAsString.withDefault(""),
 			page: parseAsInteger.withDefault(1),
@@ -62,8 +69,10 @@ function MuseumContent({ museumId }: { museumId: string }) {
 				return parsed.success ? parsed.data : null;
 			}),
 			sort: parseAsStringLiteral(ITEM_SORT_VALUES),
+			view: parseAsStringLiteral(ITEM_VIEW_VALUES),
 		});
 
+	const viewMode = toItemViewMode(view);
 	const [searchInput, setSearchInput] = useState(search);
 	const [debouncedSearch] = useDebounce(searchInput, 500);
 	const [items, setItems] = useState<Item[]>([]);
@@ -270,15 +279,23 @@ function MuseumContent({ museumId }: { museumId: string }) {
 							setSearchInput(e.target.value);
 						}}
 					/>
-					<ItemSortSelector
-						value={sort}
-						onChange={(next) => {
-							setQueryStates({
-								sort: next,
-								page: 1,
-							});
-						}}
-					/>
+					<HStack gap={3} wrap="wrap" vAlign="end" width="100%">
+						<ItemSortSelector
+							value={sort}
+							onChange={(next) => {
+								setQueryStates({
+									sort: next,
+									page: 1,
+								});
+							}}
+						/>
+						<ItemViewModeSelector
+							value={view}
+							onChange={(next) => {
+								setQueryStates({ view: next });
+							}}
+						/>
+					</HStack>
 				</VStack>
 
 				{!isFiltersError ? (
@@ -303,16 +320,20 @@ function MuseumContent({ museumId }: { museumId: string }) {
 				/>
 
 				{showItemsLoading ? (
-					<ItemMasonry>
-						{[...Array(12)].map((_, i) => (
-							<CardSkeleton
-								key={
-									// biome-ignore lint/suspicious/noArrayIndexKey: skeleton items don't have unique IDs
-									i
-								}
-							/>
-						))}
-					</ItemMasonry>
+					viewMode === "table" ? (
+						<ItemResultsTableSkeleton />
+					) : (
+						<ItemMasonry>
+							{[...Array(12)].map((_, i) => (
+								<CardSkeleton
+									key={
+										// biome-ignore lint/suspicious/noArrayIndexKey: skeleton items don't have unique IDs
+										i
+									}
+								/>
+							))}
+						</ItemMasonry>
+					)
 				) : isError ? (
 					<Banner
 						status="error"
@@ -325,17 +346,21 @@ function MuseumContent({ museumId }: { museumId: string }) {
 						container="card"
 					/>
 				) : items?.length ? (
-					<ItemMasonry>
-						{items.map((item) => (
-							<Card
-								key={item.id}
-								museumId={museumId}
-								itemId={item.id}
-								title={item.title}
-								imageUrl={checkImagePath(item)}
-							/>
-						))}
-					</ItemMasonry>
+					viewMode === "table" ? (
+						<ItemResultsTable museumId={museumId} items={items} />
+					) : (
+						<ItemMasonry>
+							{items.map((item) => (
+								<Card
+									key={item.id}
+									museumId={museumId}
+									itemId={item.id}
+									title={item.title}
+									imageUrl={checkImagePath(item)}
+								/>
+							))}
+						</ItemMasonry>
+					)
 				) : (
 					<Banner
 						status="info"
