@@ -23,6 +23,7 @@ import { ItemSortSelector } from "@/components/ItemSortSelector";
 import { MuseumActiveStateBar } from "@/components/MuseumActiveStateBar";
 import { MuseumFiltersPanel } from "@/components/MuseumFiltersPanel";
 import { SearchBar } from "@/components/SearchBar";
+import { useActiveTaxonomyTermLabels } from "@/hooks/useActiveTaxonomyTermLabels";
 import {
 	getCollections,
 	getFilters,
@@ -176,6 +177,7 @@ function MuseumContent({ museumId }: { museumId: string }) {
 	}, [data, museumId]);
 
 	const museum = getMuseumById(museumId);
+	const termLabels = useActiveTaxonomyTermLabels(museumId, filterDefs, filters);
 	const activeChips = buildActiveStateChips({
 		search,
 		collectionId: collection,
@@ -183,6 +185,7 @@ function MuseumContent({ museumId }: { museumId: string }) {
 		filters,
 		filterDefs,
 		sort,
+		termLabels,
 	});
 
 	const handleRemoveChip = (id: string) => {
