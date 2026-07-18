@@ -1,4 +1,4 @@
-import axios, { type AxiosRequestConfig } from "axios";
+import axios, { type AxiosError, type AxiosRequestConfig } from "axios";
 import type { z } from "zod";
 import {
 	GetCollectionsResponseSchema,
@@ -7,6 +7,7 @@ import {
 	GetTaxonomyTermsResponseSchema,
 	TainacanItemSchema,
 } from "@/schemas/tainacan";
+import { TainacanApiError } from "@/services/tainacanApiError";
 import type { FormattedItemsRes, TainacanItem } from "@/types/tainacan";
 import { getMuseumById } from "@/utils/museums";
 
@@ -62,7 +63,10 @@ function resolveBaseURL(options?: TainacanRequestInit): string | undefined {
 	if (options?.museumId) {
 		const museum = getMuseumById(options.museumId);
 		if (!museum) {
-			throw new Error(`Museu não encontrado: ${options.museumId}`);
+			throw new TainacanApiError(
+				`Museu não encontrado: ${options.museumId}`,
+				"museum_not_found",
+			);
 		}
 		return museum.api;
 	}
@@ -81,6 +85,66 @@ function toHeaders(record: Record<string, string>): Headers {
 
 function queryStringToParams(search: string): Record<string, string> {
 	return Object.fromEntries(new URLSearchParams(search).entries());
+}
+
+function validateResponseData(
+	data: unknown,
+	schema: z.ZodTypeAny,
+	path: string,
+): unknown {
+	const result = schema.safeParse(data);
+	if (result.success) {
+		return result.data;
+	}
+
+	if (process.env.NODE_ENV === "development") {
+		console.error(
+			"[tainacanMutator] Validação Zod falhou:",
+			path,
+			result.error,
+		);
+	}
+
+	throw new TainacanApiError(
+		"Resposta da API em formato inesperado.",
+		"validation",
+		{ cause: result.error },
+	);
+}
+
+function toTainacanApiError(error: unknown): TainacanApiError {
+	if (error instanceof TainacanApiError) {
+		return error;
+	}
+
+	if (axios.isAxiosError(error)) {
+		const axiosError = error as AxiosError;
+		const status = axiosError.response?.status;
+		if (status === 404) {
+			return new TainacanApiError("Recurso não encontrado.", "http", {
+				status,
+				cause: error,
+			});
+		}
+		if (status !== undefined) {
+			return new TainacanApiError(
+				`Erro ao comunicar com a API (${status}).`,
+				"http",
+				{ status, cause: error },
+			);
+		}
+		return new TainacanApiError(
+			"Não foi possível conectar à API do museu.",
+			"network",
+			{ cause: error },
+		);
+	}
+
+	return new TainacanApiError(
+		"Erro inesperado ao processar a resposta.",
+		"network",
+		{ cause: error },
+	);
 }
 
 export const tainacanMutator = async <T>(
@@ -115,15 +179,21 @@ export const tainacanMutator = async <T>(
 		...rest,
 	};
 
-	const response = await axiosInstance.request(axiosConfig);
-	const schema = getResponseSchema(path);
-	const validatedData = schema ? schema.parse(response.data) : response.data;
+	try {
+		const response = await axiosInstance.request(axiosConfig);
+		const schema = getResponseSchema(path);
+		const validatedData = schema
+			? validateResponseData(response.data, schema, path)
+			: response.data;
 
-	return {
-		data: validatedData,
-		status: 200,
-		headers: toHeaders(response.headers as Record<string, string>),
-	} as T;
+		return {
+			data: validatedData,
+			status: response.status,
+			headers: toHeaders(response.headers as Record<string, string>),
+		} as T;
+	} catch (error) {
+		throw toTainacanApiError(error);
+	}
 };
 
 export function getPaginationMeta(response: {
@@ -147,7 +217,10 @@ export function formatItemsResponse(response: {
 	const meta = getPaginationMeta(response);
 	const body = response.data;
 	if (!body || typeof body !== "object" || !("items" in body)) {
-		throw new Error("Resposta inesperada ao carregar itens");
+		throw new TainacanApiError(
+			"Resposta inesperada ao carregar itens.",
+			"validation",
+		);
 	}
 	const items = (body as { items?: TainacanItem[] }).items ?? [];
 	return {
