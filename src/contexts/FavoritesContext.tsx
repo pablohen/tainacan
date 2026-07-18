@@ -7,13 +7,11 @@ import {
 	useEffect,
 	useState,
 } from "react";
-
-export interface FavoriteItem {
-	museumId: string;
-	itemId: number;
-	title: string;
-	imageUrl: string;
-}
+import {
+	type FavoriteItem,
+	FavoriteItemSchema,
+	FavoriteMuseumsSchema,
+} from "@/schemas/favorites";
 
 interface FavoritesContextType {
 	favoriteItems: FavoriteItem[];
@@ -23,6 +21,7 @@ interface FavoritesContextType {
 	favoriteMuseums: string[];
 	toggleFavoriteMuseum: (museumId: string) => void;
 	isFavoriteMuseum: (museumId: string) => boolean;
+	isHydrated: boolean;
 }
 
 const FavoritesContext = createContext<FavoritesContextType | undefined>(
@@ -36,7 +35,10 @@ function loadFavoriteItems(): FavoriteItem[] {
 	if (typeof window === "undefined") return [];
 	try {
 		const stored = localStorage.getItem(ITEM_FAVORITES_KEY);
-		return stored ? JSON.parse(stored) : [];
+		if (!stored) return [];
+		const parsed = JSON.parse(stored);
+		const result = FavoriteItemSchema.array().safeParse(parsed);
+		return result.success ? result.data : [];
 	} catch {
 		return [];
 	}
@@ -46,7 +48,10 @@ function loadFavoriteMuseums(): string[] {
 	if (typeof window === "undefined") return [];
 	try {
 		const stored = localStorage.getItem(MUSEUM_FAVORITES_KEY);
-		return stored ? JSON.parse(stored) : [];
+		if (!stored) return [];
+		const parsed = JSON.parse(stored);
+		const result = FavoriteMuseumsSchema.safeParse(parsed);
+		return result.success ? result.data : [];
 	} catch {
 		return [];
 	}
@@ -142,6 +147,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
 				favoriteMuseums,
 				toggleFavoriteMuseum,
 				isFavoriteMuseum,
+				isHydrated,
 			}}
 		>
 			{children}
@@ -156,3 +162,5 @@ export function useFavorites() {
 	}
 	return context;
 }
+
+export type { FavoriteItem };
