@@ -1,4 +1,3 @@
-import { getMuseumRequestOptions } from "../src/hooks/tainacan/museumRequest";
 import {
 	GetCollectionsResponseSchema,
 	GetFiltersResponseSchema,
@@ -11,7 +10,10 @@ import { listCollections } from "../src/services/generated/collections/collectio
 import { listCollectionFilters } from "../src/services/generated/filters/filters";
 import { getItem, listItems } from "../src/services/generated/items/items";
 import { listTaxonomyTerms } from "../src/services/generated/taxonomies/taxonomies";
-import { getPaginationMeta } from "../src/services/tainacanMutator";
+import {
+	getPaginationMeta,
+	type TainacanRequestInit,
+} from "../src/services/tainacanMutator";
 
 const museums = [
 	{
@@ -89,7 +91,7 @@ for (const museum of museums) {
 		}
 	}
 
-	const request = getMuseumRequestOptions(museum.id);
+	const request = { museumId: museum.id } as TainacanRequestInit;
 
 	const generatedCollections = await listCollections(undefined, request);
 	const collectionData = generatedCollections.data;
