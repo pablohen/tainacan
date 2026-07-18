@@ -17,7 +17,7 @@ interface ItemPageProps {
 	museumName: string;
 }
 
-export default function ItemPageClient({
+export function ItemPageClient({
 	item,
 	museumId,
 	museumName,
