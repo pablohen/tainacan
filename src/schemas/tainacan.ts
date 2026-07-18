@@ -1,90 +1,64 @@
 import { z } from "zod";
+import {
+	Collection,
+	Filter,
+	FilterMetadatum,
+	Item,
+	ItemEmbeddedMetadata,
+	Taxonomy,
+	Term,
+} from "./generated/tainacan.zod";
 
-export const TainacanMetadatumSchema = z.object({
-	id: z.number(),
-	name: z.string(),
-	value: z.any(),
-	value_as_html: z.string(),
-	value_as_string: z.string(),
-	semantic_uri: z.string().optional(),
-	multiple: z.string().optional(),
+export const TainacanMetadatumSchema = ItemEmbeddedMetadata.required({
+	id: true,
+	name: true,
+	value: true,
+	value_as_html: true,
+	value_as_string: true,
 });
 
-export const TainacanItemSchema = z.object({
-	id: z.number(),
-	title: z.string(),
-	description: z.string(),
-	document_as_html: z.string(),
+export const TainacanItemSchema = Item.required({
+	id: true,
+	title: true,
+	description: true,
+	document_as_html: true,
+}).extend({
 	metadata: z.record(z.string(), TainacanMetadatumSchema),
 });
 
-export const TainacanCollectionSchema = z.object({
-	id: z.number(),
-	name: z.string(),
-	description: z.string().optional(),
-	slug: z.string(),
-	url: z.string().optional(),
-	creation_date: z.string().optional(),
-	modification_date: z.string().optional(),
+export const TainacanCollectionSchema = Collection.required({
+	id: true,
+	name: true,
+	slug: true,
 });
 
-export const TainacanTaxonomySchema = z.object({
-	id: z.number(),
-	name: z.string(),
-	slug: z.string(),
-	description: z.string().optional(),
-	allow_insert: z.union([z.string(), z.boolean()]).optional(),
+export const TainacanTaxonomySchema = Taxonomy.required({
+	id: true,
+	name: true,
+	slug: true,
 });
 
-export const TainacanFilterMetadatumSchema = z
-	.object({
-		metadatum_id: z.union([z.string(), z.number()]).optional(),
-		metadatum_name: z.string().optional(),
-		metadata_type_object: z
-			.object({
-				// Taxonomy metadata: object with taxonomy_id; numeric/etc. often [].
-				options: z
-					.union([
-						z
-							.object({
-								taxonomy_id: z.number().optional(),
-								taxonomy: z.string().optional(),
-							})
-							.passthrough(),
-						z.array(z.unknown()),
-					])
-					.optional(),
-			})
-			.passthrough()
-			.optional(),
-	})
-	.passthrough();
-
-export const TainacanFilterSchema = z.object({
-	id: z.number(),
-	name: z.string(),
-	filter_type: z.string(),
-	collection_id: z.union([z.number(), z.string()]),
-	metadatum_id: z.union([z.number(), z.string()]).optional(),
-	enabled: z.string().optional(),
-	metadatum: TainacanFilterMetadatumSchema.optional(),
+export const TainacanFilterMetadatumSchema = FilterMetadatum;
+export const TainacanFilterSchema = Filter.required({
+	id: true,
+	name: true,
+	filter_type: true,
+	collection_id: true,
 });
 
-export const TainacanTermSchema = z
-	.object({
-		id: z.number(),
-		name: z.string(),
-	})
-	.passthrough();
-
-export const GetTaxonomyTermsResponseSchema = z.array(TainacanTermSchema);
+export const TainacanTermSchema = Term.required({
+	id: true,
+	name: true,
+});
 
 export const GetItemsResponseSchema = z.object({
 	items: z.array(TainacanItemSchema),
 	template: z.string().optional(),
 	filters: z.array(z.unknown()).optional(),
+	filters_arguments: z.array(z.unknown()).optional(),
 });
 
 export const GetCollectionsResponseSchema = z.array(TainacanCollectionSchema);
 export const GetTaxonomiesResponseSchema = z.array(TainacanTaxonomySchema);
 export const GetFiltersResponseSchema = z.array(TainacanFilterSchema);
+export const GetTaxonomyTermsResponseSchema = z.array(TainacanTermSchema);
