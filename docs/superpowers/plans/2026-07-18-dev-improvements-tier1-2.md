@@ -3,8 +3,7 @@
 ## Phase 1 — DX foundation
 
 1. Add `check`, `test`, `test:api`, `prepare` scripts to `package.json`
-2. Add `.github/workflows/ci.yml`
-3. Gate devtools via `src/components/ReactQueryDevtools.tsx`
+2. Gate devtools via `src/components/ReactQueryDevtools.tsx`
 4. Add `lefthook.yml` + devDependency
 5. Expand `README.md` and `AGENTS.md`
 
@@ -28,9 +27,7 @@
 ## Phase 4 — Test & codegen hygiene
 
 1. Add `vitest.config.ts` + unit tests under `src/utils/*.test.ts`
-2. Add `test` to CI and `check`
-3. Add `.github/workflows/codegen-drift.yml`
-4. Pin OpenAPI via `scripts/tainacan-openapi-ref.ts` + fetch script
+2. Pin OpenAPI via `scripts/tainacan-openapi-ref.ts` + fetch script
 
 ## Verification
 
