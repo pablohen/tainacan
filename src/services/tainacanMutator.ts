@@ -7,6 +7,8 @@ import {
 	GetTaxonomyTermsResponseSchema,
 	TainacanItemSchema,
 } from "@/schemas/tainacan";
+import type { FormattedItemsRes, TainacanItem } from "@/types/tainacan";
+import { getMuseumById } from "@/utils/museums";
 
 const axiosInstance = axios.create({
 	timeout: 10_000,
@@ -22,6 +24,7 @@ export interface TainacanMutatorMeta {
 
 export type TainacanRequestInit = RequestInit & {
 	baseURL?: string;
+	museumId?: string;
 	/** Axios query params (supports nested taxquery/metaquery). */
 	params?: Record<string, unknown>;
 };
@@ -52,6 +55,20 @@ function isItemsListUrl(url: string): boolean {
 	);
 }
 
+function resolveBaseURL(options?: TainacanRequestInit): string | undefined {
+	if (options?.baseURL) {
+		return options.baseURL;
+	}
+	if (options?.museumId) {
+		const museum = getMuseumById(options.museumId);
+		if (!museum) {
+			throw new Error(`Museu não encontrado: ${options.museumId}`);
+		}
+		return museum.api;
+	}
+	return undefined;
+}
+
 function toHeaders(record: Record<string, string>): Headers {
 	const headers = new Headers();
 	for (const [key, value] of Object.entries(record)) {
@@ -71,7 +88,8 @@ export const tainacanMutator = async <T>(
 	options?: TainacanRequestInit,
 ): Promise<T> => {
 	const {
-		baseURL,
+		baseURL: _baseURL,
+		museumId: _museumId,
 		method = "GET",
 		signal,
 		headers,
@@ -79,13 +97,15 @@ export const tainacanMutator = async <T>(
 		...rest
 	} = options ?? {};
 
+	const resolvedBaseURL = resolveBaseURL(options);
+
 	const [path, search] = url.split("?");
 	const params =
 		explicitParams ?? (search ? queryStringToParams(search) : undefined);
 
 	const axiosConfig: AxiosRequestConfig = {
 		url: path,
-		baseURL,
+		baseURL: resolvedBaseURL,
 		method: typeof method === "string" ? method : "GET",
 		signal: signal ?? undefined,
 		headers: headers
@@ -117,6 +137,23 @@ export function getPaginationMeta(response: {
 	return {
 		wpTotal: Number(wpTotal) || 0,
 		wpTotalPages: Number(wpTotalPages) || 1,
+	};
+}
+
+export function formatItemsResponse(response: {
+	headers: Headers;
+	data: unknown;
+}): FormattedItemsRes {
+	const meta = getPaginationMeta(response);
+	const body = response.data;
+	if (!body || typeof body !== "object" || !("items" in body)) {
+		throw new Error("Resposta inesperada ao carregar itens");
+	}
+	const items = (body as { items?: TainacanItem[] }).items ?? [];
+	return {
+		items,
+		wpTotal: meta?.wpTotal ?? 0,
+		wpTotalPages: meta?.wpTotalPages ?? 1,
 	};
 }
 

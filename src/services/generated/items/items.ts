@@ -99,14 +99,12 @@ export const getListItemsUrl = (params?: ListItemsParams,) => {
 
 export const listItems = async (params?: ListItemsParams, options?: RequestInit): Promise<listItemsResponse> => {
 
-  return tainacanMutator<listItemsResponse>(getListItemsUrl(params),
+  return tainacanMutator<listItemsResponse>('/items',
   {
     ...options,
-    method: 'GET'
-
-
-  }
-);}
+    method: 'GET',
+    params,
+  });}
 
 
 
@@ -234,14 +232,12 @@ export const getListCollectionItemsUrl = (collectionId: string,
 export const listCollectionItems = async (collectionId: string,
     params?: ListCollectionItemsParams, options?: RequestInit): Promise<listCollectionItemsResponse> => {
 
-  return tainacanMutator<listCollectionItemsResponse>(getListCollectionItemsUrl(collectionId,params),
+  return tainacanMutator<listCollectionItemsResponse>(`/collection/${collectionId}/items`,
   {
     ...options,
-    method: 'GET'
-
-
-  }
-);}
+    method: 'GET',
+    params,
+  });}
 
 
 

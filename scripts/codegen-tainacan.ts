@@ -43,4 +43,31 @@ writeFileSync(
 	"utf8",
 );
 
+// Orval URL builders stringify nested taxquery/metaquery — use axios params instead.
+const generatedItemsPath = join(root, "src/services/generated/items/items.ts");
+const generatedItems = readFileSync(generatedItemsPath, "utf8");
+writeFileSync(
+	generatedItemsPath,
+	generatedItems
+		.replace(
+			/return tainacanMutator<listItemsResponse>\(getListItemsUrl\(params\),\s*\{\s*\.\.\.options,\s*method: 'GET'\s*\}\s*\);/,
+			`return tainacanMutator<listItemsResponse>('/items',
+  {
+    ...options,
+    method: 'GET',
+    params,
+  });`,
+		)
+		.replace(
+			/return tainacanMutator<listCollectionItemsResponse>\(getListCollectionItemsUrl\(collectionId,params\),\s*\{\s*\.\.\.options,\s*method: 'GET'\s*\}\s*\);/,
+			`return tainacanMutator<listCollectionItemsResponse>(\`/collection/\${collectionId}/items\`,
+  {
+    ...options,
+    method: 'GET',
+    params,
+  });`,
+		),
+	"utf8",
+);
+
 console.log("Tainacan schema and API codegen complete.");
