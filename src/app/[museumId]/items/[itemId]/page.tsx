@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getItem } from "@/services/tainacanService";
+import { fetchMuseumItem } from "@/hooks/tainacan/fetchMuseumItem";
 import { getMuseumById } from "@/utils/museums";
-import ItemPageClient from "./ItemPageClient";
+import { ItemPageClient } from "./ItemPageClient";
 
 interface ItemPageProps {
 	params: Promise<{
@@ -18,7 +18,7 @@ export async function generateMetadata({
 	const itemId = Number(itemIdStr);
 
 	const museum = getMuseumById(museumId);
-	const item = await getItem(museumId, itemId);
+	const item = await fetchMuseumItem(museumId, itemId);
 
 	if (!museum || !item) {
 		return {
@@ -52,7 +52,7 @@ export default async function ItemPage({ params }: ItemPageProps) {
 		notFound();
 	}
 
-	const item = await getItem(museumId, itemId);
+	const item = await fetchMuseumItem(museumId, itemId);
 
 	if (!item) {
 		notFound();
