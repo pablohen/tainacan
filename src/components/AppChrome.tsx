@@ -24,9 +24,9 @@ import { partitionMuseumsByFavorite } from "@/utils/partitionMuseumsByFavorite";
 
 function FavoritesNavAction() {
 	const router = useRouter();
-	const { favoriteItems, favoriteMuseums } = useFavorites();
+	const { favoriteItems, favoriteMuseums, isHydrated } = useFavorites();
 	const favoritesCount = favoriteItems.length + favoriteMuseums.length;
-	const hasFavorites = favoritesCount > 0;
+	const hasFavorites = isHydrated && favoritesCount > 0;
 	const countLabel = favoritesCount > 9 ? "9+" : String(favoritesCount);
 
 	return (
