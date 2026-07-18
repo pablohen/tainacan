@@ -1,0 +1,1913 @@
+{
+	"paths": {
+		"/items": {
+			"get": {
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/items"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/WPError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found"
+					}
+				},
+				"tags": ["items"],
+				"parameters": [
+					{
+						"name": "title",
+						"in": "query",
+						"description": "Limits the result set to items with a specific title",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"description": "Limits the result set to items with a specific title"
+						}
+					},
+					{
+						"name": "id",
+						"in": "query",
+						"description": "Limit result to objects with specific id.",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"description": "Limit result to objects with specific id."
+						}
+					},
+					{
+						"name": "context",
+						"in": "query",
+						"description": "The context in which the request is made.",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"description": "The context in which the request is made.",
+							"enum": ["view", "edit"]
+						}
+					},
+					{
+						"name": "search",
+						"in": "query",
+						"description": "Limit results to those matching a string.",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"description": "Limit results to those matching a string."
+						}
+					},
+					{
+						"name": "sentence",
+						"in": "query",
+						"description": "Whether to treat the search string as a single phrase.",
+						"required": false,
+						"schema": {
+							"type": "boolean",
+							"description": "Whether to treat the search string as a single phrase."
+						}
+					},
+					{
+						"name": "authorid",
+						"in": "query",
+						"description": "Limit result set to objects assigned to specific authors by id.",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"description": "Limit result set to objects assigned to specific authors by id."
+						}
+					},
+					{
+						"name": "authorname",
+						"in": "query",
+						"description": "Limit result set to objects assigned to specific authors by name",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"description": "Limit result set to objects assigned to specific authors by name"
+						}
+					},
+					{
+						"name": "status",
+						"in": "query",
+						"description": "Limit result set to objects assigned one or more statuses.",
+						"required": false,
+						"schema": {
+							"type": "array",
+							"items": {
+								"type": "string",
+								"enum": [
+									"publish",
+									"future",
+									"draft",
+									"pending",
+									"private",
+									"trash",
+									"auto-draft",
+									"inherit",
+									"request-pending",
+									"request-confirmed",
+									"request-failed",
+									"request-completed",
+									"any"
+								]
+							},
+							"description": "Limit result set to objects assigned one or more statuses."
+						}
+					},
+					{
+						"name": "offset",
+						"in": "query",
+						"description": "Offset the result set by a specific number of objects.",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"description": "Offset the result set by a specific number of objects."
+						}
+					},
+					{
+						"name": "order",
+						"in": "query",
+						"description": "Order sort attribute ascending or descending.",
+						"required": false,
+						"schema": {
+							"type": ["string", "array"],
+							"description": "Order sort attribute ascending or descending.",
+							"enum": ["asc", "desc", "ASC", "DESC"]
+						}
+					},
+					{
+						"name": "orderby",
+						"in": "query",
+						"description": "Sort objects by object attribute.",
+						"required": false,
+						"schema": {
+							"type": ["string", "array"],
+							"description": "Sort objects by object attribute.",
+							"enum": [
+								"author",
+								"date",
+								"id",
+								"include",
+								"modified",
+								"parent",
+								"relevance",
+								"slug",
+								"include_slugs",
+								"title",
+								"meta_value",
+								"meta_value_num",
+								"menu_order",
+								"rand",
+								"post__in"
+							]
+						}
+					},
+					{
+						"name": "perpage",
+						"in": "query",
+						"description": "Maximum number of objects to be returned in result set.",
+						"required": false,
+						"schema": {
+							"type": "number",
+							"description": "Maximum number of objects to be returned in result set."
+						}
+					},
+					{
+						"name": "paged",
+						"in": "query",
+						"description": "The results page to be returned.",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"description": "The results page to be returned."
+						}
+					},
+					{
+						"name": "exclude",
+						"in": "query",
+						"description": "Ensure result set excludes specific IDs.",
+						"required": false,
+						"schema": {
+							"type": "array",
+							"items": {
+								"type": "integer"
+							},
+							"description": "Ensure result set excludes specific IDs."
+						}
+					},
+					{
+						"name": "metakey",
+						"in": "query",
+						"description": "Custom metadata key.",
+						"required": false,
+						"schema": {
+							"type": ["integer", "string"],
+							"description": "Custom metadata key."
+						}
+					},
+					{
+						"name": "metavalue",
+						"in": "query",
+						"description": "Custom metadata value",
+						"required": false,
+						"schema": {
+							"type": ["string", "array"],
+							"description": "Custom metadata value"
+						}
+					},
+					{
+						"name": "metavaluenum",
+						"in": "query",
+						"description": "Custom metadata value",
+						"required": false,
+						"schema": {
+							"type": "number",
+							"description": "Custom metadata value"
+						}
+					},
+					{
+						"name": "metacompare",
+						"in": "query",
+						"description": "Operator to test the metavalue",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"description": "Operator to test the metavalue",
+							"enum": [
+								"=",
+								"!=",
+								">",
+								">=",
+								"<",
+								"<=",
+								"LIKE",
+								"NOT LIKE",
+								"IN",
+								"NOT IN",
+								"BETWEEN",
+								"NOT BETWEEN",
+								"NOT EXISTS",
+								"REGEXP",
+								"NOT REGEXP",
+								"RLIKE"
+							]
+						}
+					},
+					{
+						"name": "metaquery",
+						"in": "query",
+						"description": "Limits result set to items that have specific custom metadata",
+						"required": false,
+						"schema": {
+							"type": ["array", "object"],
+							"description": "Limits result set to items that have specific custom metadata"
+						}
+					},
+					{
+						"name": "datequery",
+						"in": "query",
+						"description": "Limits the result set to items that were created or modified in some specific date",
+						"required": false,
+						"schema": {
+							"type": ["array", "object"],
+							"description": "Limits the result set to items that were created or modified in some specific date"
+						}
+					},
+					{
+						"name": "taxquery",
+						"in": "query",
+						"description": "Show items associated with certain taxonomy.",
+						"required": false,
+						"schema": {
+							"type": ["array", "object"],
+							"description": "Show items associated with certain taxonomy."
+						}
+					}
+				],
+				"operationId": "listItems"
+			}
+		},
+		"/collection/{collection_id}/items": {
+			"get": {
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/items"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/WPError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found"
+					}
+				},
+				"tags": ["items"],
+				"parameters": [
+					{
+						"name": "collection_id",
+						"in": "path",
+						"description": "Collection ID",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"description": "Collection ID"
+						}
+					},
+					{
+						"name": "title",
+						"in": "query",
+						"description": "Limits the result set to items with a specific title",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"description": "Limits the result set to items with a specific title"
+						}
+					},
+					{
+						"name": "id",
+						"in": "query",
+						"description": "Limit result to objects with specific id.",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"description": "Limit result to objects with specific id."
+						}
+					},
+					{
+						"name": "context",
+						"in": "query",
+						"description": "The context in which the request is made.",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"description": "The context in which the request is made.",
+							"enum": ["view", "edit"]
+						}
+					},
+					{
+						"name": "search",
+						"in": "query",
+						"description": "Limit results to those matching a string.",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"description": "Limit results to those matching a string."
+						}
+					},
+					{
+						"name": "sentence",
+						"in": "query",
+						"description": "Whether to treat the search string as a single phrase.",
+						"required": false,
+						"schema": {
+							"type": "boolean",
+							"description": "Whether to treat the search string as a single phrase."
+						}
+					},
+					{
+						"name": "authorid",
+						"in": "query",
+						"description": "Limit result set to objects assigned to specific authors by id.",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"description": "Limit result set to objects assigned to specific authors by id."
+						}
+					},
+					{
+						"name": "authorname",
+						"in": "query",
+						"description": "Limit result set to objects assigned to specific authors by name",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"description": "Limit result set to objects assigned to specific authors by name"
+						}
+					},
+					{
+						"name": "status",
+						"in": "query",
+						"description": "Limit result set to objects assigned one or more statuses.",
+						"required": false,
+						"schema": {
+							"type": "array",
+							"items": {
+								"type": "string",
+								"enum": [
+									"publish",
+									"future",
+									"draft",
+									"pending",
+									"private",
+									"trash",
+									"auto-draft",
+									"inherit",
+									"request-pending",
+									"request-confirmed",
+									"request-failed",
+									"request-completed",
+									"any"
+								]
+							},
+							"description": "Limit result set to objects assigned one or more statuses."
+						}
+					},
+					{
+						"name": "offset",
+						"in": "query",
+						"description": "Offset the result set by a specific number of objects.",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"description": "Offset the result set by a specific number of objects."
+						}
+					},
+					{
+						"name": "order",
+						"in": "query",
+						"description": "Order sort attribute ascending or descending.",
+						"required": false,
+						"schema": {
+							"type": ["string", "array"],
+							"description": "Order sort attribute ascending or descending.",
+							"enum": ["asc", "desc", "ASC", "DESC"]
+						}
+					},
+					{
+						"name": "orderby",
+						"in": "query",
+						"description": "Sort objects by object attribute.",
+						"required": false,
+						"schema": {
+							"type": ["string", "array"],
+							"description": "Sort objects by object attribute.",
+							"enum": [
+								"author",
+								"date",
+								"id",
+								"include",
+								"modified",
+								"parent",
+								"relevance",
+								"slug",
+								"include_slugs",
+								"title",
+								"meta_value",
+								"meta_value_num",
+								"menu_order",
+								"rand",
+								"post__in"
+							]
+						}
+					},
+					{
+						"name": "perpage",
+						"in": "query",
+						"description": "Maximum number of objects to be returned in result set.",
+						"required": false,
+						"schema": {
+							"type": "number",
+							"description": "Maximum number of objects to be returned in result set."
+						}
+					},
+					{
+						"name": "paged",
+						"in": "query",
+						"description": "The results page to be returned.",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"description": "The results page to be returned."
+						}
+					},
+					{
+						"name": "exclude",
+						"in": "query",
+						"description": "Ensure result set excludes specific IDs.",
+						"required": false,
+						"schema": {
+							"type": "array",
+							"items": {
+								"type": "integer"
+							},
+							"description": "Ensure result set excludes specific IDs."
+						}
+					},
+					{
+						"name": "metakey",
+						"in": "query",
+						"description": "Custom metadata key.",
+						"required": false,
+						"schema": {
+							"type": ["integer", "string"],
+							"description": "Custom metadata key."
+						}
+					},
+					{
+						"name": "metavalue",
+						"in": "query",
+						"description": "Custom metadata value",
+						"required": false,
+						"schema": {
+							"type": ["string", "array"],
+							"description": "Custom metadata value"
+						}
+					},
+					{
+						"name": "metavaluenum",
+						"in": "query",
+						"description": "Custom metadata value",
+						"required": false,
+						"schema": {
+							"type": "number",
+							"description": "Custom metadata value"
+						}
+					},
+					{
+						"name": "metacompare",
+						"in": "query",
+						"description": "Operator to test the metavalue",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"description": "Operator to test the metavalue",
+							"enum": [
+								"=",
+								"!=",
+								">",
+								">=",
+								"<",
+								"<=",
+								"LIKE",
+								"NOT LIKE",
+								"IN",
+								"NOT IN",
+								"BETWEEN",
+								"NOT BETWEEN",
+								"NOT EXISTS",
+								"REGEXP",
+								"NOT REGEXP",
+								"RLIKE"
+							]
+						}
+					},
+					{
+						"name": "metaquery",
+						"in": "query",
+						"description": "Limits result set to items that have specific custom metadata",
+						"required": false,
+						"schema": {
+							"type": ["array", "object"],
+							"description": "Limits result set to items that have specific custom metadata"
+						}
+					},
+					{
+						"name": "datequery",
+						"in": "query",
+						"description": "Limits the result set to items that were created or modified in some specific date",
+						"required": false,
+						"schema": {
+							"type": ["array", "object"],
+							"description": "Limits the result set to items that were created or modified in some specific date"
+						}
+					},
+					{
+						"name": "taxquery",
+						"in": "query",
+						"description": "Show items associated with certain taxonomy.",
+						"required": false,
+						"schema": {
+							"type": ["array", "object"],
+							"description": "Show items associated with certain taxonomy."
+						}
+					}
+				],
+				"operationId": "listCollectionItems"
+			}
+		},
+		"/items/{item_id}": {
+			"get": {
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/item"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/WPError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found"
+					}
+				},
+				"tags": ["items"],
+				"parameters": [
+					{
+						"name": "item_id",
+						"in": "path",
+						"description": "Item ID",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"description": "Item ID"
+						}
+					},
+					{
+						"name": "context",
+						"in": "query",
+						"description": "Scope under which the request is made; determines fields present in response.",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"description": "Scope under which the request is made; determines fields present in response.",
+							"enum": ["view", "edit"]
+						}
+					},
+					{
+						"name": "fetch_only",
+						"in": "query",
+						"description": "Fetch only specific attribute. The specifics attributes are the same in schema.",
+						"required": false,
+						"schema": {
+							"type": ["string", "array"],
+							"description": "Fetch only specific attribute. The specifics attributes are the same in schema."
+						}
+					}
+				],
+				"operationId": "getItem"
+			}
+		},
+		"/collections": {
+			"get": {
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/collections"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/WPError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found"
+					}
+				},
+				"tags": ["collections"],
+				"parameters": [
+					{
+						"name": "name",
+						"in": "query",
+						"description": "Limits the result set to collections with a specific name",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"description": "Limits the result set to collections with a specific name"
+						}
+					},
+					{
+						"name": "id",
+						"in": "query",
+						"description": "Limit result to objects with specific id.",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"description": "Limit result to objects with specific id."
+						}
+					},
+					{
+						"name": "context",
+						"in": "query",
+						"description": "The context in which the request is made.",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"description": "The context in which the request is made.",
+							"enum": ["view", "edit"]
+						}
+					},
+					{
+						"name": "search",
+						"in": "query",
+						"description": "Limit results to those matching a string.",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"description": "Limit results to those matching a string."
+						}
+					},
+					{
+						"name": "sentence",
+						"in": "query",
+						"description": "Whether to treat the search string as a single phrase.",
+						"required": false,
+						"schema": {
+							"type": "boolean",
+							"description": "Whether to treat the search string as a single phrase."
+						}
+					},
+					{
+						"name": "authorid",
+						"in": "query",
+						"description": "Limit result set to objects assigned to specific authors by id.",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"description": "Limit result set to objects assigned to specific authors by id."
+						}
+					},
+					{
+						"name": "authorname",
+						"in": "query",
+						"description": "Limit result set to objects assigned to specific authors by name",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"description": "Limit result set to objects assigned to specific authors by name"
+						}
+					},
+					{
+						"name": "status",
+						"in": "query",
+						"description": "Limit result set to objects assigned one or more statuses.",
+						"required": false,
+						"schema": {
+							"type": "array",
+							"items": {
+								"type": "string",
+								"enum": [
+									"publish",
+									"future",
+									"draft",
+									"pending",
+									"private",
+									"trash",
+									"auto-draft",
+									"inherit",
+									"request-pending",
+									"request-confirmed",
+									"request-failed",
+									"request-completed",
+									"any"
+								]
+							},
+							"description": "Limit result set to objects assigned one or more statuses."
+						}
+					},
+					{
+						"name": "offset",
+						"in": "query",
+						"description": "Offset the result set by a specific number of objects.",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"description": "Offset the result set by a specific number of objects."
+						}
+					},
+					{
+						"name": "order",
+						"in": "query",
+						"description": "Order sort attribute ascending or descending.",
+						"required": false,
+						"schema": {
+							"type": ["string", "array"],
+							"description": "Order sort attribute ascending or descending.",
+							"enum": ["asc", "desc", "ASC", "DESC"]
+						}
+					},
+					{
+						"name": "orderby",
+						"in": "query",
+						"description": "Sort objects by object attribute.",
+						"required": false,
+						"schema": {
+							"type": ["string", "array"],
+							"description": "Sort objects by object attribute.",
+							"enum": [
+								"author",
+								"date",
+								"id",
+								"include",
+								"modified",
+								"parent",
+								"relevance",
+								"slug",
+								"include_slugs",
+								"title",
+								"meta_value",
+								"meta_value_num",
+								"menu_order",
+								"rand",
+								"post__in"
+							]
+						}
+					},
+					{
+						"name": "perpage",
+						"in": "query",
+						"description": "Maximum number of objects to be returned in result set.",
+						"required": false,
+						"schema": {
+							"type": "number",
+							"description": "Maximum number of objects to be returned in result set."
+						}
+					},
+					{
+						"name": "paged",
+						"in": "query",
+						"description": "The results page to be returned.",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"description": "The results page to be returned."
+						}
+					},
+					{
+						"name": "exclude",
+						"in": "query",
+						"description": "Ensure result set excludes specific IDs.",
+						"required": false,
+						"schema": {
+							"type": "array",
+							"items": {
+								"type": "integer"
+							},
+							"description": "Ensure result set excludes specific IDs."
+						}
+					},
+					{
+						"name": "fetch_only",
+						"in": "query",
+						"description": "Fetch only specific attribute. The specifics attributes are the same in schema.",
+						"required": false,
+						"schema": {
+							"type": ["string", "array"],
+							"description": "Fetch only specific attribute. The specifics attributes are the same in schema."
+						}
+					},
+					{
+						"name": "metakey",
+						"in": "query",
+						"description": "Custom metadata key.",
+						"required": false,
+						"schema": {
+							"type": ["integer", "string"],
+							"description": "Custom metadata key."
+						}
+					},
+					{
+						"name": "metavalue",
+						"in": "query",
+						"description": "Custom metadata value",
+						"required": false,
+						"schema": {
+							"type": ["string", "array"],
+							"description": "Custom metadata value"
+						}
+					},
+					{
+						"name": "metavaluenum",
+						"in": "query",
+						"description": "Custom metadata value",
+						"required": false,
+						"schema": {
+							"type": "number",
+							"description": "Custom metadata value"
+						}
+					},
+					{
+						"name": "metacompare",
+						"in": "query",
+						"description": "Operator to test the metavalue",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"description": "Operator to test the metavalue",
+							"enum": [
+								"=",
+								"!=",
+								">",
+								">=",
+								"<",
+								"<=",
+								"LIKE",
+								"NOT LIKE",
+								"IN",
+								"NOT IN",
+								"BETWEEN",
+								"NOT BETWEEN",
+								"NOT EXISTS",
+								"REGEXP",
+								"NOT REGEXP",
+								"RLIKE"
+							]
+						}
+					},
+					{
+						"name": "metaquery",
+						"in": "query",
+						"description": "Limits result set to items that have specific custom metadata",
+						"required": false,
+						"schema": {
+							"type": ["array", "object"],
+							"description": "Limits result set to items that have specific custom metadata"
+						}
+					},
+					{
+						"name": "datequery",
+						"in": "query",
+						"description": "Limits the result set to items that were created or modified in some specific date",
+						"required": false,
+						"schema": {
+							"type": ["array", "object"],
+							"description": "Limits the result set to items that were created or modified in some specific date"
+						}
+					},
+					{
+						"name": "taxquery",
+						"in": "query",
+						"description": "Show items associated with certain taxonomy.",
+						"required": false,
+						"schema": {
+							"type": ["array", "object"],
+							"description": "Show items associated with certain taxonomy."
+						}
+					}
+				],
+				"operationId": "listCollections"
+			}
+		},
+		"/filters": {
+			"get": {
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/filters"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/WPError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found"
+					}
+				},
+				"tags": ["filters"],
+				"parameters": [
+					{
+						"name": "name",
+						"in": "query",
+						"description": "Limits the result set to filters with a specific name",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"description": "Limits the result set to filters with a specific name"
+						}
+					},
+					{
+						"name": "id",
+						"in": "query",
+						"description": "Limit result to objects with specific id.",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"description": "Limit result to objects with specific id."
+						}
+					},
+					{
+						"name": "context",
+						"in": "query",
+						"description": "The context in which the request is made.",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"description": "The context in which the request is made.",
+							"enum": ["view", "edit"]
+						}
+					},
+					{
+						"name": "search",
+						"in": "query",
+						"description": "Limit results to those matching a string.",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"description": "Limit results to those matching a string."
+						}
+					},
+					{
+						"name": "sentence",
+						"in": "query",
+						"description": "Whether to treat the search string as a single phrase.",
+						"required": false,
+						"schema": {
+							"type": "boolean",
+							"description": "Whether to treat the search string as a single phrase."
+						}
+					},
+					{
+						"name": "authorid",
+						"in": "query",
+						"description": "Limit result set to objects assigned to specific authors by id.",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"description": "Limit result set to objects assigned to specific authors by id."
+						}
+					},
+					{
+						"name": "authorname",
+						"in": "query",
+						"description": "Limit result set to objects assigned to specific authors by name",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"description": "Limit result set to objects assigned to specific authors by name"
+						}
+					},
+					{
+						"name": "status",
+						"in": "query",
+						"description": "Limit result set to objects assigned one or more statuses.",
+						"required": false,
+						"schema": {
+							"type": "array",
+							"items": {
+								"type": "string",
+								"enum": [
+									"publish",
+									"future",
+									"draft",
+									"pending",
+									"private",
+									"trash",
+									"auto-draft",
+									"inherit",
+									"request-pending",
+									"request-confirmed",
+									"request-failed",
+									"request-completed",
+									"any"
+								]
+							},
+							"description": "Limit result set to objects assigned one or more statuses."
+						}
+					},
+					{
+						"name": "offset",
+						"in": "query",
+						"description": "Offset the result set by a specific number of objects.",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"description": "Offset the result set by a specific number of objects."
+						}
+					},
+					{
+						"name": "order",
+						"in": "query",
+						"description": "Order sort attribute ascending or descending.",
+						"required": false,
+						"schema": {
+							"type": ["string", "array"],
+							"description": "Order sort attribute ascending or descending.",
+							"enum": ["asc", "desc", "ASC", "DESC"]
+						}
+					},
+					{
+						"name": "orderby",
+						"in": "query",
+						"description": "Sort objects by object attribute.",
+						"required": false,
+						"schema": {
+							"type": ["string", "array"],
+							"description": "Sort objects by object attribute.",
+							"enum": [
+								"author",
+								"date",
+								"id",
+								"include",
+								"modified",
+								"parent",
+								"relevance",
+								"slug",
+								"include_slugs",
+								"title",
+								"meta_value",
+								"meta_value_num",
+								"menu_order",
+								"rand",
+								"post__in"
+							]
+						}
+					},
+					{
+						"name": "perpage",
+						"in": "query",
+						"description": "Maximum number of objects to be returned in result set.",
+						"required": false,
+						"schema": {
+							"type": "number",
+							"description": "Maximum number of objects to be returned in result set."
+						}
+					},
+					{
+						"name": "paged",
+						"in": "query",
+						"description": "The results page to be returned.",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"description": "The results page to be returned."
+						}
+					},
+					{
+						"name": "exclude",
+						"in": "query",
+						"description": "Ensure result set excludes specific IDs.",
+						"required": false,
+						"schema": {
+							"type": "array",
+							"items": {
+								"type": "integer"
+							},
+							"description": "Ensure result set excludes specific IDs."
+						}
+					},
+					{
+						"name": "metakey",
+						"in": "query",
+						"description": "Custom metadata key.",
+						"required": false,
+						"schema": {
+							"type": ["integer", "string"],
+							"description": "Custom metadata key."
+						}
+					},
+					{
+						"name": "metavalue",
+						"in": "query",
+						"description": "Custom metadata value",
+						"required": false,
+						"schema": {
+							"type": ["string", "array"],
+							"description": "Custom metadata value"
+						}
+					},
+					{
+						"name": "metavaluenum",
+						"in": "query",
+						"description": "Custom metadata value",
+						"required": false,
+						"schema": {
+							"type": "number",
+							"description": "Custom metadata value"
+						}
+					},
+					{
+						"name": "metacompare",
+						"in": "query",
+						"description": "Operator to test the metavalue",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"description": "Operator to test the metavalue",
+							"enum": [
+								"=",
+								"!=",
+								">",
+								">=",
+								"<",
+								"<=",
+								"LIKE",
+								"NOT LIKE",
+								"IN",
+								"NOT IN",
+								"BETWEEN",
+								"NOT BETWEEN",
+								"NOT EXISTS",
+								"REGEXP",
+								"NOT REGEXP",
+								"RLIKE"
+							]
+						}
+					},
+					{
+						"name": "metaquery",
+						"in": "query",
+						"description": "Limits result set to items that have specific custom metadata",
+						"required": false,
+						"schema": {
+							"type": ["array", "object"],
+							"description": "Limits result set to items that have specific custom metadata"
+						}
+					},
+					{
+						"name": "datequery",
+						"in": "query",
+						"description": "Limits the result set to items that were created or modified in some specific date",
+						"required": false,
+						"schema": {
+							"type": ["array", "object"],
+							"description": "Limits the result set to items that were created or modified in some specific date"
+						}
+					},
+					{
+						"name": "taxquery",
+						"in": "query",
+						"description": "Show items associated with certain taxonomy.",
+						"required": false,
+						"schema": {
+							"type": ["array", "object"],
+							"description": "Show items associated with certain taxonomy."
+						}
+					}
+				],
+				"operationId": "listFilters"
+			}
+		},
+		"/collection/{collection_id}/filters": {
+			"get": {
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/filters"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/WPError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found"
+					}
+				},
+				"tags": ["filters"],
+				"parameters": [
+					{
+						"name": "collection_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer"
+						},
+						"description": "Collection ID"
+					},
+					{
+						"name": "name",
+						"in": "query",
+						"description": "Limits the result set to filters with a specific name",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"description": "Limits the result set to filters with a specific name"
+						}
+					},
+					{
+						"name": "id",
+						"in": "query",
+						"description": "Limit result to objects with specific id.",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"description": "Limit result to objects with specific id."
+						}
+					},
+					{
+						"name": "context",
+						"in": "query",
+						"description": "The context in which the request is made.",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"description": "The context in which the request is made.",
+							"enum": ["view", "edit"]
+						}
+					},
+					{
+						"name": "search",
+						"in": "query",
+						"description": "Limit results to those matching a string.",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"description": "Limit results to those matching a string."
+						}
+					},
+					{
+						"name": "sentence",
+						"in": "query",
+						"description": "Whether to treat the search string as a single phrase.",
+						"required": false,
+						"schema": {
+							"type": "boolean",
+							"description": "Whether to treat the search string as a single phrase."
+						}
+					},
+					{
+						"name": "authorid",
+						"in": "query",
+						"description": "Limit result set to objects assigned to specific authors by id.",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"description": "Limit result set to objects assigned to specific authors by id."
+						}
+					},
+					{
+						"name": "authorname",
+						"in": "query",
+						"description": "Limit result set to objects assigned to specific authors by name",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"description": "Limit result set to objects assigned to specific authors by name"
+						}
+					},
+					{
+						"name": "status",
+						"in": "query",
+						"description": "Limit result set to objects assigned one or more statuses.",
+						"required": false,
+						"schema": {
+							"type": "array",
+							"items": {
+								"type": "string",
+								"enum": [
+									"publish",
+									"future",
+									"draft",
+									"pending",
+									"private",
+									"trash",
+									"auto-draft",
+									"inherit",
+									"request-pending",
+									"request-confirmed",
+									"request-failed",
+									"request-completed",
+									"any"
+								]
+							},
+							"description": "Limit result set to objects assigned one or more statuses."
+						}
+					},
+					{
+						"name": "offset",
+						"in": "query",
+						"description": "Offset the result set by a specific number of objects.",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"description": "Offset the result set by a specific number of objects."
+						}
+					},
+					{
+						"name": "order",
+						"in": "query",
+						"description": "Order sort attribute ascending or descending.",
+						"required": false,
+						"schema": {
+							"type": ["string", "array"],
+							"description": "Order sort attribute ascending or descending.",
+							"enum": ["asc", "desc", "ASC", "DESC"]
+						}
+					},
+					{
+						"name": "orderby",
+						"in": "query",
+						"description": "Sort objects by object attribute.",
+						"required": false,
+						"schema": {
+							"type": ["string", "array"],
+							"description": "Sort objects by object attribute.",
+							"enum": [
+								"author",
+								"date",
+								"id",
+								"include",
+								"modified",
+								"parent",
+								"relevance",
+								"slug",
+								"include_slugs",
+								"title",
+								"meta_value",
+								"meta_value_num",
+								"menu_order",
+								"rand",
+								"post__in"
+							]
+						}
+					},
+					{
+						"name": "perpage",
+						"in": "query",
+						"description": "Maximum number of objects to be returned in result set.",
+						"required": false,
+						"schema": {
+							"type": "number",
+							"description": "Maximum number of objects to be returned in result set."
+						}
+					},
+					{
+						"name": "paged",
+						"in": "query",
+						"description": "The results page to be returned.",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"description": "The results page to be returned."
+						}
+					},
+					{
+						"name": "exclude",
+						"in": "query",
+						"description": "Ensure result set excludes specific IDs.",
+						"required": false,
+						"schema": {
+							"type": "array",
+							"items": {
+								"type": "integer"
+							},
+							"description": "Ensure result set excludes specific IDs."
+						}
+					},
+					{
+						"name": "metakey",
+						"in": "query",
+						"description": "Custom metadata key.",
+						"required": false,
+						"schema": {
+							"type": ["integer", "string"],
+							"description": "Custom metadata key."
+						}
+					},
+					{
+						"name": "metavalue",
+						"in": "query",
+						"description": "Custom metadata value",
+						"required": false,
+						"schema": {
+							"type": ["string", "array"],
+							"description": "Custom metadata value"
+						}
+					},
+					{
+						"name": "metavaluenum",
+						"in": "query",
+						"description": "Custom metadata value",
+						"required": false,
+						"schema": {
+							"type": "number",
+							"description": "Custom metadata value"
+						}
+					},
+					{
+						"name": "metacompare",
+						"in": "query",
+						"description": "Operator to test the metavalue",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"description": "Operator to test the metavalue",
+							"enum": [
+								"=",
+								"!=",
+								">",
+								">=",
+								"<",
+								"<=",
+								"LIKE",
+								"NOT LIKE",
+								"IN",
+								"NOT IN",
+								"BETWEEN",
+								"NOT BETWEEN",
+								"NOT EXISTS",
+								"REGEXP",
+								"NOT REGEXP",
+								"RLIKE"
+							]
+						}
+					},
+					{
+						"name": "metaquery",
+						"in": "query",
+						"description": "Limits result set to items that have specific custom metadata",
+						"required": false,
+						"schema": {
+							"type": ["array", "object"],
+							"description": "Limits result set to items that have specific custom metadata"
+						}
+					},
+					{
+						"name": "datequery",
+						"in": "query",
+						"description": "Limits the result set to items that were created or modified in some specific date",
+						"required": false,
+						"schema": {
+							"type": ["array", "object"],
+							"description": "Limits the result set to items that were created or modified in some specific date"
+						}
+					},
+					{
+						"name": "taxquery",
+						"in": "query",
+						"description": "Show items associated with certain taxonomy.",
+						"required": false,
+						"schema": {
+							"type": ["array", "object"],
+							"description": "Show items associated with certain taxonomy."
+						}
+					}
+				],
+				"operationId": "listCollectionFilters"
+			}
+		},
+		"/taxonomy/{taxonomy_id}/terms": {
+			"get": {
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/terms"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/WPError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found"
+					}
+				},
+				"tags": ["taxonomies"],
+				"parameters": [
+					{
+						"name": "taxonomy_id",
+						"in": "path",
+						"description": "Taxonomy ID.",
+						"required": true,
+						"schema": {
+							"type": ["integer", "string"],
+							"description": "Taxonomy ID."
+						}
+					},
+					{
+						"name": "context",
+						"in": "query",
+						"description": "The context in which the request is made.",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"description": "The context in which the request is made.",
+							"enum": ["view", "edit"]
+						}
+					},
+					{
+						"name": "id",
+						"in": "query",
+						"description": "Limit result to objects with specific id.",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"description": "Limit result to objects with specific id."
+						}
+					},
+					{
+						"name": "search",
+						"in": "query",
+						"description": "Limit results to those matching a string.",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"description": "Limit results to those matching a string."
+						}
+					},
+					{
+						"name": "sentence",
+						"in": "query",
+						"description": "Whether to treat the search string as a single phrase.",
+						"required": false,
+						"schema": {
+							"type": "boolean",
+							"description": "Whether to treat the search string as a single phrase."
+						}
+					},
+					{
+						"name": "authorid",
+						"in": "query",
+						"description": "Limit result set to objects assigned to specific authors by id.",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"description": "Limit result set to objects assigned to specific authors by id."
+						}
+					},
+					{
+						"name": "authorname",
+						"in": "query",
+						"description": "Limit result set to objects assigned to specific authors by name",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"description": "Limit result set to objects assigned to specific authors by name"
+						}
+					},
+					{
+						"name": "status",
+						"in": "query",
+						"description": "Limit result set to objects assigned one or more statuses.",
+						"required": false,
+						"schema": {
+							"type": "array",
+							"items": {
+								"type": "string",
+								"enum": [
+									"publish",
+									"future",
+									"draft",
+									"pending",
+									"private",
+									"trash",
+									"auto-draft",
+									"inherit",
+									"request-pending",
+									"request-confirmed",
+									"request-failed",
+									"request-completed",
+									"any"
+								]
+							},
+							"description": "Limit result set to objects assigned one or more statuses."
+						}
+					},
+					{
+						"name": "offset",
+						"in": "query",
+						"description": "Offset the result set by a specific number of objects.",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"description": "Offset the result set by a specific number of objects."
+						}
+					},
+					{
+						"name": "order",
+						"in": "query",
+						"description": "Order sort attribute ascending or descending.",
+						"required": false,
+						"schema": {
+							"type": ["string", "array"],
+							"description": "Order sort attribute ascending or descending.",
+							"enum": ["asc", "desc", "ASC", "DESC"]
+						}
+					},
+					{
+						"name": "orderby",
+						"in": "query",
+						"description": "Sort objects by object attribute.",
+						"required": false,
+						"schema": {
+							"type": ["string", "array"],
+							"description": "Sort objects by object attribute.",
+							"enum": [
+								"author",
+								"date",
+								"id",
+								"include",
+								"modified",
+								"parent",
+								"relevance",
+								"slug",
+								"include_slugs",
+								"title",
+								"meta_value",
+								"meta_value_num",
+								"menu_order",
+								"rand",
+								"post__in"
+							]
+						}
+					},
+					{
+						"name": "perpage",
+						"in": "query",
+						"description": "Maximum number of objects to be returned in result set.",
+						"required": false,
+						"schema": {
+							"type": "number",
+							"description": "Maximum number of objects to be returned in result set."
+						}
+					},
+					{
+						"name": "paged",
+						"in": "query",
+						"description": "The results page to be returned.",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"description": "The results page to be returned."
+						}
+					},
+					{
+						"name": "exclude",
+						"in": "query",
+						"description": "Ensure result set excludes specific IDs.",
+						"required": false,
+						"schema": {
+							"type": "array",
+							"items": {
+								"type": "integer"
+							},
+							"description": "Ensure result set excludes specific IDs."
+						}
+					},
+					{
+						"name": "name",
+						"in": "query",
+						"description": "Limits the result set to terms with a specific name",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"description": "Limits the result set to terms with a specific name"
+						}
+					},
+					{
+						"name": "metakey",
+						"in": "query",
+						"description": "Custom metadata key.",
+						"required": false,
+						"schema": {
+							"type": ["integer", "string"],
+							"description": "Custom metadata key."
+						}
+					},
+					{
+						"name": "metavalue",
+						"in": "query",
+						"description": "Custom metadata value",
+						"required": false,
+						"schema": {
+							"type": ["string", "array"],
+							"description": "Custom metadata value"
+						}
+					},
+					{
+						"name": "metavaluenum",
+						"in": "query",
+						"description": "Custom metadata value",
+						"required": false,
+						"schema": {
+							"type": "number",
+							"description": "Custom metadata value"
+						}
+					},
+					{
+						"name": "metacompare",
+						"in": "query",
+						"description": "Operator to test the metavalue",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"description": "Operator to test the metavalue",
+							"enum": [
+								"=",
+								"!=",
+								">",
+								">=",
+								"<",
+								"<=",
+								"LIKE",
+								"NOT LIKE",
+								"IN",
+								"NOT IN",
+								"BETWEEN",
+								"NOT BETWEEN",
+								"NOT EXISTS",
+								"REGEXP",
+								"NOT REGEXP",
+								"RLIKE"
+							]
+						}
+					},
+					{
+						"name": "metaquery",
+						"in": "query",
+						"description": "Limits result set to items that have specific custom metadata",
+						"required": false,
+						"schema": {
+							"type": ["array", "object"],
+							"description": "Limits result set to items that have specific custom metadata"
+						}
+					},
+					{
+						"name": "datequery",
+						"in": "query",
+						"description": "Limits the result set to items that were created or modified in some specific date",
+						"required": false,
+						"schema": {
+							"type": ["array", "object"],
+							"description": "Limits the result set to items that were created or modified in some specific date"
+						}
+					},
+					{
+						"name": "taxquery",
+						"in": "query",
+						"description": "Show items associated with certain taxonomy.",
+						"required": false,
+						"schema": {
+							"type": ["array", "object"],
+							"description": "Show items associated with certain taxonomy."
+						}
+					}
+				],
+				"operationId": "listTaxonomyTerms"
+			}
+		}
+	}
+}
