@@ -17,11 +17,7 @@ interface ItemPageProps {
 	museumName: string;
 }
 
-export function ItemPageClient({
-	item,
-	museumId,
-	museumName,
-}: ItemPageProps) {
+export function ItemPageClient({ item, museumId, museumName }: ItemPageProps) {
 	const metadata = Object.entries(item.metadata || {}).filter(([, meta]) =>
 		Boolean(meta.value_as_string),
 	);
