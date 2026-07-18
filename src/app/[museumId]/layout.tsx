@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { getMuseumById } from "@/utils/museums";
 
-interface MuseumPageProps {
+interface MuseumLayoutProps {
+	children: React.ReactNode;
 	params: Promise<{
 		museumId: string;
 	}>;
@@ -9,7 +11,7 @@ interface MuseumPageProps {
 
 export async function generateMetadata({
 	params,
-}: MuseumPageProps): Promise<Metadata> {
+}: MuseumLayoutProps): Promise<Metadata> {
 	const { museumId } = await params;
 	const museum = getMuseumById(museumId);
 
@@ -30,6 +32,12 @@ export async function generateMetadata({
 	};
 }
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default async function Layout({ children, params }: MuseumLayoutProps) {
+	const { museumId } = await params;
+
+	if (!getMuseumById(museumId)) {
+		notFound();
+	}
+
 	return children;
 }

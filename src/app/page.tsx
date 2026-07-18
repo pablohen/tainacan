@@ -5,20 +5,18 @@ import { HStack } from "@astryxdesign/core/HStack";
 import { Icon } from "@astryxdesign/core/Icon";
 import { Heading, Text } from "@astryxdesign/core/Text";
 import { VStack } from "@astryxdesign/core/VStack";
-import { useState } from "react";
-import { useDebounce } from "use-debounce";
 import { HeroBanner } from "@/components/HeroBanner";
 import { HeartFilledIcon } from "@/components/icons/HeartIcon";
 import { MuseumCard } from "@/components/MuseumCard";
 import { SearchBar } from "@/components/SearchBar";
 import { useFavorites } from "@/contexts/FavoritesContext";
+import { useDebouncedLocalSearch } from "@/hooks/useDebouncedSearch";
 import { museums } from "@/utils/museums";
 import { partitionMuseumsByFavorite } from "@/utils/partitionMuseumsByFavorite";
 
 export default function Home() {
 	const { favoriteMuseums } = useFavorites();
-	const [search, setSearch] = useState("");
-	const [debouncedSearch] = useDebounce(search, 300);
+	const { search, setSearch, debouncedSearch } = useDebouncedLocalSearch(300);
 
 	const searchLower = debouncedSearch.toLowerCase();
 	const { favorites: favoriteSection, all: filteredMuseums } =

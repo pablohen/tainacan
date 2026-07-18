@@ -1,19 +1,10 @@
 "use client";
 
 import { Banner } from "@astryxdesign/core/Banner";
-import { Center } from "@astryxdesign/core/Center";
 import { HStack } from "@astryxdesign/core/HStack";
 import { Pagination } from "@astryxdesign/core/Pagination";
 import { VStack } from "@astryxdesign/core/VStack";
-import {
-	parseAsInteger,
-	parseAsJson,
-	parseAsString,
-	parseAsStringLiteral,
-	useQueryStates,
-} from "nuqs";
-import { type ChangeEvent, Suspense, use, useEffect, useState } from "react";
-import { useDebounce } from "use-debounce";
+import { type ChangeEvent, Suspense, use, useCallback, useEffect } from "react";
 import { Card } from "@/components/Card";
 import { CardSkeleton } from "@/components/CardSkeleton";
 import { CollectionTabs } from "@/components/CollectionTabs";
@@ -27,38 +18,38 @@ import { ItemSortSelector } from "@/components/ItemSortSelector";
 import { ItemViewModeSelector } from "@/components/ItemViewModeSelector";
 import { MuseumActiveStateBar } from "@/components/MuseumActiveStateBar";
 import { MuseumFiltersPanel } from "@/components/MuseumFiltersPanel";
+import { MuseumQueryErrorBanner } from "@/components/MuseumPageStates";
 import { SearchBar } from "@/components/SearchBar";
 import { useActiveTaxonomyTermLabels } from "@/hooks/useActiveTaxonomyTermLabels";
+import { useDebouncedUrlSearch } from "@/hooks/useDebouncedSearch";
+import {
+	useMuseumBrowseState,
+	useSanitizeMuseumFilters,
+} from "@/hooks/useMuseumBrowseState";
+import {
+	useMuseumItemsQuery,
+	useMuseumItemsReady,
+} from "@/hooks/useMuseumItemsQuery";
 import { useListCollections } from "@/services/generated/collections/collections";
 import {
 	useListCollectionFilters,
 	useListFilters,
 } from "@/services/generated/filters/filters";
-import {
-	useListCollectionItems,
-	useListItems,
-} from "@/services/generated/items/items";
-import type { ListItemsParams } from "@/services/generated/tainacanV2.schemas";
-import { formatItemsResponse } from "@/services/tainacanMutator";
-import type {
-	FormattedItemsRes,
-	TainacanCollection,
-	TainacanFilter,
-} from "@/types/tainacan";
+import { getTainacanErrorMessage } from "@/services/tainacanApiError";
+import { withMuseumRequest } from "@/services/tainacanRequest";
+import type { TainacanCollection, TainacanFilter } from "@/types/tainacan";
 import {
 	buildActiveStateChips,
 	parseFacetChipId,
 	removeFacetFromFilters,
 } from "@/utils/activeStateChips";
 import { checkImagePath } from "@/utils/checkImagePath";
-import { ITEM_SORT_VALUES, sortToQueryParams } from "@/utils/itemSort";
-import { ITEM_VIEW_VALUES, toItemViewMode } from "@/utils/itemView";
+import { sortToQueryParams } from "@/utils/itemSort";
+import { toItemViewMode } from "@/utils/itemView";
 import { getMuseumById } from "@/utils/museums";
 import {
 	buildFilterQueryParams,
 	countActiveFilters,
-	FiltersStateSchema,
-	sanitizeFiltersState,
 } from "@/utils/tainacanFilters";
 
 interface MuseumPageProps {
@@ -69,38 +60,34 @@ interface MuseumPageProps {
 
 function MuseumContent({ museumId }: { museumId: string }) {
 	const [{ search, page, collection, filters, sort, view }, setQueryStates] =
-		useQueryStates({
-			search: parseAsString.withDefault(""),
-			page: parseAsInteger.withDefault(1),
-			collection: parseAsInteger,
-			filters: parseAsJson((value) => {
-				const parsed = FiltersStateSchema.safeParse(value);
-				return parsed.success ? parsed.data : null;
-			}),
-			sort: parseAsStringLiteral(ITEM_SORT_VALUES),
-			view: parseAsStringLiteral(ITEM_VIEW_VALUES),
-		});
+		useMuseumBrowseState();
 
 	const viewMode = toItemViewMode(view);
-	const [searchInput, setSearchInput] = useState(search);
-	const [debouncedSearch] = useDebounce(searchInput, 500);
 
-	useEffect(() => {
-		if (debouncedSearch !== search) {
+	const commitSearch = useCallback(
+		(value: string) => {
 			setQueryStates({
-				search: debouncedSearch || null,
+				search: value || null,
 				page: 1,
 			});
-		}
-	}, [debouncedSearch, search, setQueryStates]);
+		},
+		[setQueryStates],
+	);
+
+	const { searchInput, setSearchInput } = useDebouncedUrlSearch(
+		search,
+		commitSearch,
+	);
 
 	const {
 		data: collections = [],
 		isLoading: isCollectionsLoading,
 		isError: isCollectionsError,
 		isSuccess: isCollectionsSuccess,
+		error: collectionsError,
+		refetch: refetchCollections,
 	} = useListCollections<TainacanCollection[]>(undefined, {
-		request: { museumId },
+		...withMuseumRequest(museumId),
 		query: {
 			queryKey: ["museum-collections", museumId],
 			enabled: Boolean(museumId),
@@ -118,7 +105,7 @@ function MuseumContent({ museumId }: { museumId: string }) {
 	}, [collection, collections, isCollectionsSuccess, setQueryStates]);
 
 	const museumFilterDefs = useListFilters<TainacanFilter[]>(undefined, {
-		request: { museumId },
+		...withMuseumRequest(museumId),
 		query: {
 			queryKey: ["museum-filters", museumId, null],
 			enabled: Boolean(museumId) && collection === null,
@@ -130,7 +117,7 @@ function MuseumContent({ museumId }: { museumId: string }) {
 		collection ?? 0,
 		undefined,
 		{
-			request: { museumId },
+			...withMuseumRequest(museumId),
 			query: {
 				queryKey: ["museum-filters", museumId, collection ?? null],
 				enabled: Boolean(museumId) && collection !== null,
@@ -144,79 +131,43 @@ function MuseumContent({ museumId }: { museumId: string }) {
 		isLoading: isFiltersLoading,
 		isError: isFiltersError,
 		isSuccess: isFiltersSuccess,
+		error: filtersError,
+		refetch: refetchFilters,
 	} = collection === null ? museumFilterDefs : collectionFilterDefs;
 
-	useEffect(() => {
-		if (!isFiltersSuccess) return;
-		const sanitized = sanitizeFiltersState(filters, filterDefs);
-		const currentJson = JSON.stringify(filters ?? null);
-		const nextJson = JSON.stringify(sanitized);
-		if (currentJson !== nextJson) {
-			setQueryStates({ filters: sanitized });
-		}
-	}, [filters, filterDefs, isFiltersSuccess, setQueryStates]);
+	useSanitizeMuseumFilters(
+		filters,
+		filterDefs,
+		isFiltersSuccess,
+		setQueryStates,
+	);
 
 	const filterParams = buildFilterQueryParams(filters, filterDefs);
 	const sortParams = sortToQueryParams(sort);
 	const hasActiveFilters = countActiveFilters(filters) > 0;
-	const filtersReadyForItems =
-		!hasActiveFilters || isFiltersSuccess || isFiltersError;
-
-	const itemParams = {
-		perpage: 50,
-		paged: page,
-		...filterParams,
-		...(search.trim() ? { search: search.trim() } : {}),
-		...(sortParams
-			? { orderby: sortParams.orderby, order: sortParams.order }
-			: {}),
-	} as ListItemsParams;
-
-	const museumItemsQuery = useListItems<FormattedItemsRes>(itemParams, {
-		request: { museumId },
-		query: {
-			queryKey: [
-				"museum-items",
-				museumId,
-				page,
-				search,
-				null,
-				filterParams ?? null,
-				sortParams ?? null,
-			],
-			enabled: Boolean(museumId) && filtersReadyForItems && collection === null,
-			select: formatItemsResponse,
-		},
-	});
-
-	const collectionItemsQuery = useListCollectionItems<FormattedItemsRes>(
-		String(collection ?? 0),
-		itemParams,
-		{
-			request: { museumId },
-			query: {
-				queryKey: [
-					"museum-items",
-					museumId,
-					page,
-					search,
-					collection,
-					filterParams ?? null,
-					sortParams ?? null,
-				],
-				enabled:
-					Boolean(museumId) && filtersReadyForItems && collection !== null,
-				select: formatItemsResponse,
-			},
-		},
+	const filtersReadyForItems = useMuseumItemsReady(
+		hasActiveFilters,
+		isFiltersSuccess,
+		isFiltersError,
 	);
 
-	const { data, isLoading, isPending, error, isError } =
-		collection === null ? museumItemsQuery : collectionItemsQuery;
+	const { data, isLoading, isPending, error, isError, refetch } =
+		useMuseumItemsQuery({
+			museumId,
+			collection,
+			page,
+			search,
+			filterParams,
+			sortParams,
+			filtersReadyForItems,
+			hasActiveFilters,
+			isFiltersSuccess,
+			isFiltersError,
+		});
 
 	const items = data?.items ?? [];
 	const totalPages = data?.wpTotalPages ?? 1;
-	const showItemsLoading = isLoading || isPending;
+	const showItemsLoading = isLoading || (isPending && !data);
 
 	const museum = getMuseumById(museumId);
 	const termLabels = useActiveTaxonomyTermLabels(museumId, filterDefs, filters);
@@ -265,16 +216,7 @@ function MuseumContent({ museumId }: { museumId: string }) {
 	};
 
 	if (!museum) {
-		return (
-			<Center minHeight={240}>
-				<Banner
-					status="error"
-					title="Museu não encontrado"
-					description="O museu que você está procurando não existe."
-					container="card"
-				/>
-			</Center>
-		);
+		return null;
 	}
 
 	const { title, link, description } = museum;
@@ -288,7 +230,15 @@ function MuseumContent({ museumId }: { museumId: string }) {
 				museumId={museumId}
 			/>
 
-			{!isCollectionsError ? (
+			{isCollectionsError ? (
+				<MuseumQueryErrorBanner
+					title="Erro ao carregar coleções"
+					description={getTainacanErrorMessage(collectionsError)}
+					onRetry={() => {
+						void refetchCollections();
+					}}
+				/>
+			) : (
 				<CollectionTabs
 					collections={collections}
 					isLoading={isCollectionsLoading}
@@ -301,7 +251,7 @@ function MuseumContent({ museumId }: { museumId: string }) {
 						});
 					}}
 				/>
-			) : null}
+			)}
 
 			<VStack gap={4} hAlign="center">
 				<VStack maxWidth={672} width="100%" gap={3}>
@@ -330,7 +280,15 @@ function MuseumContent({ museumId }: { museumId: string }) {
 					</HStack>
 				</VStack>
 
-				{!isFiltersError ? (
+				{isFiltersError ? (
+					<MuseumQueryErrorBanner
+						title="Erro ao carregar filtros"
+						description={getTainacanErrorMessage(filtersError)}
+						onRetry={() => {
+							void refetchFilters();
+						}}
+					/>
+				) : (
 					<MuseumFiltersPanel
 						museumId={museumId}
 						filters={filters}
@@ -343,7 +301,7 @@ function MuseumContent({ museumId }: { museumId: string }) {
 							});
 						}}
 					/>
-				) : null}
+				)}
 
 				<MuseumActiveStateBar
 					chips={activeChips}
@@ -367,17 +325,14 @@ function MuseumContent({ museumId }: { museumId: string }) {
 						</ItemMasonry>
 					)
 				) : isError ? (
-					<Banner
-						status="error"
+					<MuseumQueryErrorBanner
 						title="Erro ao carregar os itens"
-						description={
-							error instanceof Error
-								? error.message
-								: "Erro desconhecido. Tente novamente mais tarde."
-						}
-						container="card"
+						description={getTainacanErrorMessage(error)}
+						onRetry={() => {
+							void refetch();
+						}}
 					/>
-				) : items?.length ? (
+				) : items.length ? (
 					viewMode === "table" ? (
 						<ItemResultsTable
 							items={items.map((item) => ({
@@ -413,7 +368,7 @@ function MuseumContent({ museumId }: { museumId: string }) {
 					/>
 				)}
 
-				{items?.length && data && totalPages > 1 ? (
+				{items.length && data && totalPages > 1 ? (
 					<Pagination
 						page={page}
 						totalPages={totalPages}
