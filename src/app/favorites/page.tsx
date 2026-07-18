@@ -8,8 +8,7 @@ import { Icon } from "@astryxdesign/core/Icon";
 import { Heading, Text } from "@astryxdesign/core/Text";
 import { VStack } from "@astryxdesign/core/VStack";
 import { parseAsString, parseAsStringLiteral, useQueryStates } from "nuqs";
-import { type ChangeEvent, Suspense, useEffect, useState } from "react";
-import { useDebounce } from "use-debounce";
+import { type ChangeEvent, Suspense, useCallback } from "react";
 import { Card } from "@/components/Card";
 import { ItemMasonry } from "@/components/ItemMasonry";
 import { ItemResultsTable } from "@/components/ItemResultsTable";
@@ -19,6 +18,7 @@ import { HeartFilledIcon } from "@/components/icons/HeartIcon";
 import { MuseumCard } from "@/components/MuseumCard";
 import { SearchBar } from "@/components/SearchBar";
 import { useFavorites } from "@/contexts/FavoritesContext";
+import { useDebouncedUrlSearch } from "@/hooks/useDebouncedSearch";
 import { ITEM_SORT_VALUES, sortFavoriteItems } from "@/utils/itemSort";
 import { ITEM_VIEW_VALUES, toItemViewMode } from "@/utils/itemView";
 import { getMuseumById } from "@/utils/museums";
@@ -33,8 +33,18 @@ function FavoritesContent() {
 	});
 
 	const viewMode = toItemViewMode(view);
-	const [searchInput, setSearchInput] = useState(search);
-	const [debouncedSearch] = useDebounce(searchInput, 500);
+
+	const commitSearch = useCallback(
+		(value: string) => {
+			setQueryStates({ search: value || null });
+		},
+		[setQueryStates],
+	);
+
+	const { searchInput, setSearchInput } = useDebouncedUrlSearch(
+		search,
+		commitSearch,
+	);
 
 	const filteredFavorites = sortFavoriteItems(
 		favoriteItems.filter((favorite) => {
@@ -59,12 +69,6 @@ function FavoritesContent() {
 			if (!search) return true;
 			return museum.title.toLowerCase().includes(search.toLowerCase());
 		});
-
-	useEffect(() => {
-		if (debouncedSearch !== search) {
-			setQueryStates({ search: debouncedSearch || null });
-		}
-	}, [debouncedSearch, search, setQueryStates]);
 
 	const hasAnyFavorites =
 		favoriteItems.length > 0 || favoriteMuseums.length > 0;
