@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import type { listItemsResponse } from "@/services/generated/items/items";
 import type { ListItemsParams } from "@/services/generated/tainacanV2.schemas";
-import { tainacanMutator, getPaginationMeta } from "@/services/tainacanMutator";
+import { getPaginationMeta, tainacanMutator } from "@/services/tainacanMutator";
 import type { FormattedItemsRes, TainacanItem } from "@/types/tainacan";
 import { getMuseumRequestOptions } from "./museumRequest";
 
