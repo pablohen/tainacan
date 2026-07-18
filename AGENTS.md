@@ -24,17 +24,22 @@ Always use Superpowers in this repo.
 Package manager: **Bun**. Next.js CLI (`dev` / `build` / `start`) runs under Bun via `bun --bun`.
 
 ```bash
-bun run dev          # development server
-bun run build        # production build
-bun run start        # production server
-bun run typecheck    # tsc --noEmit
-bun run lint         # biome check .
-bun run astryx       # Astryx CLI (component docs, templates, theme)
+bun run dev              # development server
+bun run build            # production build
+bun run start            # production server
+bun run check            # typecheck + lint + build
+bun run typecheck        # tsc --noEmit
+bun run lint             # biome check .
+bun run test             # vitest unit tests
+bun run test:api         # live API smoke (network; not in PR CI)
+bun run codegen:tainacan # regenerate from vendor/ OpenAPI
+bun run codegen:tainacan:sync  # fetch upstream + regenerate
+bun run astryx           # Astryx CLI (component docs, templates, theme)
 ```
 
-Before claiming done: `bun run typecheck && bun run lint && bun run build`.
+Before claiming done: `bun run check`.
 
-No automated test suite is configured.
+Unit tests: `bun run test`. Live API smoke: `bun run test:api` (run locally or on a scheduled workflow — flaky on every PR).
 
 ## Layout
 
