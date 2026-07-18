@@ -5,7 +5,7 @@
 
 ## Goal
 
-Replace hand-written `tainacanService.ts` and `apiClient.ts` with Orval-generated TanStack Query hooks, a shared axios mutator, and thin museum-aware wrapper hooks.
+Replace hand-written `tainacanService.ts` and `apiClient.ts` with Orval-generated TanStack Query hooks and a shared mutator. Museum-aware routing is handled via `museumId` on the mutator request option and inline generated hooks at call sites.
 
 ## Architecture
 
@@ -16,11 +16,9 @@ orval.config.ts (dual output)
   ├── zod → src/schemas/generated/tainacan.zod.ts
   └── react-query (tags-split) → src/services/generated/
          ↓
-tainacanMutator.ts  (per-museum baseURL, Zod validation, WP headers)
+tainacanMutator.ts  (museumId → baseURL, Zod validation, WP headers, formatItemsResponse)
          ↓
-src/hooks/tainacan/*  (museum wrappers + fetchMuseumItem for RSC)
-         ↓
-pages & components
+pages & components  (generated hooks + request: { museumId })
 ```
 
 ## Curated API paths
@@ -40,28 +38,35 @@ Injected from `scripts/tainacan-api-paths.json`:
 ## Mutator (`tainacanMutator.ts`)
 
 - Axios instance (10s timeout, JSON headers)
-- `baseURL` from museum registry via wrapper `request` option
+- `museumId` or `baseURL` on request options — `museumId` resolves via `getMuseumById`
 - `params` option for axios serialization (nested `taxquery` / `metaquery`)
-- Parses query strings from Orval-generated URLs for scalar params
+- Parses query strings from Orval-generated URLs for scalar params on other endpoints
 - Validates responses with facade schemas in `src/schemas/tainacan.ts`
 - `getPaginationMeta()` reads `x-wp-total` / `x-wp-totalpages`
+- `formatItemsResponse()` maps list responses to `FormattedItemsRes` for `select`
 
-## Museum wrappers (`src/hooks/tainacan/`)
+## Consumer patterns
 
-| Export | Purpose |
-|--------|---------|
-| `useMuseumCollections` | Collection tabs |
-| `useMuseumFilters` | Museum-wide or collection-scoped filters |
-| `useMuseumItems` | Item list with pagination meta (`FormattedItemsRes`) |
-| `useMuseumTaxonomyTerms` | Filter panel + active chip labels |
-| `fetchMuseumItem` | RSC item detail + `generateMetadata` |
-| `getMuseumRequestOptions` | Shared `{ baseURL }` for generated fetchers |
+Components call generated hooks directly:
 
-`useMuseumItems` calls the mutator directly with axios `params` (not Orval URL builder) so nested filter query objects serialize correctly.
+```ts
+useListCollections(undefined, {
+  request: { museumId },
+  query: {
+    queryKey: ["museum-collections", museumId],
+    enabled: Boolean(museumId),
+    select: (r) => r.data as TainacanCollection[],
+  },
+});
+```
+
+Conditional endpoints (museum-wide vs collection-scoped filters/items) use dual-hook patterns with `enabled` flags in [`src/app/[museumId]/page.tsx`](src/app/[museumId]/page.tsx).
+
+Item list fetchers are post-processed in `codegen-tainacan.ts` to call the mutator with path + axios `params` (Orval's URL builder breaks nested filter query objects).
 
 ## Error handling
 
-Service functions no longer return `null` on failure. React Query surfaces `isError` / `error`; RSC `fetchMuseumItem` catches and returns `null` for `notFound()`.
+React Query surfaces `isError` / `error` on the client. RSC item pages use inline `getItem` with try/catch → `notFound()`.
 
 ## Codegen
 

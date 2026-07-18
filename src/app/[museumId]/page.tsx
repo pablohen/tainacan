@@ -28,10 +28,23 @@ import { ItemViewModeSelector } from "@/components/ItemViewModeSelector";
 import { MuseumActiveStateBar } from "@/components/MuseumActiveStateBar";
 import { MuseumFiltersPanel } from "@/components/MuseumFiltersPanel";
 import { SearchBar } from "@/components/SearchBar";
-import { useMuseumCollections } from "@/hooks/tainacan/useMuseumCollections";
-import { useMuseumFilters } from "@/hooks/tainacan/useMuseumFilters";
-import { useMuseumItems } from "@/hooks/tainacan/useMuseumItems";
 import { useActiveTaxonomyTermLabels } from "@/hooks/useActiveTaxonomyTermLabels";
+import { useListCollections } from "@/services/generated/collections/collections";
+import {
+	useListCollectionFilters,
+	useListFilters,
+} from "@/services/generated/filters/filters";
+import {
+	useListCollectionItems,
+	useListItems,
+} from "@/services/generated/items/items";
+import type { ListItemsParams } from "@/services/generated/tainacanV2.schemas";
+import { formatItemsResponse } from "@/services/tainacanMutator";
+import type {
+	FormattedItemsRes,
+	TainacanCollection,
+	TainacanFilter,
+} from "@/types/tainacan";
 import {
 	buildActiveStateChips,
 	parseFacetChipId,
@@ -86,7 +99,14 @@ function MuseumContent({ museumId }: { museumId: string }) {
 		isLoading: isCollectionsLoading,
 		isError: isCollectionsError,
 		isSuccess: isCollectionsSuccess,
-	} = useMuseumCollections(museumId);
+	} = useListCollections<TainacanCollection[]>(undefined, {
+		request: { museumId },
+		query: {
+			queryKey: ["museum-collections", museumId],
+			enabled: Boolean(museumId),
+			select: (response) => response.data as TainacanCollection[],
+		},
+	});
 
 	useEffect(() => {
 		if (!isCollectionsSuccess) return;
@@ -97,12 +117,34 @@ function MuseumContent({ museumId }: { museumId: string }) {
 		}
 	}, [collection, collections, isCollectionsSuccess, setQueryStates]);
 
+	const museumFilterDefs = useListFilters<TainacanFilter[]>(undefined, {
+		request: { museumId },
+		query: {
+			queryKey: ["museum-filters", museumId, null],
+			enabled: Boolean(museumId) && collection === null,
+			select: (response) => response.data as TainacanFilter[],
+		},
+	});
+
+	const collectionFilterDefs = useListCollectionFilters<TainacanFilter[]>(
+		collection ?? 0,
+		undefined,
+		{
+			request: { museumId },
+			query: {
+				queryKey: ["museum-filters", museumId, collection ?? null],
+				enabled: Boolean(museumId) && collection !== null,
+				select: (response) => response.data as TainacanFilter[],
+			},
+		},
+	);
+
 	const {
 		data: filterDefs = [],
 		isLoading: isFiltersLoading,
 		isError: isFiltersError,
 		isSuccess: isFiltersSuccess,
-	} = useMuseumFilters(museumId, collection === null ? undefined : collection);
+	} = collection === null ? museumFilterDefs : collectionFilterDefs;
 
 	useEffect(() => {
 		if (!isFiltersSuccess) return;
@@ -120,17 +162,57 @@ function MuseumContent({ museumId }: { museumId: string }) {
 	const filtersReadyForItems =
 		!hasActiveFilters || isFiltersSuccess || isFiltersError;
 
-	const { data, isLoading, isPending, error, isError } = useMuseumItems(
-		museumId,
+	const itemParams = {
+		perpage: 50,
+		paged: page,
+		...filterParams,
+		...(search.trim() ? { search: search.trim() } : {}),
+		...(sortParams
+			? { orderby: sortParams.orderby, order: sortParams.order }
+			: {}),
+	} as ListItemsParams;
+
+	const museumItemsQuery = useListItems<FormattedItemsRes>(itemParams, {
+		request: { museumId },
+		query: {
+			queryKey: [
+				"museum-items",
+				museumId,
+				page,
+				search,
+				null,
+				filterParams ?? null,
+				sortParams ?? null,
+			],
+			enabled: Boolean(museumId) && filtersReadyForItems && collection === null,
+			select: formatItemsResponse,
+		},
+	});
+
+	const collectionItemsQuery = useListCollectionItems<FormattedItemsRes>(
+		String(collection ?? 0),
+		itemParams,
 		{
-			page,
-			search,
-			collectionId: collection === null ? undefined : collection,
-			filterParams,
-			sortParams,
-			enabled: !!museumId && filtersReadyForItems,
+			request: { museumId },
+			query: {
+				queryKey: [
+					"museum-items",
+					museumId,
+					page,
+					search,
+					collection,
+					filterParams ?? null,
+					sortParams ?? null,
+				],
+				enabled:
+					Boolean(museumId) && filtersReadyForItems && collection !== null,
+				select: formatItemsResponse,
+			},
 		},
 	);
+
+	const { data, isLoading, isPending, error, isError } =
+		collection === null ? museumItemsQuery : collectionItemsQuery;
 
 	const items = data?.items ?? [];
 	const totalPages = data?.wpTotalPages ?? 1;

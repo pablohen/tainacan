@@ -8,8 +8,8 @@ import { TextInput } from "@astryxdesign/core/TextInput";
 import { VStack } from "@astryxdesign/core/VStack";
 import { useEffect, useState } from "react";
 import { useDebounce } from "use-debounce";
-import { useMuseumTaxonomyTerms } from "@/hooks/tainacan/useMuseumTaxonomyTerms";
-import type { TainacanFilter } from "@/types/tainacan";
+import { useListTaxonomyTerms } from "@/services/generated/taxonomies/taxonomies";
+import type { TainacanFilter, TainacanTerm } from "@/types/tainacan";
 import {
 	countActiveFilters,
 	type FilterIntervalValue,
@@ -40,9 +40,22 @@ function TaxonomyFilterControl({
 	onChange: (next: string[]) => void;
 }) {
 	const taxonomyId = getTaxonomyId(filter);
-	const { data: terms = [], isLoading } = useMuseumTaxonomyTerms(
-		museumId,
-		taxonomyId,
+	const { data: terms = [], isLoading } = useListTaxonomyTerms<TainacanTerm[]>(
+		taxonomyId ?? 0,
+		undefined,
+		{
+			request: { museumId },
+			query: {
+				queryKey: ["taxonomy-terms", museumId, taxonomyId],
+				enabled: taxonomyId !== null,
+				select: (response) =>
+					[...(response.data as TainacanTerm[])].sort((a, b) =>
+						(a.name ?? "").localeCompare(b.name ?? "", "pt-BR", {
+							sensitivity: "base",
+						}),
+					),
+			},
+		},
 	);
 
 	return (

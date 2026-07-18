@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { fetchMuseumItem } from "@/hooks/tainacan/fetchMuseumItem";
+import { getItem } from "@/services/generated/items/items";
+import type { TainacanRequestInit } from "@/services/tainacanMutator";
+import type { TainacanItem } from "@/types/tainacan";
 import { getMuseumById } from "@/utils/museums";
 import { ItemPageClient } from "./ItemPageClient";
 
@@ -11,6 +13,20 @@ interface ItemPageProps {
 	}>;
 }
 
+async function loadItem(
+	museumId: string,
+	itemId: number,
+): Promise<TainacanItem | null> {
+	try {
+		const response = await getItem(String(itemId), undefined, {
+			museumId,
+		} as TainacanRequestInit);
+		return response.data as TainacanItem;
+	} catch {
+		return null;
+	}
+}
+
 export async function generateMetadata({
 	params,
 }: ItemPageProps): Promise<Metadata> {
@@ -18,7 +34,7 @@ export async function generateMetadata({
 	const itemId = Number(itemIdStr);
 
 	const museum = getMuseumById(museumId);
-	const item = await fetchMuseumItem(museumId, itemId);
+	const item = await loadItem(museumId, itemId);
 
 	if (!museum || !item) {
 		return {
@@ -52,7 +68,7 @@ export default async function ItemPage({ params }: ItemPageProps) {
 		notFound();
 	}
 
-	const item = await fetchMuseumItem(museumId, itemId);
+	const item = await loadItem(museumId, itemId);
 
 	if (!item) {
 		notFound();
