@@ -1,0 +1,240 @@
+{
+	"_meta": {
+		"tainacanCommit": "develop",
+		"sources": [
+			"https://github.com/tainacan/tainacan/blob/develop/src/classes/repositories/class-tainacan-items.php",
+			"https://github.com/tainacan/tainacan/blob/develop/src/classes/api/endpoints/class-tainacan-rest-items-controller.php",
+			"https://github.com/tainacan/tainacan/blob/develop/src/classes/entities/class-tainacan-filter.php",
+			"https://github.com/tainacan/tainacan/blob/develop/src/classes/entities/class-tainacan-collection.php",
+			"https://github.com/tainacan/tainacan/blob/develop/src/classes/entities/class-tainacan-term.php"
+		]
+	},
+	"replaceSchemas": {
+		"item": {
+			"type": "object",
+			"description": "Tainacan item (GET /items/{id}). Patched from REST controller prepare_item_for_response.",
+			"properties": {
+				"id": { "type": "integer", "description": "Unique identifier" },
+				"status": { "type": "string", "description": "WordPress post status" },
+				"title": { "type": "string", "description": "Title of the item" },
+				"description": {
+					"type": "string",
+					"description": "The item description"
+				},
+				"collection_id": {
+					"type": ["integer", "string"],
+					"description": "The collection ID"
+				},
+				"author_id": {
+					"type": "string",
+					"description": "The item author's user ID (numeric string)"
+				},
+				"author_name": {
+					"type": "string",
+					"description": "Author display name"
+				},
+				"slug": { "type": "string", "description": "Item slug" },
+				"creation_date": { "type": "string", "description": "Creation date" },
+				"modification_date": {
+					"type": "string",
+					"description": "Modification date"
+				},
+				"terms": {
+					"type": ["array", "null"],
+					"items": { "type": ["string", "integer"] },
+					"description": "Term IDs"
+				},
+				"document_type": {
+					"type": "string",
+					"enum": ["attachment", "url", "text", "empty"],
+					"description": "Document type"
+				},
+				"document": { "type": "string", "description": "Document value" },
+				"document_options": {
+					"type": ["object", "string"],
+					"description": "Document display options"
+				},
+				"document_content_index": {
+					"type": "string",
+					"description": "Document content for search"
+				},
+				"document_mimetype": {
+					"type": "string",
+					"description": "Document MIME type"
+				},
+				"document_as_html": {
+					"type": "string",
+					"description": "Rendered document HTML"
+				},
+				"_thumbnail_id": {
+					"type": ["integer", "string"],
+					"description": "Thumbnail attachment ID"
+				},
+				"thumbnail": {
+					"type": "object",
+					"description": "Thumbnail URLs by size"
+				},
+				"thumbnail_alt": {
+					"type": "string",
+					"description": "Thumbnail alt text"
+				},
+				"thumbnail_id": {
+					"type": ["integer", "string"],
+					"description": "Thumbnail ID alias"
+				},
+				"comment_status": {
+					"type": "string",
+					"enum": ["open", "closed"],
+					"description": "Comment status"
+				},
+				"url": { "type": "string", "description": "Public item URL" },
+				"exposer_urls": {
+					"type": "array",
+					"items": { "type": "object" },
+					"description": "Exposer URLs"
+				},
+				"supports_document_content_extraction": {
+					"type": "boolean",
+					"description": "Whether document content extraction is supported"
+				},
+				"metadata": {
+					"type": "object",
+					"additionalProperties": {
+						"$ref": "#/components/schemas/item_embedded_metadata"
+					},
+					"description": "Metadata values keyed by metadatum slug"
+				},
+				"current_user_can_edit": { "type": "boolean" },
+				"current_user_can_delete": { "type": "boolean" }
+			}
+		},
+		"items": {
+			"type": "object",
+			"description": "Items list response wrapper (GET /items, GET /collection/{id}/items).",
+			"properties": {
+				"items": {
+					"type": "array",
+					"items": { "$ref": "#/components/schemas/item" }
+				},
+				"template": { "type": "string" },
+				"filters": { "type": "array", "items": { "type": "object" } },
+				"filters_arguments": {
+					"type": "array",
+					"items": { "type": "object" }
+				}
+			}
+		},
+		"filters": {
+			"type": "array",
+			"items": { "$ref": "#/components/schemas/filter" }
+		},
+		"collections": {
+			"type": "array",
+			"items": { "$ref": "#/components/schemas/collection" }
+		},
+		"taxonomies": {
+			"type": "array",
+			"items": { "$ref": "#/components/schemas/taxonomy" }
+		},
+		"terms": {
+			"type": "array",
+			"items": { "$ref": "#/components/schemas/term" }
+		},
+		"item_embedded_metadata": {
+			"type": "object",
+			"description": "Embedded metadata value on an item (item.metadata[slug]). Distinct from metadatum definition.",
+			"properties": {
+				"id": { "type": "integer" },
+				"name": { "type": "string" },
+				"value": {},
+				"value_as_html": { "type": "string" },
+				"value_as_string": { "type": "string" },
+				"semantic_uri": { "type": "string" },
+				"multiple": { "type": "string", "enum": ["yes", "no"] },
+				"mapping": {
+					"type": ["object", "array", "string"],
+					"items": {}
+				},
+				"date_i18n": { "type": "string" },
+				"parent_meta_id": { "type": "string" }
+			}
+		},
+		"filter_metadatum": {
+			"type": "object",
+			"description": "Nested metadatum summary on a filter (Filter._toArray).",
+			"properties": {
+				"metadatum_id": { "type": ["integer", "string"] },
+				"metadatum_name": { "type": "string" },
+				"metadata_type_object": {
+					"type": "object",
+					"properties": {
+						"primitive_type": { "type": "string" },
+						"options": {
+							"type": ["object", "array"],
+							"properties": {
+								"taxonomy_id": { "type": "integer" },
+								"taxonomy": { "type": "string" }
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"mergeSchemas": {
+		"filter": {
+			"properties": {
+				"metadatum_id": { "type": ["integer", "string"] },
+				"collection_id": { "type": ["integer", "string"] },
+				"metadatum": { "$ref": "#/components/schemas/filter_metadatum" },
+				"filter_type_object": { "type": "object" },
+				"inherited": { "type": "boolean" },
+				"enabled": { "type": "string", "enum": ["yes", "no"] }
+			}
+		},
+		"collection": {
+			"properties": {
+				"url": { "type": "string" },
+				"thumbnail": { "type": ["object", "string", "boolean"] },
+				"header_image": { "type": ["object", "string", "boolean"] },
+				"author_name": { "type": "string" },
+				"total_items": { "type": ["integer", "string", "object"] }
+			}
+		},
+		"term": {
+			"properties": {
+				"url": { "type": "string" },
+				"thumbnail": { "type": ["object", "string", "boolean"] },
+				"thumbnail_alt": { "type": "string" },
+				"thumbnail_id": { "type": ["integer", "string"] },
+				"header_image": { "type": ["object", "string", "boolean"] },
+				"hierarchy_path": { "type": "string" },
+				"total_children": { "type": ["integer", "string"] }
+			}
+		}
+	},
+	"patchProperties": {
+		"collection": {
+			"order": { "type": ["string", "integer", "null"] },
+			"default_metadata_section_properties": {
+				"type": ["object", "string", "array"]
+			},
+			"metadata_section_order": { "type": ["array", "string", "object"] },
+			"metadata_order": { "type": ["array", "string", "object"] },
+			"filters_order": { "type": ["array", "string", "object"] },
+			"parent": { "type": ["integer", "string", "null"] }
+		},
+		"taxonomy": {
+			"collections_ids": { "type": ["string", "array", "integer"] },
+			"enabled_post_types": { "type": ["string", "array"] }
+		},
+		"term": {
+			"user": { "type": ["integer", "string"] },
+			"hide_empty": { "type": ["boolean", "null"] },
+			"thumbnail_alt": { "type": ["string", "boolean"] },
+			"header_image_id": { "type": ["integer", "string", "null"] },
+			"cover_page_id": { "type": ["integer", "string", "null"] },
+			"parent": { "type": ["integer", "string", "null"] }
+		}
+	}
+}

@@ -8,6 +8,9 @@
 		"start": "bun --bun next start",
 		"lint": "biome check .",
 		"typecheck": "tsc --noEmit",
+		"codegen:tainacan:fetch": "curl -fsSL https://raw.githubusercontent.com/tainacan/tainacan/develop/docs/openapi.json -o vendor/tainacan-openapi.json",
+		"codegen:tainacan": "bun scripts/codegen-tainacan.ts",
+		"codegen:tainacan:sync": "bun run codegen:tainacan:fetch && bun run codegen:tainacan",
 		"astryx": "node node_modules/@astryxdesign/cli/bin/astryx.mjs",
 		"biome:check": "biome check .",
 		"biome:fix": "biome check --write .",
@@ -34,6 +37,7 @@
 		"@biomejs/biome": "2.5.3",
 		"@types/node": "^26.1.1",
 		"@types/react": "^19.2.17",
+		"orval": "^8.22.0",
 		"typescript": "^5.9.3"
 	}
 }
