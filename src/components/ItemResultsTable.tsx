@@ -11,7 +11,7 @@ import {
 import { Text } from "@astryxdesign/core/Text";
 import Image from "next/image";
 import { FavoriteButton } from "@/components/FavoriteButton";
-import Loading from "@/components/Loading";
+import { Loading } from "@/components/Loading";
 
 export type ItemResultsTableItem = {
 	museumId: string;
