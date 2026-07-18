@@ -6,10 +6,9 @@ import { MultiSelector } from "@astryxdesign/core/MultiSelector";
 import { Text } from "@astryxdesign/core/Text";
 import { TextInput } from "@astryxdesign/core/TextInput";
 import { VStack } from "@astryxdesign/core/VStack";
-import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useDebounce } from "use-debounce";
-import { getTaxonomyTerms } from "@/services/tainacanService";
+import { useMuseumTaxonomyTerms } from "@/hooks/tainacan/useMuseumTaxonomyTerms";
 import type { TainacanFilter } from "@/types/tainacan";
 import {
 	countActiveFilters,
@@ -41,18 +40,10 @@ function TaxonomyFilterControl({
 	onChange: (next: string[]) => void;
 }) {
 	const taxonomyId = getTaxonomyId(filter);
-	const { data: terms = [], isLoading } = useQuery({
-		queryKey: ["taxonomy-terms", museumId, taxonomyId],
-		queryFn: async () => {
-			if (taxonomyId === null) return [];
-			const data = await getTaxonomyTerms(museumId, taxonomyId);
-			if (data === null) throw new Error("Falha ao carregar termos");
-			return [...data].sort((a, b) =>
-				a.name.localeCompare(b.name, "pt-BR", { sensitivity: "base" }),
-			);
-		},
-		enabled: taxonomyId !== null,
-	});
+	const { data: terms = [], isLoading } = useMuseumTaxonomyTerms(
+		museumId,
+		taxonomyId,
+	);
 
 	return (
 		<MultiSelector

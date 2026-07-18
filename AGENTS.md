@@ -42,7 +42,8 @@ No automated test suite is configured.
 src/app/           App Router pages
 src/components/    App UI (AppChrome + domain components)
 src/contexts/      Client state (e.g. FavoritesContext + localStorage)
-src/services/      Axios + Tainacan API (tainacanService, apiClient)
+src/services/      Orval-generated API + tainacanMutator
+src/hooks/tainacan/ Museum-aware React Query wrappers
 src/schemas/       Zod schemas (API response source of truth)
 src/types/         Domain / inferred types
 src/utils/         Museum registry, image helpers
@@ -52,7 +53,7 @@ Path alias: `@/*` → `src/*`.
 
 ## Architecture
 
-- Fetch through `src/services/tainacanService.ts` and validate with Zod in `src/schemas/tainacan.ts`. Do not call Axios inline from components.
+- Fetch through `src/hooks/tainacan/` wrappers (Orval-generated hooks + `tainacanMutator`) and validate with Zod in `src/schemas/tainacan.ts`. Do not call Axios inline from components.
 - Add museums only in `src/utils/museums.ts` (no env-based API config).
 - Client lists: React Query. Item detail: server `await` then client presenter.
 - Client persistence: localStorage contexts (mirror `FavoritesContext` for similar features).

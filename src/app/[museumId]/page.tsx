@@ -5,7 +5,6 @@ import { Center } from "@astryxdesign/core/Center";
 import { HStack } from "@astryxdesign/core/HStack";
 import { Pagination } from "@astryxdesign/core/Pagination";
 import { VStack } from "@astryxdesign/core/VStack";
-import { useQuery } from "@tanstack/react-query";
 import {
 	parseAsInteger,
 	parseAsJson,
@@ -29,13 +28,10 @@ import { ItemViewModeSelector } from "@/components/ItemViewModeSelector";
 import { MuseumActiveStateBar } from "@/components/MuseumActiveStateBar";
 import { MuseumFiltersPanel } from "@/components/MuseumFiltersPanel";
 import { SearchBar } from "@/components/SearchBar";
+import { useMuseumCollections } from "@/hooks/tainacan/useMuseumCollections";
+import { useMuseumFilters } from "@/hooks/tainacan/useMuseumFilters";
+import { useMuseumItems } from "@/hooks/tainacan/useMuseumItems";
 import { useActiveTaxonomyTermLabels } from "@/hooks/useActiveTaxonomyTermLabels";
-import {
-	getCollections,
-	getFilters,
-	getItems,
-} from "@/services/tainacanService";
-import type { TainacanItem as Item } from "@/types/tainacan";
 import {
 	buildActiveStateChips,
 	parseFacetChipId,
@@ -75,8 +71,6 @@ function MuseumContent({ museumId }: { museumId: string }) {
 	const viewMode = toItemViewMode(view);
 	const [searchInput, setSearchInput] = useState(search);
 	const [debouncedSearch] = useDebounce(searchInput, 500);
-	const [items, setItems] = useState<Item[]>([]);
-	const [totalPages, setTotalPages] = useState(1);
 
 	useEffect(() => {
 		if (debouncedSearch !== search) {
@@ -92,17 +86,7 @@ function MuseumContent({ museumId }: { museumId: string }) {
 		isLoading: isCollectionsLoading,
 		isError: isCollectionsError,
 		isSuccess: isCollectionsSuccess,
-	} = useQuery({
-		queryKey: ["museum-collections", museumId],
-		queryFn: async () => {
-			const data = await getCollections(museumId);
-			if (data === null) {
-				throw new Error("Falha ao carregar coleções");
-			}
-			return data;
-		},
-		enabled: !!museumId,
-	});
+	} = useMuseumCollections(museumId);
 
 	useEffect(() => {
 		if (!isCollectionsSuccess) return;
@@ -118,20 +102,7 @@ function MuseumContent({ museumId }: { museumId: string }) {
 		isLoading: isFiltersLoading,
 		isError: isFiltersError,
 		isSuccess: isFiltersSuccess,
-	} = useQuery({
-		queryKey: ["museum-filters", museumId, collection],
-		queryFn: async () => {
-			const data = await getFilters(
-				museumId,
-				collection === null ? undefined : collection,
-			);
-			if (data === null) {
-				throw new Error("Falha ao carregar filtros");
-			}
-			return data;
-		},
-		enabled: !!museumId,
-	});
+	} = useMuseumFilters(museumId, collection === null ? undefined : collection);
 
 	useEffect(() => {
 		if (!isFiltersSuccess) return;
@@ -149,42 +120,21 @@ function MuseumContent({ museumId }: { museumId: string }) {
 	const filtersReadyForItems =
 		!hasActiveFilters || isFiltersSuccess || isFiltersError;
 
-	const { data, isLoading, isPending, error, isError } = useQuery({
-		queryKey: [
-			"museum-items",
-			museumId,
+	const { data, isLoading, isPending, error, isError } = useMuseumItems(
+		museumId,
+		{
 			page,
 			search,
-			collection,
-			filters,
-			sort,
-		],
-		queryFn: () =>
-			getItems(
-				museumId,
-				page,
-				search,
-				collection === null ? undefined : collection,
-				filterParams,
-				sortParams,
-			),
-		enabled: !!museumId && filtersReadyForItems,
-	});
+			collectionId: collection === null ? undefined : collection,
+			filterParams,
+			sortParams,
+			enabled: !!museumId && filtersReadyForItems,
+		},
+	);
 
+	const items = data?.items ?? [];
+	const totalPages = data?.wpTotalPages ?? 1;
 	const showItemsLoading = isLoading || isPending;
-
-	useEffect(() => {
-		if (museumId && data) {
-			if (data && typeof data === "object" && "items" in data) {
-				const { items: fetchedItems, wpTotalPages } = data;
-				setItems(fetchedItems || []);
-				setTotalPages(wpTotalPages || 1);
-			} else {
-				setItems([]);
-				setTotalPages(1);
-			}
-		}
-	}, [data, museumId]);
 
 	const museum = getMuseumById(museumId);
 	const termLabels = useActiveTaxonomyTermLabels(museumId, filterDefs, filters);
