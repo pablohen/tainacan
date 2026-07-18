@@ -12,7 +12,7 @@
 		"test": "vitest run",
 		"test:api": "bun scripts/smoke-test-schemas.ts",
 		"prepare": "lefthook install",
-		"codegen:tainacan:fetch": "curl -fsSL https://raw.githubusercontent.com/tainacan/tainacan/develop/docs/openapi.json -o vendor/tainacan-openapi.json",
+		"codegen:tainacan:fetch": "bun scripts/fetch-tainacan-openapi.ts",
 		"codegen:tainacan": "bun scripts/codegen-tainacan.ts",
 		"codegen:tainacan:sync": "bun run codegen:tainacan:fetch && bun run codegen:tainacan",
 		"astryx": "node node_modules/@astryxdesign/cli/bin/astryx.mjs",
