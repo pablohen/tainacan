@@ -10,10 +10,8 @@ import { listCollections } from "../src/services/generated/collections/collectio
 import { listCollectionFilters } from "../src/services/generated/filters/filters";
 import { getItem, listItems } from "../src/services/generated/items/items";
 import { listTaxonomyTerms } from "../src/services/generated/taxonomies/taxonomies";
-import {
-	getPaginationMeta,
-	type TainacanRequestInit,
-} from "../src/services/tainacanMutator";
+import { getPaginationMeta } from "../src/services/tainacanMutator";
+import { tainacanRequestInit } from "../src/services/tainacanRequest";
 
 const museums = [
 	{
@@ -91,7 +89,7 @@ for (const museum of museums) {
 		}
 	}
 
-	const request = { museumId: museum.id } as TainacanRequestInit;
+	const request = tainacanRequestInit(museum.id);
 
 	const generatedCollections = await listCollections(undefined, request);
 	const collectionData = generatedCollections.data;

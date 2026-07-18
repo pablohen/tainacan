@@ -3,7 +3,7 @@
 import { useQueries } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { listTaxonomyTerms } from "@/services/generated/taxonomies/taxonomies";
-import type { TainacanRequestInit } from "@/services/tainacanMutator";
+import { tainacanRequestInit } from "@/services/tainacanRequest";
 import type { TainacanFilter, TainacanTerm } from "@/types/tainacan";
 import type { TermLabelMap } from "@/utils/activeStateChips";
 import {
@@ -45,9 +45,11 @@ export function useActiveTaxonomyTermLabels(
 		queries: taxonomyIds.map((taxonomyId) => ({
 			queryKey: ["taxonomy-terms", museumId, taxonomyId],
 			queryFn: async (): Promise<TainacanTerm[]> => {
-				const response = await listTaxonomyTerms(taxonomyId, undefined, {
-					museumId,
-				} as TainacanRequestInit);
+				const response = await listTaxonomyTerms(
+					taxonomyId,
+					undefined,
+					tainacanRequestInit(museumId),
+				);
 				return (response.data as TainacanTerm[]) ?? [];
 			},
 			enabled: !!museumId,
