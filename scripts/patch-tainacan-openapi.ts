@@ -16,6 +16,14 @@ interface Overrides {
 	patchProperties?: Record<string, Record<string, Record<string, unknown>>>;
 }
 
+interface OpenApiPathItem {
+	get?: Record<string, unknown>;
+}
+
+interface ApiPathsConfig {
+	paths: Record<string, OpenApiPathItem>;
+}
+
 function loadJson<T>(path: string): T {
 	return JSON.parse(readFileSync(path, "utf8")) as T;
 }
@@ -31,10 +39,13 @@ function mergeSchemaProperties(
 export function patchTainacanOpenApi(
 	inputPath: string,
 	overridesPath: string,
+	apiPathsPath: string,
 	outputPath: string,
+	options?: { includePaths?: boolean },
 ): void {
 	const spec = loadJson<OpenApiSpec>(inputPath);
 	const overrides = loadJson<Overrides>(overridesPath);
+	const apiPaths = loadJson<ApiPathsConfig>(apiPathsPath);
 
 	for (const [name, schema] of Object.entries(overrides.replaceSchemas ?? {})) {
 		spec.components.schemas[name] = schema;
@@ -64,8 +75,8 @@ export function patchTainacanOpenApi(
 		schema.properties = existingProps;
 	}
 
-	// Orval only needs component schemas; upstream paths have malformed parameters.
-	spec.paths = {};
+	// Curated paths only — upstream full spec has malformed parameters on unused routes.
+	spec.paths = options?.includePaths === false ? {} : apiPaths.paths;
 
 	writeFileSync(outputPath, `${JSON.stringify(spec, null, 2)}\n`, "utf8");
 }
@@ -73,8 +84,9 @@ export function patchTainacanOpenApi(
 if (import.meta.main) {
 	const inputPath = join(root, "vendor/tainacan-openapi.json");
 	const overridesPath = join(root, "scripts/tainacan-schema-overrides.json");
+	const apiPathsPath = join(root, "scripts/tainacan-api-paths.json");
 	const outputPath = join(root, "vendor/tainacan-openapi.patched.json");
 
-	patchTainacanOpenApi(inputPath, overridesPath, outputPath);
+	patchTainacanOpenApi(inputPath, overridesPath, apiPathsPath, outputPath);
 	console.log(`Patched OpenAPI written to ${outputPath}`);
 }
