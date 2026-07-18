@@ -5,8 +5,7 @@ Approved scope: DX automation (Tier 1) and code health/reliability (Tier 2).
 ## Tier 1 — DX
 
 - Composite `check` script (`typecheck` + `lint` + `test` + `build`)
-- GitHub Actions CI on push/PR to `main`
-- Wire `test:api` smoke script (local / scheduled; not PR CI)
+- Wire `test:api` smoke script (local only)
 - Gate React Query Devtools to development
 - Lefthook pre-commit (`biome check --staged`)
 - README + AGENTS documentation sync
@@ -21,7 +20,7 @@ Approved scope: DX automation (Tier 1) and code health/reliability (Tier 2).
 - Error banners with retry for collections/filters/items
 - `keepPreviousData` on museum item lists
 - Vitest unit tests for utils
-- Codegen drift workflow (weekly + manual)
+- Codegen drift check via `bun run codegen:tainacan && git diff --exit-code` (local)
 - Pinned upstream OpenAPI git ref
 
 ## Out of scope

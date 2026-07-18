@@ -31,7 +31,7 @@ bun run check            # typecheck + lint + build
 bun run typecheck        # tsc --noEmit
 bun run lint             # biome check .
 bun run test             # vitest unit tests
-bun run test:api         # live API smoke (network; not in PR CI)
+bun run test:api         # live API smoke (network)
 bun run codegen:tainacan # regenerate from vendor/ OpenAPI
 bun run codegen:tainacan:sync  # fetch upstream + regenerate
 bun run astryx           # Astryx CLI (component docs, templates, theme)
@@ -39,7 +39,7 @@ bun run astryx           # Astryx CLI (component docs, templates, theme)
 
 Before claiming done: `bun run check`.
 
-Unit tests: `bun run test`. Live API smoke: `bun run test:api` (run locally or on a scheduled workflow — flaky on every PR).
+Unit tests: `bun run test`. Live API smoke: `bun run test:api` (requires network).
 
 ## Layout
 
