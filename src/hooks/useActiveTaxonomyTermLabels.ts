@@ -44,14 +44,13 @@ export function useActiveTaxonomyTermLabels(
 	const results = useQueries({
 		queries: taxonomyIds.map((taxonomyId) => ({
 			queryKey: ["taxonomy-terms", museumId, taxonomyId],
-			queryFn: async (): Promise<TainacanTerm[]> => {
-				const response = await listTaxonomyTerms(
-					taxonomyId,
-					undefined,
-					tainacanRequestInit(museumId),
-				);
-				return (response.data as TainacanTerm[]) ?? [];
-			},
+			queryFn: ({ signal }: { signal: AbortSignal }) =>
+				listTaxonomyTerms(taxonomyId, undefined, {
+					...tainacanRequestInit(museumId),
+					signal,
+				}),
+			select: (response: Awaited<ReturnType<typeof listTaxonomyTerms>>) =>
+				(response.data as TainacanTerm[]) ?? [],
 			enabled: !!museumId,
 		})),
 	});
