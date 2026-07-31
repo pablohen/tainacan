@@ -6,6 +6,7 @@ import { Icon } from "@astryxdesign/core/Icon";
 import { Heading, Text } from "@astryxdesign/core/Text";
 import { VStack } from "@astryxdesign/core/VStack";
 import { HeroBanner } from "@/components/HeroBanner";
+import { HomeThemesSection } from "@/components/HomeThemesSection";
 import { HeartFilledIcon } from "@/components/icons/HeartIcon";
 import { MuseumCard } from "@/components/MuseumCard";
 import { SearchBar } from "@/components/SearchBar";
@@ -42,6 +43,8 @@ export default function Home() {
 					placeholder="Buscar museus..."
 				/>
 			</VStack>
+
+			<HomeThemesSection />
 
 			{hasResults ? (
 				<VStack gap={6}>
