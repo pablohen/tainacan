@@ -20,6 +20,21 @@ export type FiltersState = z.infer<typeof FiltersStateSchema>;
 
 export type FilterFamily = "taxonomy" | "text" | "interval" | "unsupported";
 
+export function buildTaxonomyOccurrenceParams(occurrence: {
+	taxonomyDbIdentifier: string;
+	termId: number;
+}): Record<string, unknown> {
+	return {
+		taxquery: [
+			{
+				taxonomy: occurrence.taxonomyDbIdentifier,
+				terms: [occurrence.termId],
+				compare: "IN",
+			},
+		],
+	};
+}
+
 export function getFilterFamily(filterType: string): FilterFamily {
 	const type = filterType.toLowerCase();
 	if (type.includes("taxonomy")) return "taxonomy";
