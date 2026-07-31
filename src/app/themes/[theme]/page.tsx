@@ -16,5 +16,5 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ThemePage({ params }: ThemePageProps) {
 	const { theme } = await params;
 
-	return <ThemePageClient themeKey={theme} />;
+	return <ThemePageClient themeKey={encodeURIComponent(theme)} />;
 }

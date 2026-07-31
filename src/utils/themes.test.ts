@@ -97,4 +97,11 @@ describe("buildThemeGraph", () => {
 		expect(findTheme(graph, "%E0%A4%A")).toBeNull();
 		expect(findTheme(graph, "inexistente")).toBeNull();
 	});
+
+	it("rejects route keys inherited from Object.prototype", () => {
+		const graph = buildThemeGraph(discoveries);
+
+		expect(findTheme(graph, "constructor")).toBeNull();
+		expect(getRelatedThemes(graph, "constructor")).toEqual([]);
+	});
 });

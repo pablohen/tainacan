@@ -147,7 +147,10 @@ export const buildThemeGraph = (
 
 export const findTheme = (graph: ThemeGraph, key: string): ThemeNode | null => {
 	try {
-		return graph.byKey[decodeURIComponent(key)] ?? null;
+		const decodedKey = decodeURIComponent(key);
+		return Object.hasOwn(graph.byKey, decodedKey)
+			? graph.byKey[decodedKey]
+			: null;
 	} catch {
 		return null;
 	}
