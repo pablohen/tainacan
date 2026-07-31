@@ -63,7 +63,7 @@ A theme enters the global catalog when it appears in at least two institutions t
 
 When a visitor opens a theme, the app queries only museums with a known occurrence. Each request uses that institution’s real filter and term IDs. Responses populate independent museum sections as they arrive.
 
-React Query caches data by museum, taxonomy, term, and pagination parameters. Freshness settings prevent excessive refetching during a session without promising an immediate update after a response has already been cached.
+React Query caches one bounded first-page preview by normalized theme key and museum. The preview service encapsulates that museum's deterministic taxonomy and term occurrences, uses a fixed page and page size, and merges their results. Freshness settings prevent excessive refetching during a session without promising an immediate update after a response has already been cached.
 
 ## Experience
 
@@ -95,7 +95,7 @@ The page contains:
 - federated query progress;
 - the number of known, completed, and unavailable institutions;
 - one stable section per museum;
-- a paginated item preview in each section;
+- a bounded first-page item preview of up to eight items in each section;
 - a **View all** action that opens the museum experience while retaining the theme filter;
 - a retry action limited to the museum that failed;
 - related themes when conservative relationships are available.
@@ -133,8 +133,8 @@ If a visitor opens a theme page directly without home-page cache, the page perfo
 - Invalid responses fail Zod validation and appear as institution-level unavailability.
 - Timeouts, network failures, and HTTP errors are isolated by museum.
 - Manual retry does not invalidate successful requests from other institutions.
-- Term and item pagination prevents unbounded data loading.
-- Concurrency and preview sizes must be configurable, tested constants. Their values will be chosen during planning after measuring the current APIs.
+- Term pagination and fixed-size item previews prevent unbounded data loading.
+- Discovery concurrency, term page size, item preview size, and related-theme limits are tested constants set to 4, 100, 8, and 8 respectively.
 - The app does not promise an exhaustive catalog while institutions are loading or unavailable.
 - Visible provenance reduces but does not eliminate the risk of homonyms with different meanings.
 
