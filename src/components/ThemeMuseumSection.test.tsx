@@ -173,6 +173,72 @@ describe("ThemeMuseumSection", () => {
 		});
 	});
 
+	it("renders deduplicated source metadata in occurrence order", () => {
+		const occurrences = [
+			occurrence({
+				filterId: 7001,
+				taxonomyId: 10001,
+				taxonomyDbIdentifier: "internal_themes_taxonomy",
+				termId: 31001,
+				taxonomyLabel: "Themes",
+				termLabel: "Sacred Art",
+			}),
+			occurrence({
+				filterId: 7002,
+				taxonomyId: 20002,
+				taxonomyDbIdentifier: "internal_materials_taxonomy",
+				termId: 40002,
+				taxonomyLabel: "Materials",
+				termLabel: "Gold",
+			}),
+			occurrence({
+				filterId: 7003,
+				taxonomyId: 30003,
+				taxonomyDbIdentifier: "internal_duplicate_taxonomy",
+				termId: 50003,
+				taxonomyLabel: "Themes",
+				termLabel: "Sacred Art",
+			}),
+			occurrence({
+				filterId: 7004,
+				taxonomyId: 40004,
+				taxonomyDbIdentifier: "internal_period_taxonomy",
+				termId: 60004,
+				taxonomyLabel: "Period",
+				termLabel: "19th century",
+			}),
+		];
+		const { container } = render(
+			section(
+				result({ data: { items: [], wpTotal: 0, wpTotalPages: 0 } }),
+				occurrences,
+			),
+		);
+
+		const sourceLabel = screen.getByText("Source metadata");
+		const themes = screen.getByText("Themes: Sacred Art");
+		const materials = screen.getByText("Materials: Gold");
+		const period = screen.getByText("Period: 19th century");
+
+		expect(screen.getAllByText("Themes: Sacred Art")).toHaveLength(1);
+		expect(
+			sourceLabel.compareDocumentPosition(themes) &
+				Node.DOCUMENT_POSITION_FOLLOWING,
+		).toBeTruthy();
+		expect(
+			themes.compareDocumentPosition(materials) &
+				Node.DOCUMENT_POSITION_FOLLOWING,
+		).toBeTruthy();
+		expect(
+			materials.compareDocumentPosition(period) &
+				Node.DOCUMENT_POSITION_FOLLOWING,
+		).toBeTruthy();
+		expect(container).not.toHaveTextContent("internal_themes_taxonomy");
+		expect(container).not.toHaveTextContent("7001");
+		expect(container).not.toHaveTextContent("10001");
+		expect(container).not.toHaveTextContent("31001");
+	});
+
 	it("renders a local error and retries only its supplied result", () => {
 		const refetch = vi.fn().mockResolvedValue(undefined);
 		render(

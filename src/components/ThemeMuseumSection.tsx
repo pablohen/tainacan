@@ -4,7 +4,7 @@ import { Banner } from "@astryxdesign/core/Banner";
 import { HStack } from "@astryxdesign/core/HStack";
 import { Link } from "@astryxdesign/core/Link";
 import { Section } from "@astryxdesign/core/Section";
-import { Heading } from "@astryxdesign/core/Text";
+import { Heading, Text } from "@astryxdesign/core/Text";
 import { VStack } from "@astryxdesign/core/VStack";
 import { Card } from "@/components/Card";
 import { CardSkeleton } from "@/components/CardSkeleton";
@@ -19,6 +19,26 @@ import type { FiltersState } from "@/utils/tainacanFilters";
 interface ThemeMuseumSectionProps {
 	result: ThemeMuseumItemsResult;
 	occurrences: ThemeOccurrence[];
+}
+
+function sourceMetadataEntries(occurrences: ThemeOccurrence[]) {
+	const seen = new Set<string>();
+	const entries: Array<{ key: string; label: string }> = [];
+
+	for (const occurrence of occurrences) {
+		const key = JSON.stringify([
+			occurrence.taxonomyLabel,
+			occurrence.termLabel,
+		]);
+		if (seen.has(key)) continue;
+		seen.add(key);
+		entries.push({
+			key,
+			label: `${occurrence.taxonomyLabel}: ${occurrence.termLabel}`,
+		});
+	}
+
+	return entries;
 }
 
 function firstOccurrence(
@@ -61,6 +81,7 @@ export function ThemeMuseumSection({
 	const headingId = `theme-museum-${result.museumId}`;
 	const items = result.data?.items ?? [];
 	const viewAllHref = getViewAllHref(result.museumId, occurrences);
+	const sourceMetadata = sourceMetadataEntries(occurrences);
 
 	return (
 		<Section
@@ -81,6 +102,19 @@ export function ThemeMuseumSection({
 						</Link>
 					) : null}
 				</HStack>
+
+				{sourceMetadata.length > 0 ? (
+					<HStack gap={1} wrap="wrap">
+						<Text type="label" as="span">
+							Source metadata
+						</Text>
+						{sourceMetadata.map((entry) => (
+							<Text key={entry.key} type="supporting" as="span">
+								{entry.label}
+							</Text>
+						))}
+					</HStack>
+				) : null}
 
 				{result.isPending ? (
 					<ItemMasonry>
