@@ -25,6 +25,16 @@ interface ThemeDiscoverySchedule {
 	completedMuseumIds: string[];
 }
 
+interface QueuedDiscoveryRequest {
+	task: () => Promise<MuseumThemeDiscovery>;
+	resolve: (value: MuseumThemeDiscovery) => void;
+	reject: (reason: unknown) => void;
+	signal: AbortSignal;
+	started: boolean;
+	cancelled: boolean;
+	onAbort: () => void;
+}
+
 export interface ThemeMuseumProgress {
 	museumId: string;
 	status: "queued" | "loading" | "success" | "error";
@@ -102,6 +112,63 @@ async function runWithConcurrency(
 	);
 }
 
+function abortReason(signal: AbortSignal) {
+	return (
+		signal.reason ??
+		new DOMException("The operation was aborted.", "AbortError")
+	);
+}
+
+function createDiscoveryRequestQueue(limit: number) {
+	let activeCount = 0;
+	const queuedRequests: QueuedDiscoveryRequest[] = [];
+
+	function drainQueue() {
+		while (activeCount < limit && queuedRequests.length > 0) {
+			const request = queuedRequests.shift();
+			if (!request || request.cancelled) continue;
+
+			request.started = true;
+			request.signal.removeEventListener("abort", request.onAbort);
+			activeCount += 1;
+			void Promise.resolve()
+				.then(request.task)
+				.then(request.resolve, request.reject)
+				.finally(() => {
+					activeCount -= 1;
+					drainQueue();
+				});
+		}
+	}
+
+	return (task: () => Promise<MuseumThemeDiscovery>, signal: AbortSignal) =>
+		new Promise<MuseumThemeDiscovery>((resolve, reject) => {
+			if (signal.aborted) {
+				reject(abortReason(signal));
+				return;
+			}
+
+			const request: QueuedDiscoveryRequest = {
+				task,
+				resolve,
+				reject,
+				signal,
+				started: false,
+				cancelled: false,
+				onAbort: () => undefined,
+			};
+			request.onAbort = () => {
+				if (request.started) return;
+				request.cancelled = true;
+				reject(abortReason(signal));
+				drainQueue();
+			};
+			signal.addEventListener("abort", request.onAbort, { once: true });
+			queuedRequests.push(request);
+			drainQueue();
+		});
+}
+
 export function useThemeCatalog(_options?: {
 	targetKey?: string;
 }): UseThemeCatalogResult {
@@ -110,6 +177,14 @@ export function useThemeCatalog(_options?: {
 		createInitialSchedule(queryClient),
 	);
 	const startedMuseumIds = useRef(new Set<string>());
+	const discoveryRequestQueue = useRef<
+		ReturnType<typeof createDiscoveryRequestQueue> | undefined
+	>(undefined);
+	if (!discoveryRequestQueue.current) {
+		discoveryRequestQueue.current =
+			createDiscoveryRequestQueue(INITIAL_ACTIVE_LIMIT);
+	}
+	const runDiscoveryRequest = discoveryRequestQueue.current;
 	const activeMuseumIdSet = useMemo(
 		() => new Set(schedule.activeMuseumIds),
 		[schedule.activeMuseumIds],
@@ -121,8 +196,13 @@ export function useThemeCatalog(_options?: {
 	const combined = useQueries({
 		queries: museums.map((museum) => ({
 			queryKey: ["museum-themes", museum.id] as const,
-			queryFn: ({ signal }: { signal: AbortSignal }) =>
-				discoverMuseumThemes(museum.id, signal),
+			queryFn: ({ signal }: { signal: AbortSignal }) => {
+				startedMuseumIds.current.add(museum.id);
+				return runDiscoveryRequest(
+					() => discoverMuseumThemes(museum.id, signal),
+					signal,
+				);
+			},
 			enabled: activeMuseumIdSet.has(museum.id),
 			staleTime: THEME_DISCOVERY_STALE_TIME,
 		})),
@@ -130,14 +210,6 @@ export function useThemeCatalog(_options?: {
 	});
 
 	useEffect(() => {
-		for (const museumId of schedule.activeMuseumIds) {
-			const index = museumIndexById.get(museumId);
-			if (index === undefined) continue;
-			if (combined.states[index]?.fetchStatus === "fetching") {
-				startedMuseumIds.current.add(museumId);
-			}
-		}
-
 		const settledMuseumIds = schedule.activeMuseumIds.filter((museumId) => {
 			const index = museumIndexById.get(museumId);
 			if (index === undefined) return false;

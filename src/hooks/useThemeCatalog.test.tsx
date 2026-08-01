@@ -307,6 +307,49 @@ describe("useThemeCatalog", () => {
 		expect(result.current.failedCount).toBe(0);
 	});
 
+	it("shares four network slots between ongoing discovery and failed retries", async () => {
+		const { wrapper } = createQueryClientWrapper();
+		const { result } = renderHook(() => useThemeCatalog(), { wrapper });
+
+		await waitFor(() =>
+			expect(discoverMuseumThemesMock).toHaveBeenCalledTimes(4),
+		);
+		act(() => attemptFor("museum-1").reject(new Error("Temporary failure")));
+		await waitFor(() =>
+			expect(discoverMuseumThemesMock).toHaveBeenCalledTimes(5),
+		);
+		await waitFor(() => expect(result.current.failedCount).toBe(1));
+
+		let retryPromise: Promise<void> | undefined;
+		act(() => {
+			retryPromise = result.current.refetchFailed();
+		});
+		await act(async () => Promise.resolve());
+
+		expect(discoverMuseumThemesMock).toHaveBeenCalledTimes(5);
+		expect(callCountFor("museum-1")).toBe(1);
+
+		act(() => attemptFor("museum-2").resolve(discovery("museum-2")));
+		await waitFor(() =>
+			expect(discoverMuseumThemesMock).toHaveBeenCalledTimes(6),
+		);
+		expect(callCountFor("museum-1")).toBe(2);
+		expect(callCountFor("museum-6")).toBe(0);
+
+		act(() => {
+			attemptFor("museum-1", 1).resolve(discovery("museum-1"));
+			attemptFor("museum-3").resolve(discovery("museum-3"));
+			attemptFor("museum-4").resolve(discovery("museum-4"));
+			attemptFor("museum-5").resolve(discovery("museum-5"));
+		});
+		await waitFor(() => expect(callCountFor("museum-6")).toBe(1));
+		act(() => attemptFor("museum-6").resolve(discovery("museum-6")));
+		await act(async () => {
+			await retryPromise;
+		});
+		await waitFor(() => expect(result.current.isComplete).toBe(true));
+	});
+
 	it("keeps mass failed retries within four active discovery requests", async () => {
 		const { wrapper } = createQueryClientWrapper();
 		const { result } = renderHook(() => useThemeCatalog(), { wrapper });
