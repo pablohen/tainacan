@@ -8,9 +8,28 @@ import { Section } from "@astryxdesign/core/Section";
 import { Skeleton } from "@astryxdesign/core/Skeleton";
 import { Heading, Text } from "@astryxdesign/core/Text";
 import { VStack } from "@astryxdesign/core/VStack";
+import { useEffect, useMemo, useState } from "react";
 import { useThemeCatalog } from "@/hooks/useThemeCatalog";
+import type { ThemeNode } from "@/types/themes";
 
 const HOME_THEME_LIMIT = 12;
+
+function appendThemeKeys(currentKeys: string[], candidates: ThemeNode[]) {
+	if (currentKeys.length >= HOME_THEME_LIMIT) return currentKeys;
+
+	const knownKeys = new Set(currentKeys);
+	const appendedKeys: string[] = [];
+	for (const candidate of candidates) {
+		if (knownKeys.has(candidate.key)) continue;
+		knownKeys.add(candidate.key);
+		appendedKeys.push(candidate.key);
+		if (currentKeys.length + appendedKeys.length >= HOME_THEME_LIMIT) break;
+	}
+
+	return appendedKeys.length > 0
+		? [...currentKeys, ...appendedKeys]
+		: currentKeys;
+}
 
 export function HomeThemesSection() {
 	const {
@@ -22,7 +41,20 @@ export function HomeThemesSection() {
 		isComplete,
 		refetchFailed,
 	} = useThemeCatalog();
-	const visibleThemes = graph.themes.slice(0, HOME_THEME_LIMIT);
+	const [sessionThemeKeys, setSessionThemeKeys] = useState<string[]>([]);
+	const visibleThemeKeys = useMemo(
+		() => appendThemeKeys(sessionThemeKeys, graph.themes),
+		[graph.themes, sessionThemeKeys],
+	);
+	useEffect(() => {
+		if (visibleThemeKeys !== sessionThemeKeys) {
+			setSessionThemeKeys(visibleThemeKeys);
+		}
+	}, [sessionThemeKeys, visibleThemeKeys]);
+	const visibleThemes = visibleThemeKeys.flatMap((key) => {
+		const node = graph.byKey[key];
+		return node ? [node] : [];
+	});
 	const hasThemes = visibleThemes.length > 0;
 	const isTotalFailure =
 		totalCount > 0 && failedCount === totalCount && !hasThemes;

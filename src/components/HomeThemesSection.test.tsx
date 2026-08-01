@@ -203,4 +203,36 @@ describe("HomeThemesSection", () => {
 			screen.queryByRole("link", { name: "Theme 13" }),
 		).not.toBeInTheDocument();
 	});
+
+	it("keeps the first twelve theme keys visible when later rankings change", () => {
+		const initialThemes = Array.from({ length: 12 }, (_, index) =>
+			theme(`theme ${index + 1}`, `Theme ${index + 1}`),
+		);
+		useThemeCatalogMock.mockReturnValue(
+			catalogResult({ graph: graphWith(initialThemes), completedCount: 2 }),
+		);
+		const { rerender } = render(<HomeThemesSection />);
+
+		useThemeCatalogMock.mockReturnValue(
+			catalogResult({
+				graph: graphWith([
+					theme("late leader", "Late Leader"),
+					theme("theme 1", "Theme One Updated"),
+					...initialThemes.slice(1),
+				]),
+				completedCount: 3,
+				isComplete: true,
+			}),
+		);
+		rerender(<HomeThemesSection />);
+
+		expect(screen.getAllByRole("link")).toHaveLength(12);
+		expect(screen.getByRole("link", { name: "Theme 12" })).toBeInTheDocument();
+		expect(
+			screen.getByRole("link", { name: "Theme One Updated" }),
+		).toBeInTheDocument();
+		expect(
+			screen.queryByRole("link", { name: "Late Leader" }),
+		).not.toBeInTheDocument();
+	});
 });
