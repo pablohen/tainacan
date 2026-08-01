@@ -94,7 +94,10 @@ function catalogResult(
 	};
 }
 
-function itemResult(museumId: string): ThemeMuseumItemsResult {
+function itemResult(
+	museumId: string,
+	overrides: Partial<ThemeMuseumItemsResult> = {},
+): ThemeMuseumItemsResult {
 	return {
 		museumId,
 		data: { items: [], wpTotal: 0, wpTotalPages: 0 },
@@ -102,6 +105,7 @@ function itemResult(museumId: string): ThemeMuseumItemsResult {
 		isError: false,
 		error: null,
 		refetch: vi.fn().mockResolvedValue(undefined),
+		...overrides,
 	};
 }
 
@@ -122,11 +126,12 @@ describe("ThemePageClient", () => {
 		expect(
 			screen.getByText("Finding this theme across museums…"),
 		).toBeInTheDocument();
-		expect(screen.getByText("Known institutions: 0")).toBeInTheDocument();
 		expect(
-			screen.getByText("Institutions checked: 2 of 5"),
+			screen.getByText("Museums checked globally: 2 of 5"),
 		).toBeInTheDocument();
-		expect(screen.getByText("Unavailable institutions: 0")).toBeInTheDocument();
+		expect(
+			screen.getByText("Museums unavailable globally: 0"),
+		).toBeInTheDocument();
 		expect(screen.queryByText("Theme not found")).not.toBeInTheDocument();
 	});
 
@@ -158,7 +163,61 @@ describe("ThemePageClient", () => {
 		]);
 		expect(screen.getByText("Known institutions: 2")).toBeInTheDocument();
 		expect(
-			screen.getByText("Institutions checked: 2 of 4"),
+			screen.getByText("Completed institutions: 2 of 2"),
+		).toBeInTheDocument();
+		expect(
+			screen.getByText("Museums checked globally: 2 of 4"),
+		).toBeInTheDocument();
+	});
+
+	it("separates federated item progress from global discovery progress", () => {
+		const node = {
+			...themeNode(),
+			museumCount: 3,
+			occurrences: [
+				...themeNode().occurrences,
+				occurrence("museu-casa-benjamin-constant", {
+					filterId: 18,
+					taxonomyId: 26,
+					termId: 48,
+				}),
+			],
+		};
+		useThemeCatalogMock.mockReturnValue(
+			catalogResult({
+				graph: graphWith(node),
+				completedCount: 2,
+				failedCount: 1,
+				totalCount: 4,
+			}),
+		);
+		useThemeMuseumItemsMock.mockReturnValue([
+			itemResult("major-jose-levy-sobrinho", {
+				data: undefined,
+				isPending: true,
+			}),
+			itemResult("museu-casa-da-princesa"),
+			itemResult("museu-casa-benjamin-constant", {
+				data: undefined,
+				isError: true,
+				error: new Error("Museum unavailable"),
+			}),
+		]);
+
+		render(<ThemePageClient themeKey="sacred art" />);
+
+		expect(screen.getByText("Federated theme results")).toBeInTheDocument();
+		expect(screen.getByText("Known institutions: 3")).toBeInTheDocument();
+		expect(
+			screen.getByText("Completed institutions: 2 of 3"),
+		).toBeInTheDocument();
+		expect(screen.getByText("Unavailable institutions: 1")).toBeInTheDocument();
+		expect(screen.getByText("Global theme discovery")).toBeInTheDocument();
+		expect(
+			screen.getByText("Museums checked globally: 2 of 4"),
+		).toBeInTheDocument();
+		expect(
+			screen.getByText("Museums unavailable globally: 1"),
 		).toBeInTheDocument();
 	});
 
@@ -202,7 +261,9 @@ describe("ThemePageClient", () => {
 		expect(
 			screen.getByText("Theme discovery is incomplete."),
 		).toBeInTheDocument();
-		expect(screen.getByText("Unavailable institutions: 1")).toBeInTheDocument();
+		expect(
+			screen.getByText("Museums unavailable globally: 1"),
+		).toBeInTheDocument();
 
 		fireEvent.click(
 			screen.getByRole("button", { name: "Retry unavailable museums" }),
@@ -231,7 +292,10 @@ describe("ThemePageClient", () => {
 		expect(
 			screen.getByText("Theme discovery is incomplete."),
 		).toBeInTheDocument();
-		expect(screen.getByText("Unavailable institutions: 1")).toBeInTheDocument();
+		expect(screen.getByText("Unavailable institutions: 0")).toBeInTheDocument();
+		expect(
+			screen.getByText("Museums unavailable globally: 1"),
+		).toBeInTheDocument();
 		expect(
 			screen.getByRole("region", { name: "Major José Levy Sobrinho" }),
 		).toBeInTheDocument();

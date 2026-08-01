@@ -10,43 +10,80 @@ import { VStack } from "@astryxdesign/core/VStack";
 import { RelatedThemes } from "@/components/RelatedThemes";
 import { ThemeMuseumSection } from "@/components/ThemeMuseumSection";
 import { useThemeCatalog } from "@/hooks/useThemeCatalog";
-import { useThemeMuseumItems } from "@/hooks/useThemeMuseumItems";
-import type { ThemeNode } from "@/types/themes";
+import {
+	type ThemeMuseumItemsResult,
+	useThemeMuseumItems,
+} from "@/hooks/useThemeMuseumItems";
 import { findTheme, getRelatedThemes } from "@/utils/themes";
 
 interface ThemePageClientProps {
 	themeKey: string;
 }
 
-interface DiscoveryProgressProps {
-	node: ThemeNode | null;
+interface GlobalDiscoveryProgressProps {
 	completedCount: number;
 	failedCount: number;
 	totalCount: number;
 }
 
-function DiscoveryProgress({
-	node,
+function GlobalDiscoveryProgress({
 	completedCount,
 	failedCount,
 	totalCount,
-}: DiscoveryProgressProps) {
+}: GlobalDiscoveryProgressProps) {
 	return (
 		<VStack gap={2} maxWidth={672}>
+			<Text type="label" as="p">
+				Global theme discovery
+			</Text>
 			<ProgressBar
-				label="Museum theme discovery progress"
+				label="Global theme discovery progress"
 				value={completedCount}
 				max={Math.max(totalCount, 1)}
 				isLabelHidden
 			/>
 			<Text type="supporting" as="p">
-				Known institutions: {node?.museumCount ?? 0}
+				Museums checked globally: {completedCount} of {totalCount}
 			</Text>
 			<Text type="supporting" as="p">
-				Institutions checked: {completedCount} of {totalCount}
+				Museums unavailable globally: {failedCount}
+			</Text>
+		</VStack>
+	);
+}
+
+function FederatedResultsProgress({
+	results,
+}: {
+	results: ThemeMuseumItemsResult[];
+}) {
+	const knownCount = results.length;
+	let completedCount = 0;
+	let unavailableCount = 0;
+	for (const result of results) {
+		if (!result.isPending) completedCount += 1;
+		if (result.isError) unavailableCount += 1;
+	}
+
+	return (
+		<VStack gap={2} maxWidth={672}>
+			<Text type="label" as="p">
+				Federated theme results
+			</Text>
+			<ProgressBar
+				label="Federated theme results progress"
+				value={completedCount}
+				max={Math.max(knownCount, 1)}
+				isLabelHidden
+			/>
+			<Text type="supporting" as="p">
+				Known institutions: {knownCount}
 			</Text>
 			<Text type="supporting" as="p">
-				Unavailable institutions: {failedCount}
+				Completed institutions: {completedCount} of {knownCount}
+			</Text>
+			<Text type="supporting" as="p">
+				Unavailable institutions: {unavailableCount}
 			</Text>
 		</VStack>
 	);
@@ -121,8 +158,7 @@ export function ThemePageClient({ themeKey }: ThemePageClientProps) {
 		return (
 			<VStack gap={4}>
 				<Heading level={1}>Finding this theme across museums…</Heading>
-				<DiscoveryProgress
-					node={node}
+				<GlobalDiscoveryProgress
 					completedCount={completedCount}
 					failedCount={failedCount}
 					totalCount={totalCount}
@@ -143,8 +179,8 @@ export function ThemePageClient({ themeKey }: ThemePageClientProps) {
 					This theme groups matching taxonomy terms from participating museum
 					collections.
 				</Text>
-				<DiscoveryProgress
-					node={node}
+				<FederatedResultsProgress results={museumItemResults} />
+				<GlobalDiscoveryProgress
 					completedCount={completedCount}
 					failedCount={failedCount}
 					totalCount={totalCount}
