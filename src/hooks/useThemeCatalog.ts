@@ -1,7 +1,12 @@
 "use client";
 
-import { type UseQueryResult, useQueries } from "@tanstack/react-query";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+	type QueryClient,
+	type UseQueryResult,
+	useQueries,
+	useQueryClient,
+} from "@tanstack/react-query";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
 	discoverMuseumThemes,
 	THEME_DISCOVERY_STALE_TIME,
@@ -11,6 +16,14 @@ import { museums } from "@/utils/museums";
 import { buildThemeGraph } from "@/utils/themes";
 
 const INITIAL_ACTIVE_LIMIT = 4;
+const museumIndexById = new Map(
+	museums.map((museum, index) => [museum.id, index]),
+);
+
+interface ThemeDiscoverySchedule {
+	activeMuseumIds: string[];
+	completedMuseumIds: string[];
+}
 
 export interface ThemeMuseumProgress {
 	museumId: string;
@@ -39,35 +52,147 @@ function combineThemeQueries(
 			isSuccess: result.isSuccess,
 		})),
 		refetches: results.map((result) => result.refetch),
-		settledCount: results.filter((result) => result.isSuccess || result.isError)
-			.length,
 	};
+}
+
+function hasFreshDiscovery(queryClient: QueryClient, museumId: string) {
+	const state = queryClient.getQueryState<MuseumThemeDiscovery>([
+		"museum-themes",
+		museumId,
+	]);
+
+	return (
+		state?.status === "success" &&
+		!state.isInvalidated &&
+		state.dataUpdatedAt + THEME_DISCOVERY_STALE_TIME > Date.now()
+	);
+}
+
+function createInitialSchedule(
+	queryClient: QueryClient,
+): ThemeDiscoverySchedule {
+	const completedMuseumIds = museums
+		.filter((museum) => hasFreshDiscovery(queryClient, museum.id))
+		.map((museum) => museum.id);
+	const completedMuseumIdSet = new Set(completedMuseumIds);
+	const activeMuseumIds = museums
+		.filter((museum) => !completedMuseumIdSet.has(museum.id))
+		.slice(0, INITIAL_ACTIVE_LIMIT)
+		.map((museum) => museum.id);
+
+	return { activeMuseumIds, completedMuseumIds };
+}
+
+async function runWithConcurrency(
+	tasks: (() => Promise<unknown>)[],
+	limit: number,
+) {
+	let nextTaskIndex = 0;
+
+	async function runWorker() {
+		while (nextTaskIndex < tasks.length) {
+			const taskIndex = nextTaskIndex;
+			nextTaskIndex += 1;
+			await tasks[taskIndex]();
+		}
+	}
+
+	await Promise.all(
+		Array.from({ length: Math.min(limit, tasks.length) }, () => runWorker()),
+	);
 }
 
 export function useThemeCatalog(_options?: {
 	targetKey?: string;
 }): UseThemeCatalogResult {
-	const [activeLimit, setActiveLimit] = useState(() =>
-		Math.min(INITIAL_ACTIVE_LIMIT, museums.length),
+	const queryClient = useQueryClient();
+	const [schedule, setSchedule] = useState(() =>
+		createInitialSchedule(queryClient),
+	);
+	const startedMuseumIds = useRef(new Set<string>());
+	const activeMuseumIdSet = useMemo(
+		() => new Set(schedule.activeMuseumIds),
+		[schedule.activeMuseumIds],
+	);
+	const completedMuseumIdSet = useMemo(
+		() => new Set(schedule.completedMuseumIds),
+		[schedule.completedMuseumIds],
 	);
 	const combined = useQueries({
-		queries: museums.map((museum, index) => ({
+		queries: museums.map((museum) => ({
 			queryKey: ["museum-themes", museum.id] as const,
 			queryFn: ({ signal }: { signal: AbortSignal }) =>
 				discoverMuseumThemes(museum.id, signal),
-			enabled: index < activeLimit,
+			enabled: activeMuseumIdSet.has(museum.id),
 			staleTime: THEME_DISCOVERY_STALE_TIME,
 		})),
 		combine: combineThemeQueries,
 	});
 
 	useEffect(() => {
-		const nextActiveLimit = Math.min(
-			museums.length,
-			INITIAL_ACTIVE_LIMIT + combined.settledCount,
-		);
-		setActiveLimit((currentLimit) => Math.max(currentLimit, nextActiveLimit));
-	}, [combined.settledCount]);
+		for (const museumId of schedule.activeMuseumIds) {
+			const index = museumIndexById.get(museumId);
+			if (index === undefined) continue;
+			if (combined.states[index]?.fetchStatus === "fetching") {
+				startedMuseumIds.current.add(museumId);
+			}
+		}
+
+		const settledMuseumIds = schedule.activeMuseumIds.filter((museumId) => {
+			const index = museumIndexById.get(museumId);
+			if (index === undefined) return false;
+			const state = combined.states[index];
+
+			return (
+				startedMuseumIds.current.has(museumId) &&
+				state?.fetchStatus === "idle" &&
+				(state.isSuccess || state.isError)
+			);
+		});
+
+		if (settledMuseumIds.length === 0) {
+			return;
+		}
+
+		for (const museumId of settledMuseumIds) {
+			startedMuseumIds.current.delete(museumId);
+		}
+
+		const settledMuseumIdSet = new Set(settledMuseumIds);
+		setSchedule((currentSchedule) => {
+			const actuallySettledMuseumIds = currentSchedule.activeMuseumIds.filter(
+				(museumId) => settledMuseumIdSet.has(museumId),
+			);
+			if (actuallySettledMuseumIds.length === 0) {
+				return currentSchedule;
+			}
+
+			const completedMuseumIds = [
+				...currentSchedule.completedMuseumIds,
+				...actuallySettledMuseumIds,
+			];
+			const completedMuseumIdsSet = new Set(completedMuseumIds);
+			const activeMuseumIds = currentSchedule.activeMuseumIds.filter(
+				(museumId) => !settledMuseumIdSet.has(museumId),
+			);
+			const activeMuseumIdsSet = new Set(activeMuseumIds);
+
+			for (const museum of museums) {
+				if (activeMuseumIds.length >= INITIAL_ACTIVE_LIMIT) {
+					break;
+				}
+				if (
+					!completedMuseumIdsSet.has(museum.id) &&
+					!activeMuseumIdsSet.has(museum.id)
+				) {
+					activeMuseumIds.push(museum.id);
+					activeMuseumIdsSet.add(museum.id);
+				}
+			}
+
+			return { activeMuseumIds, completedMuseumIds };
+		});
+	}, [combined.states, schedule.activeMuseumIds]);
 
 	const graph = useMemo(
 		() =>
@@ -84,34 +209,44 @@ export function useThemeCatalog(_options?: {
 				const state = combined.states[index];
 				let status: ThemeMuseumProgress["status"] = "queued";
 
-				if (state.fetchStatus === "fetching") {
+				if (
+					activeMuseumIdSet.has(museum.id) ||
+					state.fetchStatus === "fetching"
+				) {
 					status = "loading";
-				} else if (state.isSuccess) {
-					status = "success";
-				} else if (state.isError) {
+				} else if (completedMuseumIdSet.has(museum.id) && state.isError) {
 					status = "error";
+				} else if (completedMuseumIdSet.has(museum.id)) {
+					status = "success";
 				}
 
 				return { museumId: museum.id, status };
 			}),
-		[combined.states],
+		[activeMuseumIdSet, combined.states, completedMuseumIdSet],
 	);
 	const failedCount = useMemo(
-		() => combined.states.filter((state) => state.isError).length,
-		[combined.states],
+		() =>
+			museums.filter(
+				(museum, index) =>
+					completedMuseumIdSet.has(museum.id) && combined.states[index].isError,
+			).length,
+		[combined.states, completedMuseumIdSet],
 	);
-	const completedCount = combined.settledCount;
+	const completedCount = schedule.completedMuseumIds.length;
 	const totalCount = museums.length;
 	const isComplete = completedCount === totalCount;
 	const isInitialLoading =
 		completedCount === 0 && progress.some(({ status }) => status === "loading");
 	const refetchFailed = useCallback(async () => {
-		await Promise.all(
+		await runWithConcurrency(
 			combined.states.flatMap((state, index) =>
-				state.isError ? [combined.refetches[index]()] : [],
+				state.isError && completedMuseumIdSet.has(museums[index].id)
+					? [combined.refetches[index]]
+					: [],
 			),
+			INITIAL_ACTIVE_LIMIT,
 		);
-	}, [combined.refetches, combined.states]);
+	}, [combined.refetches, combined.states, completedMuseumIdSet]);
 
 	return {
 		graph,
