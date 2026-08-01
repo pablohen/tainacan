@@ -7,6 +7,7 @@ import { Link } from "@astryxdesign/core/Link";
 import { ProgressBar } from "@astryxdesign/core/ProgressBar";
 import { Heading, Text } from "@astryxdesign/core/Text";
 import { VStack } from "@astryxdesign/core/VStack";
+import { useEffect, useMemo, useState } from "react";
 import { RelatedThemes } from "@/components/RelatedThemes";
 import { ThemeMuseumSection } from "@/components/ThemeMuseumSection";
 import { useThemeCatalog } from "@/hooks/useThemeCatalog";
@@ -14,6 +15,7 @@ import {
 	type ThemeMuseumItemsResult,
 	useThemeMuseumItems,
 } from "@/hooks/useThemeMuseumItems";
+import type { ThemeNode } from "@/types/themes";
 import { findTheme, getRelatedThemes } from "@/utils/themes";
 
 interface ThemePageClientProps {
@@ -115,6 +117,62 @@ function DiscoveryWarning({
 	);
 }
 
+function StableMuseumSections({
+	node,
+	results,
+}: {
+	node: ThemeNode;
+	results: ThemeMuseumItemsResult[];
+}) {
+	const resultsByMuseum = useMemo(
+		() => new Map(results.map((result) => [result.museumId, result])),
+		[results],
+	);
+	const occurrencesByMuseum = useMemo(() => {
+		const grouped = new Map<string, ThemeNode["occurrences"]>();
+
+		for (const occurrence of node.occurrences) {
+			const occurrences = grouped.get(occurrence.museumId) ?? [];
+			occurrences.push(occurrence);
+			grouped.set(occurrence.museumId, occurrences);
+		}
+
+		return grouped;
+	}, [node]);
+	const observedMuseumIds = useMemo(
+		() => [...occurrencesByMuseum.keys()],
+		[occurrencesByMuseum],
+	);
+	const [museumOrder, setMuseumOrder] = useState(observedMuseumIds);
+
+	useEffect(() => {
+		setMuseumOrder((currentOrder) => {
+			const knownMuseumIds = new Set(currentOrder);
+			const appendedMuseumIds = observedMuseumIds.filter(
+				(museumId) => !knownMuseumIds.has(museumId),
+			);
+
+			return appendedMuseumIds.length > 0
+				? [...currentOrder, ...appendedMuseumIds]
+				: currentOrder;
+		});
+	}, [observedMuseumIds]);
+
+	return museumOrder.map((museumId) => {
+		const occurrences = occurrencesByMuseum.get(museumId);
+		const result = resultsByMuseum.get(museumId);
+		if (!occurrences || !result) return null;
+
+		return (
+			<ThemeMuseumSection
+				key={museumId}
+				result={result}
+				occurrences={occurrences}
+			/>
+		);
+	});
+}
+
 export function ThemePageClient({ themeKey }: ThemePageClientProps) {
 	const {
 		graph,
@@ -127,19 +185,6 @@ export function ThemePageClient({ themeKey }: ThemePageClientProps) {
 	const node = findTheme(graph, themeKey);
 	const museumItemResults = useThemeMuseumItems(node);
 	const relatedThemes = getRelatedThemes(graph, themeKey);
-	const resultsByMuseum = new Map(
-		museumItemResults.map((result) => [result.museumId, result]),
-	);
-	const occurrencesByMuseum = new Map<
-		string,
-		NonNullable<typeof node>["occurrences"]
-	>();
-
-	for (const occurrence of node?.occurrences ?? []) {
-		const occurrences = occurrencesByMuseum.get(occurrence.museumId) ?? [];
-		occurrences.push(occurrence);
-		occurrencesByMuseum.set(occurrence.museumId, occurrences);
-	}
 
 	if (!node && isComplete && failedCount === 0) {
 		return (
@@ -192,18 +237,11 @@ export function ThemePageClient({ themeKey }: ThemePageClientProps) {
 				refetchFailed={refetchFailed}
 			/>
 
-			{[...occurrencesByMuseum.entries()].map(([museumId, occurrences]) => {
-				const result = resultsByMuseum.get(museumId);
-				if (!result) return null;
-
-				return (
-					<ThemeMuseumSection
-						key={museumId}
-						result={result}
-						occurrences={occurrences}
-					/>
-				);
-			})}
+			<StableMuseumSections
+				key={node.key}
+				node={node}
+				results={museumItemResults}
+			/>
 
 			<RelatedThemes themes={relatedThemes} />
 		</VStack>
