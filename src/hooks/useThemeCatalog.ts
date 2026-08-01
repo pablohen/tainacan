@@ -306,7 +306,9 @@ export function useThemeCatalog(_options?: {
 	);
 	const completedCount = schedule.completedMuseumIds.length;
 	const totalCount = museums.length;
-	const isComplete = completedCount === totalCount;
+	const isComplete =
+		completedCount === totalCount &&
+		combined.states.every(({ fetchStatus }) => fetchStatus === "idle");
 	const isInitialLoading =
 		completedCount === 0 && progress.some(({ status }) => status === "loading");
 	const refetchFailed = useCallback(async () => {

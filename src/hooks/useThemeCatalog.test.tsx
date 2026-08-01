@@ -296,6 +296,8 @@ describe("useThemeCatalog", () => {
 			retryPromise = result.current.refetchFailed();
 		});
 		await waitFor(() => expect(callCountFor("museum-1")).toBe(2));
+		await waitFor(() => expect(result.current.failedCount).toBe(0));
+		expect(result.current.isComplete).toBe(false);
 		act(() =>
 			attemptFor("museum-1", 1).resolve(discovery("museum-1", "Sacred Art")),
 		);
