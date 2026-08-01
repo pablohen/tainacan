@@ -182,6 +182,34 @@ describe("ThemePageClient", () => {
 		).not.toBeInTheDocument();
 	});
 
+	it("keeps a missing theme retryable when completed discovery has failures", () => {
+		const refetchFailed = vi.fn().mockResolvedValue(undefined);
+		useThemeCatalogMock.mockReturnValue(
+			catalogResult({
+				completedCount: 4,
+				failedCount: 1,
+				isComplete: true,
+				refetchFailed,
+			}),
+		);
+
+		render(<ThemePageClient themeKey="missing" />);
+
+		expect(screen.queryByText("Theme not found")).not.toBeInTheDocument();
+		expect(
+			screen.getByText("Finding this theme across museums…"),
+		).toBeInTheDocument();
+		expect(
+			screen.getByText("Theme discovery is incomplete."),
+		).toBeInTheDocument();
+		expect(screen.getByText("Unavailable institutions: 1")).toBeInTheDocument();
+
+		fireEvent.click(
+			screen.getByRole("button", { name: "Retry unavailable museums" }),
+		);
+		expect(refetchFailed).toHaveBeenCalledOnce();
+	});
+
 	it("summarizes failed discovery without hiding successful museum sections", () => {
 		const node = themeNode();
 		const refetchFailed = vi.fn().mockResolvedValue(undefined);

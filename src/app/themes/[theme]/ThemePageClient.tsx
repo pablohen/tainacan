@@ -52,6 +52,32 @@ function DiscoveryProgress({
 	);
 }
 
+function DiscoveryWarning({
+	failedCount,
+	refetchFailed,
+}: {
+	failedCount: number;
+	refetchFailed: () => Promise<void>;
+}) {
+	if (failedCount === 0) return null;
+
+	return (
+		<Banner
+			status="warning"
+			container="section"
+			title="Theme discovery is incomplete."
+			description="Some museums could not be checked, but available results remain visible."
+			endContent={
+				<Button
+					label="Retry unavailable museums"
+					variant="secondary"
+					clickAction={refetchFailed}
+				/>
+			}
+		/>
+	);
+}
+
 export function ThemePageClient({ themeKey }: ThemePageClientProps) {
 	const {
 		graph,
@@ -78,7 +104,7 @@ export function ThemePageClient({ themeKey }: ThemePageClientProps) {
 		occurrencesByMuseum.set(occurrence.museumId, occurrences);
 	}
 
-	if (!node && isComplete) {
+	if (!node && isComplete && failedCount === 0) {
 		return (
 			<Center minHeight={320}>
 				<VStack gap={4} maxWidth={448} hAlign="center">
@@ -101,6 +127,10 @@ export function ThemePageClient({ themeKey }: ThemePageClientProps) {
 					failedCount={failedCount}
 					totalCount={totalCount}
 				/>
+				<DiscoveryWarning
+					failedCount={failedCount}
+					refetchFailed={refetchFailed}
+				/>
 			</VStack>
 		);
 	}
@@ -121,21 +151,10 @@ export function ThemePageClient({ themeKey }: ThemePageClientProps) {
 				/>
 			</VStack>
 
-			{failedCount > 0 ? (
-				<Banner
-					status="warning"
-					container="section"
-					title="Theme discovery is incomplete."
-					description="Some museums could not be checked, but available results remain visible."
-					endContent={
-						<Button
-							label="Retry unavailable museums"
-							variant="secondary"
-							clickAction={refetchFailed}
-						/>
-					}
-				/>
-			) : null}
+			<DiscoveryWarning
+				failedCount={failedCount}
+				refetchFailed={refetchFailed}
+			/>
 
 			{[...occurrencesByMuseum.entries()].map(([museumId, occurrences]) => {
 				const result = resultsByMuseum.get(museumId);
