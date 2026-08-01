@@ -5,12 +5,14 @@ interface MuseumQueryErrorBannerProps {
 	title: string;
 	description: string;
 	onRetry: () => void;
+	retryLabel?: string;
 }
 
 export function MuseumQueryErrorBanner({
 	title,
 	description,
 	onRetry,
+	retryLabel = "Tentar novamente",
 }: MuseumQueryErrorBannerProps) {
 	return (
 		<Banner
@@ -18,7 +20,7 @@ export function MuseumQueryErrorBanner({
 			title={title}
 			description={description}
 			container="card"
-			endContent={<Button label="Tentar novamente" onClick={onRetry} />}
+			endContent={<Button label={retryLabel} onClick={onRetry} />}
 		/>
 	);
 }
