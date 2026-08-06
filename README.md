@@ -12,7 +12,7 @@ bun install
 bun run dev
 bun run build
 bun run start
-bun run check        # typecheck + lint + build
+bun run check        # typecheck + lint + test + build
 bun run typecheck
 bun run lint
 bun run test         # testes unitários (Vitest)
@@ -53,11 +53,15 @@ Arquivos gerados: `src/schemas/generated/`, `src/services/generated/`. Não edit
 
 ## Front-end
 
-- TypeScript
-- React
-- Next.js
-- Astryx (`@astryxdesign/core` + `theme-neutral`)
+- TypeScript 7
+- React 19
+- Next.js 16
+- Astryx 0.3 (`@astryxdesign/core` + `theme-neutral`)
 - TanStack Query (React Query)
 - Axios
-- Zod
+- Zod 4
 - nuqs
+- Vitest (unit tests)
+- Biome (lint/format)
+
+Após atualizar `@astryxdesign/core`, rode `bun run astryx upgrade --from <versão-anterior> --apply` (o CLI 0.3+ exige `--from`). Descubra componentes com `bun run astryx component <Name>`.

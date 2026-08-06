@@ -27,7 +27,7 @@ Package manager: **Bun**. Next.js CLI (`dev` / `build` / `start`) runs under Bun
 bun run dev              # development server
 bun run build            # production build
 bun run start            # production server
-bun run check            # typecheck + lint + build
+bun run check            # typecheck + lint + test + build
 bun run typecheck        # tsc --noEmit
 bun run lint             # biome check .
 bun run test             # vitest unit tests
@@ -113,7 +113,7 @@ Only commit when explicitly asked. Never amend or push unless asked.
 - Reintroduce Tailwind, shadcn/ui, framer-motion, or direct lucide-react imports for app UI
 
 <!-- ASTRYX:START -->
-Astryx v0.1.4 · 90+ components
+Astryx v0.3.0 · 155 components
 CLI: run every command as `bunx astryx <cmd>` (shown below as `astryx ...`).
 
 SETUP (once, in your app entry e.g. main.tsx) — without these, components render unstyled:
@@ -130,14 +130,15 @@ RULES:
 - Frame first: pick the shell (AppShell / Layout+LayoutPanel) and budget regions in px BEFORE writing content (`astryx docs layout`).
 - Dense data = rows (Table, List/Item) edge-to-edge — never Card-wrapped list items. Card = dashboard widgets, galleries, settings groups only.
 - Status → StatusDot/Token; Badge only for counts and enumerated states, never decoration.
-- Custom styling: component props first; StyleX `xstyle` or tokens. No raw hex/px for brand colors.
+- Custom styling: component props first; else style/className with tokens — var(--color-*|--spacing-*|--radius-*). No raw hex/px. (No StyleX/Tailwind compiler here — don't use xstyle/utility classes.)
 - Tokens for every value (`astryx docs tokens`). Brand/accent via `astryx theme` — never override --color-* in :root.
+- SELF-CHECK before you finish: re-read the file and replace any raw <div>/<span> layout, imported .css/@apply, or hardcoded value (#hex, 16px) with the component or a token (var(--color-*|--spacing-*|…)). If unsure a component/prop exists, run `astryx component <Name>` / `astryx search "<thing>"`; don't hand-roll CSS.
 
 MORE CLI:
   search "<query>"   find any component / hook / doc / template / block
-  component --list   90+ components by category
+  component --list   155 components by category
   template --list    page + block recipes
-  docs <topic>       color, elevation, icons, illustrations, layout, migration, motion, principles, shape, spacing, styling, theme, tokens, typography
+  docs <topic>       color, elevation, icons, illustrations, internationalization, layout, migration, motion, principles, shape, spacing, styling, theme, tokens, typography
   swizzle <Name>     eject component source for deep customization
-  upgrade --apply    run after any @astryxdesign/core bump
+  upgrade --from <ver> --apply    run after any @astryxdesign/core bump (CLI 0.3+ requires --from)
 <!-- ASTRYX:END -->
