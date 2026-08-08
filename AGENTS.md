@@ -142,3 +142,12 @@ MORE CLI:
   swizzle <Name>     eject component source for deep customization
   upgrade --from <ver> --apply    run after any @astryxdesign/core bump (CLI 0.3+ requires --from)
 <!-- ASTRYX:END -->
+
+## Cursor Cloud specific instructions
+
+Frontend-only Next.js app; there is no backend, database, or Docker to run. Commands are in `## Commands` above and `package.json`.
+
+- `bun` is on `PATH` via `~/.bashrc`. `package.json` pins `packageManager: bun@1.4.0`, but that release does not exist upstream (404); the environment uses the latest available `1.x` instead, which runs `dev`/`build`/`typecheck`/`lint` fine. Bun does not enforce the `packageManager` field here, so ignore the mismatch.
+- Run the dev server with `bun run dev` (http://localhost:3000). Start it in a background/tmux session — it is long-running.
+- All collection/item data comes from live external Tainacan (WordPress) REST APIs listed in `src/utils/museums.ts`; the VM needs outbound internet. Requests can be slow (~8s) and some museums legitimately return no items or broken image thumbnails — that is upstream data, not a bug. Pick a well-populated collection (e.g. "Museu do Ouro") when smoke-testing.
+- Favorites persist in browser localStorage only (no server state).
