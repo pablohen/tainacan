@@ -23,27 +23,27 @@
 		"biome:lint": "biome lint ."
 	},
 	"dependencies": {
-		"@astryxdesign/core": "^0.3.0",
-		"@astryxdesign/theme-neutral": "^0.3.0",
-		"@stylexjs/stylex": "0.19.0",
-		"@tanstack/react-query": "^5.101.4",
-		"axios": "^1.19.0",
-		"next": "16.3.0",
-		"nuqs": "^2.9.5",
-		"react": "^19.2.8",
-		"react-dom": "^19.2.8",
+		"@astryxdesign/core": "^0.6.2",
+		"@astryxdesign/theme-neutral": "^0.6.2",
+		"@stylexjs/stylex": "0.19.1",
+		"@tanstack/react-query": "^5.103.1",
+		"axios": "^1.20.0",
+		"next": "16.3.5",
+		"nuqs": "^2.10.1",
+		"react": "^19.3.0",
+		"react-dom": "^19.3.0",
 		"use-debounce": "^10.1.1",
-		"zod": "^4.4.3"
+		"zod": "^4.6.5"
 	},
 	"devDependencies": {
-		"@astryxdesign/cli": "^0.3.0",
-		"@biomejs/biome": "2.5.7",
-		"@tanstack/react-query-devtools": "^5.101.4",
-		"@types/node": "^26.1.2",
-		"@types/react": "^19.2.18",
-		"lefthook": "^2.1.10",
-		"orval": "^8.23.0",
+		"@astryxdesign/cli": "^0.6.2",
+		"@biomejs/biome": "2.5.14",
+		"@tanstack/react-query-devtools": "^5.103.1",
+		"@types/node": "^26.6.2",
+		"@types/react": "^19.3.0",
+		"lefthook": "^2.1.14",
+		"orval": "^8.35.0",
 		"typescript": "^7.0.2",
-		"vitest": "^4.1.10"
+		"vitest": "^5.0.1"
 	}
 }
